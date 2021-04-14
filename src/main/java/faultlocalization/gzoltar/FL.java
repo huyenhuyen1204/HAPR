@@ -1,0 +1,62 @@
+package faultlocalization.gzoltar;
+
+import faultlocalization.configure.Configuration;
+
+import java.io.File;
+
+public class FL {
+
+    /**
+     * Input:
+     * 1. Defects4J project path. e.g., ../Defects4JData/
+     * 2. Output path: e.g., suspiciousCodePositions/
+     * 3. The project name: e.g., Chart_1
+     * <p>
+     * Output:
+     * 1. a ranked list of suspicious statements for a buggy project.
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        String outputPath = Configuration.suspPositionsFilePath;//args[0]; // Configuration.SUSPICIOUS_POSITIONS_FILE_APTH;
+
+        //=====Test for student=======
+        String path = Configuration.OASIS_PROJECT_PATH;
+        String projectName = "83280";//args[2]; project test name for student
+        //=====End test for student
+
+        //=====Test for Project =====
+//        String path = Configuration.BUGGY_PROJECTS_PATH;//args[1]; // Configuration.BUGGY_PROJECTS_PATH;
+//        String projectName = "Chart_8";//args[2]; project test name for project
+        //=====End test for project
+
+        String metricStr = Configuration.faultLocalizationMetric; //caculator dupplicate
+
+        if (!projectName.contains("_")) {
+            //Every thing in a folder
+            StudentFaultLocalization st = new StudentFaultLocalization();
+            st.locateSuspiciousCode(path, projectName, outputPath, metricStr);
+        } else {
+            ProjectLocalization projectLocalization = new ProjectLocalization();
+            projectLocalization.locateSuspiciousCode(path, projectName, outputPath, metricStr);
+        }
+    }
+
+    public static void faultLocalization(String projectPath, String projectName, String metric) {
+        String outputPath = Configuration.suspPositionsFilePath;//args[0]; // Configuration.SUSPICIOUS_POSITIONS_FILE_APTH;
+        String path = projectPath + File.separator;
+
+        String metricStr = metric; //caculator dupplicate
+
+        if (!projectName.contains("_")) {
+            //Every thing in a folder
+            StudentFaultLocalization st = new StudentFaultLocalization();
+            st.locateSuspiciousCode(path, projectName, outputPath, metricStr);
+        } else {
+            ProjectLocalization projectLocalization = new ProjectLocalization();
+            projectLocalization.locateSuspiciousCode(path, projectName, outputPath, metricStr);
+        }
+    }
+
+
+}

@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="flowless-0.6">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/flowless-0.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/reactfx-2.0-M5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/richtextfx-fat-0.10.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

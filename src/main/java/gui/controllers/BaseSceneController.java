@@ -1,7 +1,6 @@
 package gui.controllers;
 
 import faultlocalization.configure.Configuration;
-import faultlocalization.gzoltar.FL;
 import gui.FLTask;
 import gui.objects.TreeNode;
 import gui.views.ProjectTreeView;
@@ -36,7 +35,7 @@ public class BaseSceneController implements Initializable {
     private static Logger logger = LoggerFactory.getLogger(BaseSceneController.class);
 
     public void initialize(URL location, ResourceBundle resources) {
-        openFolder(new File("C:\\Users\\Dell\\Desktop\\APR_test\\data_test\\83280"));
+        openFolder(new File("C:\\Users\\Dell\\Desktop\\APR_test\\data_test\\81514"));
         pbProgressBar.setVisible(false);
         treeView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) { // double click

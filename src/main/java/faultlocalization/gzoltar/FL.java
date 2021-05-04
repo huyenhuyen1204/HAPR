@@ -22,7 +22,8 @@ public class FL {
 
         //=====Test for student=======
         String path = Configuration.OASIS_PROJECT_PATH;
-        String projectName = "83280";//args[2]; project test name for student
+        String projectName = "81514";//args[2]; project test name for student
+//        String projectName = "83918";//args[2]; project test name for student
         //=====End test for student
 
         //=====Test for Project =====

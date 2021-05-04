@@ -3,8 +3,10 @@ package gui;
 import gui.controllers.MasterController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class AppStart extends Application {
@@ -15,12 +17,13 @@ public class AppStart extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        System.out.println(getClass());
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/BaseScene.fxml"));
+        FXMLLoader loader = new FXMLLoader(Object.class.getResource("/FXML/BaseScene.fxml"));
         try {
             Parent parent = loader.load();
+            Screen screen = Screen.getPrimary();
+            Rectangle2D bounds = screen.getVisualBounds();
 
-            primaryStage.setScene(new Scene(parent, 1000, 700));
+            primaryStage.setScene(new Scene(parent, bounds.getWidth() , bounds.getHeight()- 100));
             primaryStage.show();
 
             MasterController.setPrimaryStage(primaryStage);

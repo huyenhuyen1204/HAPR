@@ -2,7 +2,6 @@ package dataProcessing;
 
 import dataProcessing.object.Behavior;
 import dataProcessing.object.RawResult;
-import dataProcessing.object.StudentSubmission;
 import faultlocalization.configure.Configuration;
 import faultlocalization.gzoltar.FL;
 import faultlocalization.objects.SuspiciousPosition;
@@ -13,84 +12,153 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.sql.SQLOutput;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class DataProcessing {
     public static final String PATH_SUBMITIONS = "C:\\Users\\Dell\\Desktop\\APR_test\\data_test";
-    public static final String PATH_OUT_BEHAVIOR = "C:\\Users\\Dell\\Desktop\\APR_test\\detectedBug";
+    public static final String PATH_OUT_BEHAVIOR = "C:\\Users\\Dell\\Desktop\\APR_test\\detected_bug";
     public static final String PATH_SUSPICIUS_POSITION = "C:\\Users\\Dell\\IdeaProjects\\HAPR\\SuspiciousCodePositions";
-    public static final String FILE_OUT_DATA_PROCESS = "C:\\Users\\Dell\\Desktop\\APR_test\\data_test\\data_process.csv";
-    public static List<RawResult> results = new ArrayList<>(); //For export csv file;
-    public static Map<Integer, Integer> lines = new HashMap<>();
-    public static int count = 0;
+    public static final String FILE_OUT_DATA_PROCESS = PATH_OUT_BEHAVIOR + "\\data_process.csv";
+
 
     public static void main(String[] args) {
-        String pathSubmits = "C:\\Users\\Dell\\Desktop\\APR_test\\mysql-files\\submits1243.txt";
-        String content = FileHelper.readFile(new File(pathSubmits));
-        String[] listSubmits = content.split(";");
-        String code100 = listSubmits[0];
-        System.out.println(content.replace(";", " "));
-//        //STEP [1] copy result of: code100;codeBuggy1;CodeBuggy2 ...
-//        // Run sh to automatic copy
-//                try
-//        {
-//            String pathSh = "C:\\Program Files\\Git\\git-bash.exe C:\\Users\\Dell\\Desktop\\APR_test\\CodeCopyData.sh";
-//            String cmd = pathSh + " " + content.replace(";", " ");
-//            Runtime rt = Runtime.getRuntime();
-//            Process proc = rt.exec(cmd);
-//
-//        } catch (Throwable t)
-//        {
-//            t.printStackTrace();
-//        }
-//        //======== End run sh to automatic copy =========
+//        String pathSubmits = "C:\\Users\\Dell\\Desktop\\APR_test\\mysql-files\\submits1243.txt";
+        File file = new File("C:\\Users\\Dell\\Desktop\\APR_test\\mysql-files");
+        File[] files = file.listFiles();
+        assert files != null;
+        for (File f : files) {
+            List<RawResult> results = new ArrayList<>(); //For export csv file;
+            Map<Integer, Integer> lines = new HashMap<>();
+            int count = 0;
+            String[] splits = f.getName().split("_");
+            if (!splits[1].equals("7")) {
+                String submitContent = FileHelper.readFile(f);
+                String[] listSubmits = submitContent.split(";");
+                if (listSubmits.length > 1) {
+                    String code100 = listSubmits[0];
+                    System.out.println(submitContent.replace(";", " "));
+                    int id = Integer.parseInt(splits[3].replace(".txt", ""));
+//                    if (id > 1000 && id <= 1500) {
+//                        for (String file1 : listSubmits) {
+//                            FileHelper.deleteFile(PATH_SUBMITIONS + File.separator + file1);
+//                        }
+//                        //STEP [1]: Copy result of: code100;codeBuggy1;CodeBuggy2. Run codeCopyData.sh to automatic copy
+//                        step1(splits[1], submitContent);
+//                    }
+//                    //STEP [2]: Using JGit write difference and behavior off Buggy and behavior Fixed to PATH_OUT_BEHAVIOR
+//                    step2(code100, listSubmits);
+//                    //STEP [3]: Determine Fault localization of submit
+//                    step3(listSubmits);
+//                    //STEP [4]:  Analysis and write Result to file
+                    step4(code100, listSubmits, lines, results, count);
+            }
+        }
+    }
 
-//        //STEP [2] ===========Write difference and behavior off Buggy and Fixed to File ===========
-//        File fixedFolder = new File(PATH_SUBMITIONS + File.separator + code100);
-//
-//        for (int i = 1; i < listSubmits.length; i++) {
-//            File buggyFolder = new File(PATH_SUBMITIONS + File.separator + listSubmits[i]);
-//            diffTwoFolder(buggyFolder, fixedFolder, PATH_OUT_BEHAVIOR);
-//        }
-//        //===========Write difference and behavior off Buggy and Fixed to File ===========
+}
 
-//        //STEP [3] ==========Determine Faulocalization =========
-//        for (int i = 1; i < listSubmits.length; i++) {
-//                FL.faultLocalization(PATH_SUBMITIONS, listSubmits[i], Configuration.faultLocalizationMetric);
-//        }
-//        //==============End Determine Faulocalization
+    /**
+     * STEP [1] copy result of: code100;codeBuggy1;CodeBuggy2 ...
+     * Run sh to automatic copy
+     *
+     * @param content submitContent
+     */
+    public static void step1(String problemId, String content) {
+        try {
+            String pathSh = "C:\\Program Files\\Git\\git-bash.exe C:\\Users\\Dell\\Desktop\\APR_test\\codeCopyData_" + problemId + ".sh";
+            String cmd = pathSh + " " + content.replace(";", " ");
+            Runtime rt = Runtime.getRuntime();
+            Process proc = rt.exec(cmd);
 
-        //STEP [4] ============Extract Buggy with localization and history code
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    /**
+     * Write difference and behavior off Buggy and Fixed to File
+     *
+     * @param code100
+     * @param listSubmits
+     */
+    public static void step2(String code100, String[] listSubmits) {
+        File fixedFolder = new File(PATH_SUBMITIONS + File.separator + code100);
+        for (int i = 1; i < listSubmits.length; i++) {
+            File buggyFolder = new File(PATH_SUBMITIONS + File.separator + listSubmits[i]);
+            diffTwoFolder(buggyFolder, fixedFolder, PATH_OUT_BEHAVIOR);
+        }
+    }
+
+    /**File not found
+     * Determine Fault localization of submit
+     *
+     * @param listSubmits
+     */
+    public static void step3(String[] listSubmits) {
+        for (int i = 1; i < listSubmits.length; i++) {
+            FL.faultLocalization(PATH_SUBMITIONS, listSubmits[i], Configuration.faultLocalizationMetric);
+        }
+    }
+
+
+    /**
+     * Save all result data Processing to file
+     *
+     * @param code100
+     * @param listSubmits
+     */
+    public static void step4(String code100, String[] listSubmits, Map<Integer, Integer> lines, List<RawResult> results, int count) {
         for (int i = 1; i < listSubmits.length; i++) {
             String pathSus = PATH_SUSPICIUS_POSITION + File.separator + listSubmits[i] + File.separator + Configuration.faultLocalizationMetric + ".txt";
             String pathToDetectedBug = PATH_OUT_BEHAVIOR + File.separator + listSubmits[i] + "_" + code100;
-            extractBuggy(pathToDetectedBug, new File(pathSus));
+            extractBuggy(pathToDetectedBug, new File(pathSus), lines, results, count);
         }
+        //
+        String pathToFixedFolder = PATH_SUBMITIONS + File.separator + code100;
+        //Read String from line
+        for (int i = 0; i < results.size(); i++) {
+            RawResult result = results.get(i);
+            String pathToFile = PATH_SUBMITIONS + File.separator + result.getProjectName()
+                    + File.separator + result.getClassName() + ".java";
+            String[] lineSplits = result.getLine().replace("(", "").replace(")", "")
+                    .split(";");
+            String[] buggyLine = lineSplits[0].split("-");
+            String[] fixedLine = lineSplits[1].split("-");
+//            if (Integer.valueOf(buggyLine[1]) - Integer.valueOf(buggyLine[0]) < 5) {
+            String buggyContent = FileHelper.readCodeFromLineToLine(new File(pathToFile), Integer.parseInt(buggyLine[0]),
+                    Integer.parseInt(buggyLine[1]));
+            String pathToFixedCode = pathToFixedFolder + File.separator + result.getClassName() + ".java";
+            String fixedContend = FileHelper.readCodeFromLineToLine(new File(pathToFixedCode), Integer.parseInt(fixedLine[0]),
+                    Integer.parseInt(fixedLine[1]));
+            results.get(i).setBuggyContent(buggyContent);
+            results.get(i).setFixedContent(fixedContend);
+//            }
+
+        }
+//        WRITE to CSV in $PATH_OUT_BEHAVIOR
         if (results != null) {
             writeRawToCSV(results);
         }
-
-
     }
 
     public static void diffTwoFolder(File folderBuggy, File folderFixed, String pathOutBehavior) {
         if (folderBuggy != null && folderFixed != null) {
             File[] buggyFiles = folderBuggy.listFiles();
             File[] fixedFiles = folderFixed.listFiles();
-            for (int i = 0; i < buggyFiles.length; i++) {
-                File elementBuggy = buggyFiles[i];
-                for (int j = 0; j < fixedFiles.length; j++) {
-                    File elementFixed = fixedFiles[j];
-                    if (!elementBuggy.isDirectory() && !elementFixed.isDirectory()) {
-                        String nameBuggyClass = elementBuggy.getName();
-                        String nameFixedClass = elementFixed.getName();
-                        if (!nameBuggyClass.endsWith(".class") && !nameBuggyClass.endsWith(".zip") && !nameBuggyClass.endsWith(".txt") &&
-                                !nameBuggyClass.endsWith("Test.java")) {
-                            if (nameBuggyClass.equals(nameFixedClass)) {
-                                getDiff(elementBuggy, elementFixed, pathOutBehavior);
+            if (buggyFiles!= null) {
+                for (int i = 0; i < buggyFiles.length; i++) {
+                    File elementBuggy = buggyFiles[i];
+                    for (int j = 0; j < fixedFiles.length; j++) {
+                        File elementFixed = fixedFiles[j];
+                        if (!elementBuggy.isDirectory() && !elementFixed.isDirectory()) {
+                            String nameBuggyClass = elementBuggy.getName();
+                            String nameFixedClass = elementFixed.getName();
+                            if (!nameBuggyClass.endsWith(".class") && !nameBuggyClass.endsWith(".zip") && !nameBuggyClass.endsWith(".txt") &&
+                                    !nameBuggyClass.endsWith("Test.java")) {
+                                if (nameBuggyClass.equals(nameFixedClass)) {
+                                    getDiff(elementBuggy, elementFixed, pathOutBehavior);
+                                }
                             }
                         }
                     }
@@ -138,6 +206,8 @@ public class DataProcessing {
                 }
             }
         }
+
+        System.out.println(out);
         // Save diff to File
         if (diffList.size() > 0) {
             String classname = buggyFile.getName().replace(".java", "");
@@ -177,7 +247,9 @@ public class DataProcessing {
         return behaviorInfo;
     }
 
-    public static void extractBuggy(String pathToBehaviorFolder, File faultLocalizationFile) {
+    public static void extractBuggy(String pathToBehaviorFolder, File faultLocalizationFile,
+                                    Map<Integer, Integer> lines,
+                                    List<RawResult> results, int count) {
         if (!faultLocalizationFile.isDirectory()) {
             List<String> susClassNameList = new ArrayList<>();
             List<SuspiciousPosition> suspiciousPositions = FileHelper.readSuspiciousCodeFromFile(
@@ -188,33 +260,53 @@ public class DataProcessing {
                 List<SuspiciousPosition> suspiciousPositionList = suspiciousPositions.stream().filter(suspiciousPosition
                         -> suspiciousPosition.classPath.replace(".", "")
                         .equals(justSusName)).collect(Collectors.toList());
-                List<Behavior> behaviors = findBehaviorFile(pathToBehaviorFolder,justSusName);
+                List<Behavior> behaviors = findBehaviorFile(pathToBehaviorFolder, justSusName);
                 if (behaviors.size() > 0) {
-                    compareBuggyLine(suspiciousPositionList, behaviors);
+                    File file = new File((pathToBehaviorFolder));
+                    if (file != null) {
+                        String[] splits = file.getName().split("_");
+                        compareBuggyLine(suspiciousPositionList, behaviors, splits[0], lines, results, count);
+                    }
                 }
             }
         }
     }
 
-    public static void compareBuggyLine(List<SuspiciousPosition> suspiciousPositions, List<Behavior> behaviors) {
+    public static void compareBuggyLine(List<SuspiciousPosition> suspiciousPositions, List<Behavior> behaviors, String projectName,
+                                        Map<Integer, Integer> lines, List<RawResult> results, int count) {
         float minSuspicious = 1.0f;
         Collections.sort(suspiciousPositions);
 
         for (SuspiciousPosition suspiciousPosition : suspiciousPositions) {
             for (Behavior behavior : behaviors) {
+                String line = "(" + behavior.getBeginA() + "-" + behavior.getEndA() + ";" +
+                        behavior.getBeginB() + "-" + behavior.getEndB() + ")";
+                if (behavior.getType().equals(Behavior.Type.INSERT)) { //ADD INSERT INTO RAW
+                    if (!lines.containsKey(line.hashCode())) {
+                        RawResult rawResult = new RawResult(projectName, suspiciousPosition.classPath, line, null,
+                                null, behavior.getType().toString(), "null");
+                        //add new raw
+                        lines.put(line.hashCode(), count);
+                        results.add(rawResult);
+                        count++;
+                    }
+                }
                 if (suspiciousPosition.lineNumber < behavior.getBeginA()) {
                     break;
+                } else if (suspiciousPosition.lineNumber > behavior.getEndA()) {
+                    continue;
                 }
-                if (suspiciousPosition.lineNumber >= behavior.getBeginA()
-                        && suspiciousPosition.lineNumber <= behavior.getEndA()) {
+
+                if (!behavior.getType().equals(Behavior.Type.INSERT)) {
+                    if (suspiciousPosition.lineNumber >= behavior.getBeginA()
+                            && suspiciousPosition.lineNumber <= behavior.getEndA()) {
                         if (Float.compare(minSuspicious, suspiciousPosition.ratio) > 0) {
                             minSuspicious = suspiciousPosition.ratio;
                         }
-                    //TODO: edit RawResult
-                        String line = "("+ behavior.getBeginA() + "-" + behavior.getEndA() + ";" +
-                                behavior.getBeginB() +"-" + behavior.getEndB() + ")";
-                        RawResult rawResult = new RawResult(suspiciousPosition.classPath, line, null,
+                        //TODO: edit RawResult
+                        RawResult rawResult = new RawResult(projectName, suspiciousPosition.classPath, line, null,
                                 null, behavior.getType().toString(), String.valueOf(minSuspicious));
+                        //ADD result to CSV
                         if (!lines.containsKey(line.hashCode())) {
                             //add new raw
                             lines.put(line.hashCode(), count);
@@ -223,10 +315,52 @@ public class DataProcessing {
                         } else {
                             //add ratio in Raw
                             int index = lines.get(line.hashCode());
-                            results.get(index).setRatio( String.valueOf(minSuspicious) );
+                            results.get(index).setRatio(String.valueOf(minSuspicious));
                         }
                         System.out.println(suspiciousPosition.lineNumber + "@" + suspiciousPosition.ratio + "@" +
                                 behavior.getType());
+                    }
+                }
+            }
+        }
+        System.out.println("======MIN FL: " + minSuspicious);
+    }
+
+    public static void compareBuggyLineVer2(List<SuspiciousPosition> suspiciousPositions, List<Behavior> behaviors, String projectName,
+                                        Map<Integer, Integer> lines, List<RawResult> results, int count) {
+        float minSuspicious = 1.0f;
+        Collections.sort(suspiciousPositions);
+
+        for (Behavior behavior : behaviors) {
+            for (SuspiciousPosition suspiciousPosition : suspiciousPositions) {
+                if (suspiciousPosition.lineNumber < behavior.getBeginA()) {
+                    break;
+                } else if (suspiciousPosition.lineNumber > behavior.getEndA()) {
+                    continue;
+                }
+                if (suspiciousPosition.lineNumber >= behavior.getBeginA()
+                        && suspiciousPosition.lineNumber <= behavior.getEndA()) {
+                    if (Float.compare(minSuspicious, suspiciousPosition.ratio) > 0) {
+                        minSuspicious = suspiciousPosition.ratio;
+                    }
+                    //TODO: edit RawResult
+                    String line = "(" + behavior.getBeginA() + "-" + behavior.getEndA() + ";" +
+                            behavior.getBeginB() + "-" + behavior.getEndB() + ")";
+                    RawResult rawResult = new RawResult(projectName, suspiciousPosition.classPath, line, null,
+                            null, behavior.getType().toString(), String.valueOf(minSuspicious));
+                    //ADD result to CSV
+                    if (!lines.containsKey(line.hashCode())) {
+                        //add new raw
+                        lines.put(line.hashCode(), count);
+                        results.add(rawResult);
+                        count++;
+                    } else {
+                        //add ratio in Raw
+                        int index = lines.get(line.hashCode());
+                        results.get(index).setRatio(String.valueOf(minSuspicious));
+                    }
+                    System.out.println(suspiciousPosition.lineNumber + "@" + suspiciousPosition.ratio + "@" +
+                            behavior.getType());
 
                 }
             }
@@ -234,9 +368,10 @@ public class DataProcessing {
         System.out.println("======MIN FL: " + minSuspicious);
     }
 
+
     public static void writeRawToCSV(List<RawResult> results) {
         for (RawResult rawResult : results) {
-            writeDataProcessingToFile(FILE_OUT_DATA_PROCESS, rawResult.toString());
+            writeDataProcessingToFile(FILE_OUT_DATA_PROCESS, rawResult.getList());
         }
     }
 
@@ -245,16 +380,14 @@ public class DataProcessing {
 //        RawResult rawResult = new RawResult(suspiciousPosition.classPath, )
 //    }
 
-    public static void writeDataProcessingToFile(String pathToWrite, String content) {
-        String title ;
-        title = "Classname,"    + "Line,"
-                + "Bugyy line," + "Fixed Line,"
-                + "Type,"        + "Ratio (FL)";
-        File file = new File(pathToWrite );
+    public static void writeDataProcessingToFile(String pathToWrite, String[] content) {
+        String[] title = {"Project Name", "Classname", "Line", "Buggy line", "Fixed line", "Type", "Ratio (FL)"};
+        File file = new File(pathToWrite);
         if (file.exists()) {
-            FileHelper.addToFile(file, content );
+            FileHelper.writeLineToCSV(pathToWrite, content);
         } else {
-            FileHelper.createFile(file, title + "\n" + content);
+            FileHelper.writeLineToCSV(pathToWrite, title);
+            FileHelper.writeLineToCSV(pathToWrite, content);
         }
     }
 
@@ -273,6 +406,23 @@ public class DataProcessing {
         }
         return behaviors;
     }
+//
+//    public static void main(String[] args) {
+//        int problemId = 7;
+//        String path = "C:\\Users\\Dell\\Desktop\\APR_test\\query_problem\\2_result_QuerySubmitProblem_"+ problemId+".txt";
+//        List<String> contents = FileHelper.readDataAsList(path);
+//        int count = 0;
+//        String content ="";
+//        for (String line: contents) {
+//            String[] splits = line.split(";");
+//            count++;
+//            content += "#SV"+count+"\nselect max(s.submission_id) from submission s join zip_submission_result zr on s.submission_id = zr.submission_id where s.student_id =  "+splits[0]+" and s.course_problem_id = "+splits[1]+ " and s.runtime_result_id != 9  and zr.junit_score > 0 group by s.total_score order by  s.total_score desc, s.created_at desc\n" +
+//                    "INTO OUTFILE '/var/lib/mysql-files/problem_"+problemId+"_student_"+ splits[0] +".txt'\n" +
+//                    "FIELDS TERMINATED BY ';'\n" +
+//                    "LINES TERMINATED BY ';';\n\n";
+//        }
+//        FileHelper.createFile(new File("C:\\Users\\Dell\\Desktop\\APR_test\\query_problem\\3_query_buggy_"+problemId+".txt"), content);
+//    }
 
 
 }

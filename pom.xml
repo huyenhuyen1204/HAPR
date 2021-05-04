@@ -6,11 +6,8 @@
 
     <groupId>groupId</groupId>
     <artifactId>APR</artifactId>
-    <packaging>pom</packaging>
+    <!--    <packaging>pom</packaging>-->
     <version>1.0-SNAPSHOT</version>
-    <modules>
-        <module>data-processing</module>
-    </modules>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -30,11 +27,11 @@
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.jacoco</groupId>-->
-<!--            <artifactId>jacoco-maven-plugin</artifactId>-->
-<!--            <version>0.8.5</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.jacoco</groupId>-->
+        <!--            <artifactId>jacoco-maven-plugin</artifactId>-->
+        <!--            <version>0.8.5</version>-->
+        <!--        </dependency>-->
         <!-- GZoltar jar in local lib. -->
         <dependency>
             <groupId>com.gzoltar</groupId>
@@ -64,11 +61,20 @@
             <version>1.2.3</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
             <version>5.9.0.202009080501-r</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>org.eclipse.jdt.core</artifactId>
+            <version>3.10.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>4.6</version>
         </dependency>
 
 
@@ -80,7 +86,7 @@
             <name>Maven Repository for Spoon Release</name>
             <url>http://sachaproject.gforge.inria.fr/repositories/releases/
             </url>
-            <snapshots />
+            <snapshots/>
         </repository>
     </repositories>
 

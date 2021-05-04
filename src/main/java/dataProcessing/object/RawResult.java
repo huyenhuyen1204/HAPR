@@ -1,12 +1,11 @@
 package dataProcessing.object;
 
-import java.io.File;
-
 /**
  * Write result data process to csv file
  */
 public class RawResult {
     private String className;
+    private String projectName;
     private String line;
     private String buggyContent;
     private String fixedContent;
@@ -15,13 +14,15 @@ public class RawResult {
 
     private static final String SEMICOLON = ",";
 
-    public RawResult(String className, String line, String buggyContent, String fixedContent, String type, String ratio) {
+    public RawResult(String projectName, String className, String line, String buggyContent, String fixedContent,
+                     String type, String ratio) {
         this.className = className;
         this.line = line;
         this.buggyContent = buggyContent;
         this.fixedContent = fixedContent;
         this.type = type;
         this.ratio = ratio;
+        this.projectName = projectName;
     }
 
     public String getClassName() {
@@ -64,8 +65,15 @@ public class RawResult {
         this.ratio = ratio;
     }
 
-    public String toString() {
-        return this.className + SEMICOLON + line + SEMICOLON + buggyContent + SEMICOLON + fixedContent + SEMICOLON + type
-                + SEMICOLON + ratio;
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String[] getList() {
+        return new String[]{this.projectName, this.className, line, buggyContent, fixedContent, type, ratio};
     }
 }

@@ -137,7 +137,7 @@ public class SourceCodeView {
     /**
      * Highlight and focus a line
      */
-    private void highlightLineCode(int line, float ratio, CodeArea codeArea,  String color) {
+    private void highlightLineCode(int line, float ratio, CodeArea codeArea, String color) {
         try {
             int start = line - 1;
             int end = line - 1;
@@ -155,13 +155,17 @@ public class SourceCodeView {
     }
 
     private void hightlightSourceCode(File file, CodeArea codeArea) {
-        suspiciousPositionList.forEach(suspiciousPosition -> {
-            if (suspiciousPosition != null) {
-                if (isSuspicious(file.getAbsolutePath())) {
-                    highlightLineCode(suspiciousPosition.lineNumber, suspiciousPosition.ratio, codeArea, "red");
+        if (suspiciousClassNameList.size() > 0) {
+            suspiciousPositionList.forEach(suspiciousPosition -> {
+                if (suspiciousPosition != null) {
+                    if (isSuspicious(file.getAbsolutePath())) {
+                        if (file.getName().contains(suspiciousPosition.classPath)) {
+                            highlightLineCode(suspiciousPosition.lineNumber, suspiciousPosition.ratio, codeArea, "red");
+                        }
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     public void viewSourceCode(File file, TabPane tabPane) {
@@ -200,8 +204,6 @@ public class SourceCodeView {
     }
 
 
-
-
     /**
      * Computing highlighting code syntax after edit code
      *
@@ -235,8 +237,9 @@ public class SourceCodeView {
 
     public boolean isSuspicious(String pathClass) {
         pathClass = pathClass.replace("\\", "/");
+        String[] splits = pathClass.split("/");
         for (String susClassName : suspiciousClassNameList) {
-            if (pathClass.endsWith(susClassName)) {
+            if (splits[splits.length - 1].equals(susClassName)) {
                 return true;
             }
         }

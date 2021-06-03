@@ -169,7 +169,7 @@ public class FileHelper {
         File file = new File(filePath);
 
         if (file.exists()) {
-            return file.getParent() + "/";
+            return file.getParent() + File.separator;
         }
         return "";
     }
@@ -399,9 +399,9 @@ public class FileHelper {
                     sp.lineNumber = Integer.parseInt(elements[1]);
                     sp.ratio = Float.parseFloat(elements[2]);
                     if (susClassnameList != null) {
-                        String classPath = sp.classPath.replace(".", "/") + ".java";
-                        if (!susClassnameList.contains(classPath)) {
-                            susClassnameList.add(classPath);
+//                        String classPath = sp.classPath.replace(".", "/") + ".java";
+                        if (!susClassnameList.contains(sp.classPath)) {
+                            susClassnameList.add(sp.classPath);
                         }
                     }
                     suspiciousCodeList.add(sp);

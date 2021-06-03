@@ -159,7 +159,7 @@ public class SourceCodeView {
         if (suspiciousClassNameList.size() > 0) {
             suspiciousPositionList.forEach(suspiciousPosition -> {
                 if (suspiciousPosition != null) {
-                    if (isSuspicious(file.getAbsolutePath())) {
+                    if (isClassSus(file.getAbsolutePath(), suspiciousPosition.classPath)) {
 //                        if (file.getName().contains(suspiciousPosition.classPath)) {
                             highlightLineCode(suspiciousPosition.lineNumber, suspiciousPosition.ratio, codeArea, "red");
 //                        }
@@ -236,16 +236,46 @@ public class SourceCodeView {
         return spansBuilder.create();
     }
 
+    //check xem có thuộc class nghi ngờ không???
     public boolean isSuspicious(String pathClass) {
-        pathClass = pathClass.replace("\\", "/");
-//        String[] splits = pathClass.split("/");
-        if (pathClass.endsWith(".java")) {
-            for (String susClassName : suspiciousClassNameList) {
-                if (pathClass.contains(susClassName)) {
-                    return true;
+//        String pkgName = pathClass.replace(projectPath + File.separator + projectName + File.separator, "");
+        String pkgName = "";
+        if (!projectName.contains("_")) {
+            pkgName = pathClass.replace(projectPath + File.separator + projectName + File.separator, "");
+            pkgName = pkgName.replace(File.separator, ".").replace(".java", "");
+        } else { // FOR OASIS
+            String src = "src" + File.separator + "main" + File.separator + "java" + File.separator;
+            pkgName = pathClass.replace(projectPath + File.separator + projectName + File.separator + src, "");
+            pkgName = pkgName.replace(File.separator, ".").replace(".java", "");
+        }
+        if (!pkgName.equals("")) {
+            if (pathClass.endsWith(".java")) {
+                for (String susClassName : suspiciousClassNameList) {
+                    pkgName = pkgName.replace(File.separator, ".").replace(".java", "");
+                    if (pkgName.equals(susClassName)) {
+                        return true;
+                    }
                 }
             }
         }
+        return false;
+    }
+    public boolean isClassSus(String classpath, String classname) {
+        if (classpath.endsWith(".java")) {
+            String pkgName = "";
+            if (!projectName.contains("_")) {
+                pkgName = classpath.replace(projectPath + File.separator + projectName + File.separator, "");
+                pkgName = pkgName.replace(File.separator, ".").replace(".java", "");
+            } else { // FOR OASIS
+                String src = "src" + File.separator + "main" + File.separator + "java" + File.separator;
+                pkgName = classpath.replace(projectPath + File.separator + projectName + File.separator + src, "");
+                pkgName = pkgName.replace(File.separator, ".").replace(".java", "");
+            }
+            if (pkgName.equals(classname)) {
+                return true;
+            }
+        }
+
         return false;
     }
 }

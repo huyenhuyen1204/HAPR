@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import util.FileHelper;
 import util.PathUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -61,7 +62,7 @@ public class StudentFaultLocalization extends FL {
                 builder.append(className).append("@").append(lineNumber)
                         .append("@").append(candidate.getSuspiciousValueString()).append("\n");
             }
-            FileHelper.outputToFile(outputPath + buggyProject + "/" + metricStr + ".txt", builder, false);
+            FileHelper.outputToFile(outputPath + buggyProject + File.separator + metricStr + ".txt", builder, false);
         }
     }
 }

@@ -116,7 +116,7 @@ public class BaseSceneController implements Initializable {
                     ImageView imageView = ProjectTreeView.getImageTree(file);
                     setGraphic(imageView);
                     if(sourceCodeView.isSuspicious(file.getAbsolutePath())) {
-                        setStyle("-fx-text-fill: red");
+                        setStyle("-fx-text-fill: #ff0000");
                     } else {
                         setStyle("");
                     }

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/HAPR.iml" filepath="$PROJECT_DIR$/HAPR.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DeBuRepair.iml" filepath="$PROJECT_DIR$/DeBuRepair.iml" />
     </modules>
   </component>
 </project>

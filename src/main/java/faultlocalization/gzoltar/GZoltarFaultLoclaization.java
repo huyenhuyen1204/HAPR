@@ -270,7 +270,7 @@ public class GZoltarFaultLoclaization {
     
     private boolean isSource(String compName) {
     	// compName: org.apache.commons.math.linear.Array2DRowRealMatrix
-    	String srcFile = srcPath + compName.replace(".", "/") + ".java";
+    	String srcFile = srcPath + compName.replace(".", File.separator) + ".java";
     	return new File(srcFile).exists();
 //    	String cmN = compName.toLowerCase(Locale.ENGLISH);
 //		String clRoot = cmN.split("\\$")[0];

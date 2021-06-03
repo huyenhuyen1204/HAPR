@@ -31,8 +31,8 @@ public class DataPreparer {
     public URL[] classPaths;
     
     public DataPreparer(String path){
-        if (!path.endsWith("/")){
-            path += "/";
+        if (!path.endsWith(File.separator)){
+            path += File.separator;
         }
         buggyProjectParentPath = path;
     }

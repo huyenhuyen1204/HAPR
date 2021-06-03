@@ -1,0 +1,55 @@
+.keyword {
+    -fx-fill: #060481;
+    -fx-font-weight: bold;
+}
+
+.primitive {
+    -fx-fill: #060481;
+    -fx-font-weight: bold;
+}
+
+.semicolon {
+    -fx-font-weight: bold;
+}
+
+.paren {
+    /*-fx-fill: firebrick;*/
+    -fx-font-weight: bold;
+}
+.brace {
+    -fx-fill: darkgreen;
+    -fx-font-weight: bold;
+}
+
+.string {
+    -fx-fill: #1b832f;
+}
+
+.comment {
+    -fx-fill: #979eb2;
+}
+
+.select {
+    -fx-background-color: #fffae3;
+}
+
+.styled-text-area .selection {
+    -fx-fill: #fffae3;
+}
+
+.paragraph-box:has-caret {
+    -fx-background-color: #f2f9fc;
+}
+.break{
+    -fx-background-color: #ffe700;
+}
+
+.currentPoint {
+    -fx-background-color: #14e9ff;
+}
+
+/*.codeAreaStyle {*/
+/*    -fx-font-family: consolas;*/
+/*    -fx-font-size: 11pt;*/
+/*}*/
+

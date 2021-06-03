@@ -1,0 +1,4 @@
+buggy_code.GcdWrongIf2@6@0.5
+buggy_code.GcdWrongPrint@6@0.5
+buggy_code.GcdWrongIf2@5@0.316227766
+buggy_code.GcdWrongPrint@5@0.316227766

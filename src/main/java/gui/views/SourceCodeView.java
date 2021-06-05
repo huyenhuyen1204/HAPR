@@ -217,7 +217,6 @@ public class SourceCodeView {
         StyleSpansBuilder<Collection<String>> spansBuilder
                 = new StyleSpansBuilder<>();
         while (matcher.find()) {
-            System.out.println("Hello");
             String styleClass = matcher.group("KEYWORD") != null ? "keyword" :
                     matcher.group("PRIMITIVE") != null ? "primitive" :
                             matcher.group("PAREN") != null ? "paren" :

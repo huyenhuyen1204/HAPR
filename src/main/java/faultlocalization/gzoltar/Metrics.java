@@ -420,10 +420,6 @@ public class Metrics {
 	 */
 	private class Ochiai implements Metric {
 	    public double value(double ef, double ep, double nf, double np) {
-			System.out.println(ef);
-			System.out.println(ep);
-			System.out.println(nf);
-			System.out.println(np);
 	    	return ef / Math.sqrt((ef + ep) * (ef + nf));
 	    }
 	}

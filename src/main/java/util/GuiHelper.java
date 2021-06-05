@@ -35,11 +35,9 @@ public class GuiHelper {
         String ratioName = String.valueOf(ratio).replace(".", "_");
         String hightLightColor = "\"" +GuiHelper.getColor(ratio, color) +"\"";
 
-//        String hightLightColor = "\"rgba(255, 150, 150, 0.8)\"";
         String content = ".fl"  + ratioName + " {"+ System.lineSeparator()
                 + "    -rtfx-background-color: " + hightLightColor +";"+ System.lineSeparator() +"}"
                 + System.lineSeparator();
-        System.out.println(content);
         if(!FileHelper.isStringInFile(file, ".fl" + ratioName)) {
             FileHelper.addToFile(file, content);
         }

@@ -8,123 +8,93 @@ public class JDBDebugger {
     Process process;
     PrintWriter printWriter;
     BufferedReader stdInput;
-    BufferedReader stdError;
+    public static final String END_RUN = "Breakpoint hit: \"thread=main\",";
 
-    public JDBDebugger(String pathToOutClass) throws IOException {
-        compileFolder(pathToOutClass);
+    public JDBDebugger(String pathToSource, String pathToOutClass) throws IOException {
+        compileFolder(pathToSource, pathToOutClass);
         initDebugJDB(pathToOutClass);
         stdInput = new BufferedReader(new
                 InputStreamReader(this.process.getInputStream()));
-        stdError = new BufferedReader(new
-                InputStreamReader(this.process.getErrorStream()));
     }
 
-    public void compileFolder(String classpath) throws IOException {
-        String cmd = "javac -J-Dfile.encoding=UTF-8 -g -d "+classpath+" -cp "+ Configure.APR_JAR_LIB+"\\tools.jar;"+Configure.APR_JAR_LIB+"\\hamcrest-core-1.3.jar;"+Configure.APR_JAR_LIB+"\\junit-4.12.jar;"+Configure.APR_JAR_LIB+"\\oasis-junit-1.0.jar  *.java";
-        Runtime.getRuntime().exec(cmd, null, new File(classpath));
+    public void compileFolder(String pathToSource, String pathToOutClass) throws IOException {
+        String cmd = "javac -J-Dfile.encoding=UTF-8 -g -d " + pathToOutClass + " -cp " + Configure.APR_JAR_LIB + "\\tools.jar;" + Configure.APR_JAR_LIB + "\\hamcrest-core-1.3.jar;" + Configure.APR_JAR_LIB + "\\junit-4.12.jar;" + Configure.APR_JAR_LIB + "\\oasis-junit-1.0.jar  *.java";
+        Runtime.getRuntime().exec(cmd, null, new File(pathToSource));
     }
-    public void initDebugJDB (String pathToClass) throws IOException {
-        String cmd = "jdb -classpath  "+pathToClass+";"+Configure.APR_JAR_LIB+"\\junit-4.12.jar junit.textui.TestRunner MyTest1";
+
+    public void initDebugJDB(String pathToClass) throws IOException {
+        String cmd = "jdb -classpath  " + pathToClass + ";" + Configure.APR_JAR_LIB + "\\junit-4.12.jar junit.textui.TestRunner MyTest1";
         this.process = Runtime.getRuntime().exec(cmd, null, new File(pathToClass));
         this.printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream())), false);
     }
-    public void addDebugJDB(String classname, int line) throws InterruptedException, IOException {
-        this.printWriter.println("stop at "+ classname+ ":" + line);
+
+    public void addDebugJDB(String classname, int line) {
+        this.printWriter.println("stop at " + classname + ":" + line);
         this.printWriter.flush(); //tra ra stream
-//        printLog();
     }
-    public void runJDB() throws InterruptedException, IOException {
+
+    public void runJDB() throws IOException {
         this.printWriter.println("run");
         this.printWriter.flush(); //tra ra stream
-        Thread.sleep(2000);
-        printLog();
+        System.out.println(printLog(END_RUN));
     }
-    public void printVarJDB() throws InterruptedException {
-        this.printWriter.println("print rookWhite1");
+
+    public String printVarJDB(String var) throws IOException {
+        this.printWriter.println("print " + var);
         this.printWriter.flush(); //tra ra stream
-        Thread.sleep(1000);
-        this.printWriter.println("cont");
-        this.printWriter.flush();
+        String endvar = String.format("%s = ", var);
+        return printLog(endvar);
     }
-    public void stepJDB() {
+
+    public void stepJDB() throws IOException {
         this.printWriter.println("cont");
         this.printWriter.flush(); //tra ra stream
+        String end = printLog(END_RUN);
+        System.out.println("CONT " +end);
     }
+
     public void destroyProcessJDB() {
         this.printWriter.println("quit");
         this.printWriter.close();
         this.process.destroy();
     }
 
-    public void printLog() throws IOException {
-// Read the output from the command
-        System.out.println("Here is the standard output of the command:\n");
+    public String printLog(String endString) throws IOException {
+        String result = "";
         String s = null;
-//        s = stdInput.readLine();
         while ((s = stdInput.readLine()) != null) {
-            System.out.println(s);
+            result += s + "\n";
+            if (s.contains(endString)) {
+                break;
+            }
         }
+        return result;
     }
 
-
-    public void JDBProcess() throws IOException {
-        String cmd = "jdb -classpath  C:\\Users\\Dell\\IdeaProjects\\HAPR\\target\\classes;"+Configure.APR_JAR_LIB+"\\junit-4.12.jar junit.textui.TestRunner MyTest1";
-//        String[] commands = {cmd, "stop at MyTest1:9", "run"};
-        Process process = Runtime.getRuntime().exec(cmd);
-        PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream())), true);
-        out.println("stop at MyTest1:9");
-        out.println("run");
-        out.println("print rookWhite1");
-        out.flush();
-        BufferedReader stdInput = new BufferedReader(new
-                InputStreamReader(process.getInputStream()));
-
-        BufferedReader stdError = new BufferedReader(new
-                InputStreamReader(process.getErrorStream()));
-
-// Read the output from the command
-        System.out.println("Here is the standard output of the command:\n");
+    public String printAllLog() throws IOException {
+        String result = "";
         String s = null;
         while ((s = stdInput.readLine()) != null) {
             System.out.println(s);
+            result += s + "\n";
         }
-
-// Read any errors from the attempted command
-        System.out.println("Here is the standard error of the command (if any):\n");
-        while ((s = stdError.readLine()) != null) {
-            System.out.println(s);
-        }
-        process.destroy();
+        return result;
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        JDBDebugger jdbDebugger = new JDBDebugger("C:\\Users\\Dell\\IdeaProjects\\HAPR\\src\\main\\java");
-        jdbDebugger.addDebugJDB("MyTest1", 8);
+
+    public static void main(String[] args) throws IOException {
+        JDBDebugger jdbDebugger = new JDBDebugger("C:\\Users\\Dell\\Desktop\\DebuRepair\\src\\main\\java"
+                ,"C:\\Users\\Dell\\Desktop\\DebuRepair\\target\\classes");
+        jdbDebugger.addDebugJDB("MyTest1", 10);
+        jdbDebugger.addDebugJDB("MyTest1", 21);
         jdbDebugger.runJDB();
-        jdbDebugger.printVarJDB();
+
+        String var  = jdbDebugger.printVarJDB("debuggee");
+        System.out.println("===VARRR==: " + var);
+        jdbDebugger.stepJDB();
+        String var1 = jdbDebugger.printVarJDB("a");
+        System.out.println("===VARRR=="+  var1);
 
 
-        jdbDebugger.destroyProcessJDB();
-
-
-
-//        BufferedReader stdInput2 = new BufferedReader(new
-//                InputStreamReader(jdbDebugger.process.getInputStream()));
-//
-//        BufferedReader stdError2 = new BufferedReader(new
-//                InputStreamReader(jdbDebugger.process.getErrorStream()));
-//
-//// Read the output from the command
-//        System.out.println("Here is the standard output of the command:\n");
-//        String s2 = null;
-//        while ((s2 = stdInput2.readLine()) != null) {
-//            System.out.println(s2);
-//        }
-//
-//// Read any errors from the attempted command
-//        System.out.println("Here is the standard error of the command (if any):\n");
-//        while ((s2 = stdError2.readLine()) != null) {
-//            System.out.println(s2);
-//        }
     }
 }

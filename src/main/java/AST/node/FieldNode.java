@@ -48,6 +48,7 @@ public class FieldNode extends VisibleElementNode {
             FieldNode fieldNode = new FieldNode();
             fieldNode.setType(ASTHelper.getFullyQualifiedName(node.getType(), (CompilationUnit)node.getRoot()));
             fieldNode.setStartPosition(node.getStartPosition());
+
             //set ten cua thuoc tinh
             if (node.fragments().get(i) instanceof VariableDeclarationFragment) {
                 VariableDeclarationFragment vdf = (VariableDeclarationFragment) node.fragments().get(i);
@@ -134,6 +135,6 @@ public class FieldNode extends VisibleElementNode {
     }
 
     public void printInfor() {
-        System.out.println("Property name: " + name + "   Type: " + type + "  Visibility: " + this.getVisibility());
+        System.out.println("Property name: " + name + "   Type: " + type + "  Visibility: " + this.getVisibility() + " StartLine: " + this.startLine + " Endline: " + this.endLine);
     }
 }

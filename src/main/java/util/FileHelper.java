@@ -569,4 +569,14 @@ public class FileHelper {
             return null;
         }
     }
+//    public int getCurrentCursorLine(String editText, int pos)
+//    {
+//        Layout layout = editText.getLayout();
+//
+//        if (selectionStart != -1) {
+//            return layout.getLineForOffset(selectionStart);
+//        }
+//
+//        return -1;
+//    }
 }

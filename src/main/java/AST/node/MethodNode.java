@@ -18,7 +18,17 @@ public class MethodNode extends AbstractableElementNode {
     protected List<ParameterNode> parameters;
     private String simpleName;
     private boolean isConstructor = false;
-    private int line;
+    private int startLine;
+    private int endLine;
+    private List statements;
+
+    public List getStatements() {
+        return statements;
+    }
+
+    public void setStatements(List statements) {
+        this.statements = statements;
+    }
 
     public MethodNode() {
         parameters = this.getParameters();
@@ -34,13 +44,23 @@ public class MethodNode extends AbstractableElementNode {
 
 
     @Override
-    public int getLine() {
-        return line;
+    public int getStartLine() {
+        return startLine;
     }
 
     @Override
-    public void setLine(int line) {
-        this.line = line;
+    public void setStartLine(int line) {
+        this.startLine = line;
+    }
+
+    @Override
+    public int getEndLine() {
+        return endLine;
+    }
+
+    @Override
+    public void setEndLine(int line) {
+        this.endLine = line;
     }
 
     public List<ParameterNode> getParameters() {
@@ -101,8 +121,16 @@ public class MethodNode extends AbstractableElementNode {
                 this.name = node.getName().getIdentifier();
             }
         }
+        List statements = null;
+        if (node.getBody() != null) {
+            statements = node.getBody().statements();
+        }
+        this.setStatements(statements);
         //set ten cho phuong thuc
         this.setStartPosition(node.getStartPosition());
+        int nodeLength = node.getLength();
+        int endLineNumber = cu.getLineNumber(node.getStartPosition() + nodeLength) - 1;
+        this.setEndLine(endLineNumber);
         if (node.isConstructor() == false) {
             Type s = node.getReturnType2();
             if (s != null) {
@@ -227,7 +255,30 @@ public class MethodNode extends AbstractableElementNode {
 
     }
 
+    /**
+     * parser and get info of statement
+     * @param statements
+     */
+    public void parserStatements (List statements) {
+        for (Object stm : statements) {
+            if (stm instanceof VariableDeclarationStatement) {
+                System.out.println(((VariableDeclarationStatement) stm).getType());
+            } else if (stm instanceof IfStatement) {
+                System.out.println(((IfStatement) stm).getExpression());
+            } else if (stm instanceof ExpressionStatement) {
+                if (((ExpressionStatement) stm).getExpression() instanceof MethodInvocation) {
+                    System.out.println(stm.toString());
+                } else if (((ExpressionStatement) stm).getExpression() instanceof Assignment) {
+                    System.out.println("ASSIGN ment");
+                    System.out.println(((Assignment) ((ExpressionStatement) stm).getExpression()).getLeftHandSide());
+                }
+            } else if (stm instanceof ReturnStatement) {
+
+            }
+        }
+    }
+
     public void printInfor() {
-        System.out.println("Method name: " + name + "   Type: " + returnType + "  Visibility: " + this.getVisibility());
+        System.out.println("Method name: " + name + "   Type: " + returnType + "  Visibility: " + this.getVisibility() + " startline:" + this.getStartLine() + " ENDLINE: " + this.endLine);
     }
 }

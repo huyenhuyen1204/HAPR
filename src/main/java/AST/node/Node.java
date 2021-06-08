@@ -23,7 +23,8 @@ public class Node implements Serializable {
     public static int countId = 0;
     protected int id;
     protected String name;
-    protected int line;
+    protected int startLine;
+    protected int endLine;
 
     protected String absolutePath;
 
@@ -54,12 +55,20 @@ public class Node implements Serializable {
         return name;
     }
 
-    public int getLine() {
-        return line;
+    public int getStartLine() {
+        return startLine;
     }
 
-    public void setLine(int line) {
-        this.line = line;
+    public void setStartLine(int startLine) {
+        this.startLine = startLine;
+    }
+
+    public int getEndLine() {
+        return endLine;
+    }
+
+    public void setEndLine(int endLine) {
+        this.endLine = endLine;
     }
 
     public String getAbsolutePath() {
@@ -116,7 +125,9 @@ public class Node implements Serializable {
     public void addChildren(List<Node> children, CompilationUnit cu) {
         for (Node node : children) {
             int lineNumber = cu.getLineNumber(node.getStartPosition());
-            node.setLine(lineNumber);
+//            int nodeLength = node.le;
+
+            node.setStartLine(lineNumber);
             node.setParentNodeId(this.getId());
             node.setParent(this);
             this.children.add(node);

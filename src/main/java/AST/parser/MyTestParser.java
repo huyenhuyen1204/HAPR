@@ -1,12 +1,16 @@
 package AST.parser;
 
 import AST.node.ClassNode;
+import AST.node.FieldNode;
 import AST.node.MethodNode;
-import AST.object.Assert;
-import AST.object.AssertEqual;
-import AST.object.AssertTrue;
+import AST.stm.abstrct.AssertStatement;
+import AST.stm.AssertEqualStm;
+import AST.stm.AssertTrueStm;
+import AST.obj.MethodTest;
+import common.config.TestType;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.internal.compiler.ast.DoubleLiteral;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.FileService;
 
 import java.io.File;
@@ -22,11 +26,11 @@ import java.util.List;
  * 3. Assert.assertEquals(expect, actual)
  */
 public class MyTestParser {
-    enum TestType {
-        ANNOTATION_TEST, EXTENT_TEST_CASE
-    }
+    private static Logger logger = LoggerFactory.getLogger(MyTestParser.class);
 
-    public void myTestParser(String pathToFile, TestType type) throws IOException {
+
+    public List<ClassNode> myTestParser(String pathToFile, TestType type) throws IOException {
+        List<MethodTest> methodTests = new ArrayList<>();
         File file = new File(pathToFile);
         String content = FileService.readFileToString(file.getAbsolutePath());
 
@@ -46,23 +50,33 @@ public class MyTestParser {
                 return true;
             }
         });
+
         for (ClassNode classNode : classNodes) {
+            System.out.println(classNode.toString());
+            List<FieldNode> fieldNodes = classNode.getFieldList();
+            for (FieldNode fieldNode : fieldNodes) {
+                System.out.println(fieldNode.toString());
+            }
             List<MethodNode> methodNodes = classNode.getMethodList();
             for (MethodNode methodNode : methodNodes) {
-                List<Assert> asserts = parserAssertStatements(methodNode, type, cu);
-                System.out.println(asserts);
+                MethodTest methodTest = parserAssertStatements(methodNode, type, cu);
+                methodTests.add(methodTest);
+                System.out.println(methodNode.toString());
             }
+            classNode.setMethodTests(methodTests);
         }
+        return classNodes;
     }
 
     /**
      * parser for annotation
+     *
      * @param methodNode
      * @param type
      * @return
      */
-    private List<Assert> parserAssertStatements(MethodNode methodNode, TestType type, CompilationUnit cu) {
-        List<Assert> asserts = new ArrayList<>();
+    private MethodTest parserAssertStatements(MethodNode methodNode, TestType type, CompilationUnit cu) {
+        MethodTest methodTest = new MethodTest(methodNode.getName());
         List statements = methodNode.getStatements();
         int line = -1;
 
@@ -71,23 +85,28 @@ public class MyTestParser {
                 if (stm instanceof ExpressionStatement) {
                     Expression expression = ((ExpressionStatement) stm).getExpression();
                     line = cu.getLineNumber(expression.getStartPosition());
+                    //Case 1:
                     if (expression instanceof MethodInvocation) {
                         if (((MethodInvocation) expression).getName().toString().equals("assertEquals")) {
                             List arguments = ((MethodInvocation) expression).arguments();
-                            Assert assertEqual = getAssertEquals(arguments, line);
-                            asserts.add(assertEqual);
+                            AssertStatement assertEqual = getAssertEquals(arguments, line);
+                            if (assertEqual != null) {
+                                methodTest.addToAsserts(assertEqual);
+                            }
 
                         } else if (((MethodInvocation) expression).getName().toString().equals("assertTrue")) {
                             List args = ((MethodInvocation) expression).arguments();
-                            Assert assertTrue = getAssertTrue(args, line);
-                            asserts.add(assertTrue);
+                            AssertStatement assertTrue = getAssertTrue(args, line);
+                            if (assertTrue != null) {
+                                methodTest.addToAsserts(assertTrue);
+                            }
 
                         }
                     }
                 }
             }
         }
-        return asserts;
+        return methodTest;
     }
 
     /**
@@ -99,27 +118,30 @@ public class MyTestParser {
      * @param arguments
      * @return
      */
-    private Assert getAssertEquals(List arguments, int line) {
-        AssertEqual assertEqual = new AssertEqual();
+    private AssertStatement getAssertEquals(List arguments, int line) {
+        AssertEqualStm assertEqualStm = null;
         // 1.for Assert.assertEquals(message, expected, actual)
         if (arguments.size() == 3) {
             if (arguments.get(0) instanceof StringLiteral) {
-                assertEqual = new AssertEqual((StringLiteral) arguments.get(0),
+                assertEqualStm = new AssertEqualStm((StringLiteral) arguments.get(0),
                         arguments.get(1), arguments.get(2), line);
             } else {
                 //2. Assert.assertEquals(double expected, double actual, double delta),
                 if (arguments.get(0) instanceof NumberLiteral
                         && arguments.get(2) instanceof NumberLiteral) {
-                    assertEqual = new AssertEqual(arguments.get(0), arguments.get(1),
+                    assertEqualStm = new AssertEqualStm(arguments.get(0), arguments.get(1),
                             (NumberLiteral) arguments.get(2), line);
                 }
             }
             //3.  for Assert.assertEquals(expected, actual)
         } else if (arguments.size() == 2) {
-            assertEqual = new AssertEqual(
+            assertEqualStm = new AssertEqualStm(
                     arguments.get(0), arguments.get(1), line);
         }
-        return assertEqual;
+        if (assertEqualStm == null) {
+            logger.error("CAN'T PARSER: assertEquals(" + arguments.toString() + ")");
+        }
+        return assertEqualStm;
     }
 
     /**
@@ -130,16 +152,19 @@ public class MyTestParser {
      * @param args
      * @return
      */
-    private Assert getAssertTrue(List args, int line) {
-        AssertTrue assertTrue = new AssertTrue();
+    private AssertStatement getAssertTrue(List args, int line) {
+        AssertTrueStm assertTrueStm = null;
         if (args.size() == 1) {
-            assertTrue = new AssertTrue(args.get(0), line);
+            assertTrueStm = new AssertTrueStm(args.get(0), line);
         } else if (args.size() == 2) {
             if (args.get(0) instanceof StringLiteral) {
-                assertTrue = new AssertTrue((StringLiteral) args.get(0), args.get(1), line);
+                assertTrueStm = new AssertTrueStm((StringLiteral) args.get(0), args.get(1), line);
             }
         }
-        return assertTrue;
+        if (assertTrueStm == null) {
+            logger.error("CAN'T PARSER: assertTrue(" + args.toString() + ")");
+        }
+        return assertTrueStm;
     }
 
     /**

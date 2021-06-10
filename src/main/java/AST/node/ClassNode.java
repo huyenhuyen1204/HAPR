@@ -1,13 +1,19 @@
 package AST.node;
 
+import AST.obj.MethodTest;
+import AST.stm.InitInMethodStm;
+import AST.stm.abstrct.InitStatement;
 import AST.parser.ASTHelper;
 import AST.parser.Convert;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.eclipse.jdt.core.dom.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by cuong on 3/22/2017.
@@ -15,7 +21,7 @@ import java.util.List;
 
 
 public class ClassNode extends AbstractableElementNode {
-
+    public static final Logger logger = LoggerFactory.getLogger(ClassNode.class);
     protected boolean isInterface;
     protected String parentClass;
     protected List<String> interfaceList;
@@ -24,6 +30,8 @@ public class ClassNode extends AbstractableElementNode {
     protected int numOfmethod;
     protected int numOfvariable;
     protected int line;
+    protected List<InitStatement> variables; //to save var & type when init
+    private List<MethodTest> methodTests;
 
     public String getParentClass() {
         return parentClass;
@@ -73,10 +81,29 @@ public class ClassNode extends AbstractableElementNode {
         this.line = line;
     }
 
+    public List<InitStatement> getVariables() {
+        return variables;
+    }
+
+    public void setVariables(List<InitStatement> variables) {
+        this.variables = variables;
+    }
+
+    public List<MethodTest> getMethodTests() {
+        return methodTests;
+    }
+
+    public void setMethodTests(List<MethodTest> methodTests) {
+        this.methodTests = methodTests;
+    }
+
     public ClassNode() {
         super();
         interfaceList = new ArrayList<>();
+        this.variables = new ArrayList<>();
+        this.methodTests = new ArrayList<>();
     }
+
 
     @JsonProperty("isInterface")
     public boolean isInterface() {
@@ -110,6 +137,7 @@ public class ClassNode extends AbstractableElementNode {
     @Override
     public String toString() {
         return "ClassNode {" +
+                "id=" + this.id +
                 "visibility=" + this.getVisibility() +
 //                ", type='" + type + '\'' +
                 ", name=" + this.name +
@@ -178,11 +206,12 @@ public class ClassNode extends AbstractableElementNode {
 
         //lay cac properties
         FieldDeclaration[] fieldList = node.getFields();
-        List<Node> fieldNodes = Convert.convertASTListNodeToFieldNode(fieldList);
+        List<Node> fieldNodes = Convert.convertASTListNodeToFieldNode(fieldList, variables);
+
         this.addChildren(fieldNodes, cu);
         //lay cac methods
         MethodDeclaration[] methodList = node.getMethods();
-        List<Node> methodNodes = Convert.convertASTListNodeToMethodNode(methodList, cu);
+        List<Node> methodNodes = Convert.convertASTListNodeToMethodNode(methodList, variables, cu);
 
         this.addChildren(methodNodes, cu);
 
@@ -216,5 +245,73 @@ public class ClassNode extends AbstractableElementNode {
         }
 
     }
+
+    public InitStatement findTypeVar(String varName, String methodName, List params) {
+        List<InitStatement> variableElements = new ArrayList<>();
+        List<InitStatement> temp = new ArrayList<>();
+            //varname in method
+            for (int i = variables.size() - 1; i >= 0; i--) {
+                InitStatement var = variables.get(i);
+                if (var.getVarName().equals(varName)) {
+                    variableElements.add(var);
+                    temp.add(var);
+                }
+            }
+            for (InitStatement varElement : variableElements) {
+                //case 1: init in method
+                if (varElement instanceof InitInMethodStm) {
+                    if (((InitInMethodStm) varElement).getMethodName().equals(methodName)) {
+                        //TODO: need edit compare params
+                        if (((InitInMethodStm) varElement).getParams().equals(params)) {
+                            return varElement;
+                        } else {
+                            temp.remove(varElement);
+                        }
+                    } else {
+                        // !methodName
+                        temp.remove(varElement);
+                    }
+                }
+            }
+            //case 2: init in class
+            if (temp.size() == 1) {
+                return temp.get(0);
+            } else {
+                for (InitStatement var : variableElements) {
+                    logger.error("=>CHƯA XỬ LÝ 1: " + var.print(methodName));
+                }
+            }
+
+
+
+        return null;
+    }
+
+    public MethodNode findMethodNode(String methodName, List params) {
+        for (MethodNode methodNode : getMethodList()) {
+            if (methodName.equals(methodNode.getName())) {
+                if (compareParams(methodNode.getParameters(), params))
+                    return methodNode;
+            }
+        }
+        return null;
+    }
+
+    private boolean compareParams(List<ParameterNode> parameterNodes, List params) {
+        if (parameterNodes.size() == params.size()) {
+            if (params.size() == 0) {
+                return true;
+            }
+            for (ParameterNode parameterNode : parameterNodes) {
+                params.forEach(param -> {
+                    //TODO: need to compare
+                });
+            }
+        } else {
+            return false;
+        }
+        return false;
+    }
+
 
 }

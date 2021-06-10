@@ -1,22 +1,25 @@
-package AST.object;
+package AST.stm;
 
+import AST.stm.abstrct.AssertStatement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 
-public class AssertTrue implements Assert{
+public class AssertTrueStm extends AssertStatement {
     private Object object;
     private StringLiteral message;
     public final boolean  expected = true;
-    private int line;
 
-    public AssertTrue() {
+    public AssertTrueStm() {
+        super();
     }
 
-    public AssertTrue(Object object, int line) {
+    public AssertTrueStm(Object object, int line) {
+        super();
         this.object = object;
         this.line = line;
     }
 
-    public AssertTrue(StringLiteral message, Object object, int line) {
+    public AssertTrueStm(StringLiteral message, Object object, int line) {
+        super();
         this.object = object;
         this.message = message;
         this.line = line;
@@ -49,4 +52,6 @@ public class AssertTrue implements Assert{
     public void setLine(int line) {
         this.line = line;
     }
+
+
 }

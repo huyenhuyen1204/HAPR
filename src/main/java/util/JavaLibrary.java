@@ -1,5 +1,7 @@
 package util;
 
+import AST.obj.DebugPoint;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -11,6 +13,15 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class JavaLibrary {
+
+	public static boolean debugPointContainsName(final List<DebugPoint> list, final DebugPoint debugPoint){
+		if (list.size() > 0) {
+			return list.stream().filter(o -> (o.getClassname().equals(debugPoint.getClassname())
+					&& o.getLine() == debugPoint.getLine())).findFirst().isPresent();
+		} else {
+			return false;
+		}
+	}
 
 	public static URL[] classPathFrom(String classpath) {
 		List<String> folderNames = split(classpath, classpathSeparator());

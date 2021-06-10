@@ -3,6 +3,7 @@ package common.error;
 public class ObjectNotFound implements ErrorHARP {
     private int status;
     private String message;
+    public static final String MSG =  "Not found ";
 
     public ObjectNotFound(int status, String message) {
         this.status = status;
@@ -24,4 +25,5 @@ public class ObjectNotFound implements ErrorHARP {
     public void setMessage(String message) {
         this.message = message;
     }
+
 }

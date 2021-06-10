@@ -1,33 +1,38 @@
-package AST.object;
+package AST.stm;
 
+import AST.stm.abstrct.AssertStatement;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.StringLiteral;
 
-public class AssertEqual implements Assert{
+public class AssertEqualStm extends AssertStatement {
     private StringLiteral message;
     private Object expected;
     private Object actual;
     private NumberLiteral delta;
-    private int line;
 
-    public AssertEqual() {
+
+    public AssertEqualStm() {
+        super();
 
     }
-    public AssertEqual(StringLiteral message, Object expected, Object actual, int line) {
+    public AssertEqualStm(StringLiteral message, Object expected, Object actual, int line) {
+        super();
         this.message = message;
         this.expected = expected;
         this.actual = actual;
         this.line = line;
     }
 
-    public AssertEqual(Object expected, Object actual, NumberLiteral delta, int line) {
+    public AssertEqualStm(Object expected, Object actual, NumberLiteral delta, int line) {
+        super();
         this.delta = delta;
         this.expected = expected;
         this.actual = actual;
         this.line = line;
     }
 
-    public AssertEqual(Object expected, Object actual, int line) {
+    public AssertEqualStm(Object expected, Object actual, int line) {
+        super();
         this.expected = expected;
         this.actual = actual;
         this.line = line;
@@ -73,4 +78,5 @@ public class AssertEqual implements Assert{
     public void setLine(int line) {
         this.line = line;
     }
+
 }

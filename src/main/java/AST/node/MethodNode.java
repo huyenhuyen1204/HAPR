@@ -1,5 +1,7 @@
 package AST.node;
 
+import AST.stm.InitInMethodStm;
+import AST.stm.abstrct.InitStatement;
 import AST.parser.ASTHelper;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.eclipse.jdt.core.dom.*;
@@ -31,6 +33,7 @@ public class MethodNode extends AbstractableElementNode {
     }
 
     public MethodNode() {
+
         parameters = this.getParameters();
     }
 
@@ -105,6 +108,7 @@ public class MethodNode extends AbstractableElementNode {
     @Override
     public String toString() {
         return "MethodNode{" +
+                "id=" + this.id +
                 "visibility=" + this.getVisibility() +
                 ", returnType='" + returnType + '\'' +
                 ", name='" + name + '\'' +
@@ -115,7 +119,7 @@ public class MethodNode extends AbstractableElementNode {
                 '}';
     }
 
-    public void setInforFromASTNode(MethodDeclaration node, CompilationUnit cu) {
+    public void setInforFromASTNode(MethodDeclaration node, List<InitStatement> variableElements, CompilationUnit cu) {
         if (node.getName() != null) {
             if (node.getName().getIdentifier() != null) {
                 this.name = node.getName().getIdentifier();
@@ -126,6 +130,7 @@ public class MethodNode extends AbstractableElementNode {
             statements = node.getBody().statements();
         }
         this.setStatements(statements);
+
         //set ten cho phuong thuc
         this.setStartPosition(node.getStartPosition());
         int nodeLength = node.getLength();
@@ -140,7 +145,6 @@ public class MethodNode extends AbstractableElementNode {
             this.isConstructor = true;
             this.setReturnType("");
         }
-
 
         List visibilityList = node.modifiers();
         if (visibilityList.size() == 0) this.setVisibility(DEFAULT_MODIFIER);
@@ -248,26 +252,34 @@ public class MethodNode extends AbstractableElementNode {
                     }
                 }
             }
-
-
+        }
+        if (statements != null) {
+            parserStatements(variableElements, statements, parameters, cu);
         }
         this.addChildren(paraNodes, cu);
-
     }
+
+
+
 
     /**
      * parser and get info of statement
      * @param statements
      */
-    public void parserStatements (List statements) {
+    public void parserStatements (List<InitStatement> variableElements, List statements, List params, CompilationUnit cu) {
         for (Object stm : statements) {
+            //Init
             if (stm instanceof VariableDeclarationStatement) {
+                int line = cu.getLineNumber(((VariableDeclarationStatement) stm).getStartPosition());
+                VariableDeclarationStatement variable = (VariableDeclarationStatement) stm;
+                parserVariableDeclarationInfo(variableElements, variable, params, line);
+
                 System.out.println(((VariableDeclarationStatement) stm).getType());
             } else if (stm instanceof IfStatement) {
                 System.out.println(((IfStatement) stm).getExpression());
             } else if (stm instanceof ExpressionStatement) {
                 if (((ExpressionStatement) stm).getExpression() instanceof MethodInvocation) {
-                    System.out.println(stm.toString());
+                    parserMethodInVocationInfo();
                 } else if (((ExpressionStatement) stm).getExpression() instanceof Assignment) {
                     System.out.println("ASSIGN ment");
                     System.out.println(((Assignment) ((ExpressionStatement) stm).getExpression()).getLeftHandSide());
@@ -276,6 +288,25 @@ public class MethodNode extends AbstractableElementNode {
 
             }
         }
+    }
+
+    public void parserVariableDeclarationInfo(List<InitStatement> variableElements, VariableDeclarationStatement variableDeclarationStatement, List params, int line) {
+        List<VariableDeclarationFragment> astNodes = variableDeclarationStatement.fragments();
+        for(VariableDeclarationFragment astNode : astNodes) {
+            String valInit = null;
+            if (astNode.getInitializer() != null) {
+                valInit = astNode.getInitializer().toString();
+            }
+            InitInMethodStm initInMethodStm = new InitInMethodStm(variableDeclarationStatement.getType(), astNode.getName().getIdentifier(),
+                    valInit, this.getName(), params,  line);
+//            VariableElement variableElement = new VariableElement(AccessRange.IN_METHOD, this.getName() ,params ,
+//                    astNode.getName().getIdentifier(), variableDeclarationStatement.getType(), astNode.getInitializer().toString(), line);
+            variableElements.add(initInMethodStm);
+        }
+    }
+
+    public void parserMethodInVocationInfo() {
+        List<InitStatement> variableElements = new ArrayList<>();
     }
 
     public void printInfor() {

@@ -3,9 +3,13 @@ package jdb;
 import common.config.Configure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.FileHelper;
+import util.JDBHelper;
 import util.RunningHelper;
 
 import java.io.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class JDBDebugger {
     public static final Logger logger = LoggerFactory.getLogger(JDBDebugger.class);
@@ -13,22 +17,27 @@ public class JDBDebugger {
     PrintWriter printWriter;
     BufferedReader stdInput;
     public static final String END_RUN = "Breakpoint hit: \"thread=main\",";
+    public final String Separate_Char = "/huyenhuyen1204/";
 
     public JDBDebugger(String pathToSource, String pathToOutClass, String classname) throws IOException {
         RunningHelper.compileFolder(pathToSource, pathToOutClass);
         initDebugJDB(pathToSource, pathToOutClass, classname);
+//        this.process.getInputStream().
         stdInput = new BufferedReader(new
-                InputStreamReader(this.process.getInputStream()));
+                InputStreamReader(this.process.getInputStream(), StandardCharsets.UTF_8));
     }
 
 
-
     public void initDebugJDB(String pathTOSource, String pathToClass, String classname) throws IOException {
-        String cmd = "jdb -classpath  " + pathToClass + ";" +  Configure.APR_JAR_LIB + "\\oasis.jar;"
+        JDBHelper.setUTF8();
+        String cmd = "jdb -classpath  " + pathToClass + ";" + Configure.APR_JAR_LIB + "\\oasis.jar;"
                 + Configure.APR_JAR_LIB + "\\junit-4.12.jar junit.textui.TestRunner " + classname;
         logger.info(cmd);
         this.process = Runtime.getRuntime().exec(cmd, null, new File(pathTOSource));
-        this.printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream())), false);
+        this.printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream(),
+                StandardCharsets.UTF_8)), false);
+
+
     }
 
     public void addDebugJDB(String classname, int line) {
@@ -42,11 +51,27 @@ public class JDBDebugger {
         return printLog(END_RUN);
     }
 
-    public String printVarJDB(String var) throws IOException {
+
+    public String printVarJDB(String var) throws IOException, InterruptedException {
         this.printWriter.println("print " + var);
-        this.printWriter.flush(); //tra ra stream
-        String endvar = String.format("%s = ", var);
-        return printLog(endvar);
+        this.printWriter.flush();
+        Thread.sleep(1000);
+
+        this.printWriter.println("info");
+        this.printWriter.flush();
+
+        String s = printAllLog();
+        return parseLog(var, s);
+
+    }
+
+    private String parseLog(String var, String log) {
+        String newLog = log.replace(var + " =", Separate_Char);
+        String[] strings = log.split(Separate_Char);
+        if (strings.length > 1) {
+            return strings[1];
+        }
+        return null;
     }
 
     public void contJDB() throws IOException {
@@ -54,6 +79,7 @@ public class JDBDebugger {
         this.printWriter.flush(); //tra ra stream
         String end = printLog(END_RUN);
     }
+
     public void stepJDB() throws IOException {
         this.printWriter.println("step");
         this.printWriter.flush(); //tra ra stream
@@ -68,34 +94,40 @@ public class JDBDebugger {
 
     public String printLog(String endString) throws IOException {
         String result = "";
-        String s = null;
-        long  startTime = System.nanoTime();
-        while ((s = stdInput.readLine()) != null) {
-            System.out.println(s);
-            result += s + "\n";
-            if (s.contains(endString)) {
-                break;
-            }
-            long  endTime = System.nanoTime();
-            if(endTime-startTime > 1000000000) {
-                break;
-            }
-        }
-        return result;
+//        String s = null;
+//        long startTime = System.nanoTime();
+//        while ((s = stdInput.readLine()) != null) {
+//            System.out.println("==" + s);
+//            result += s + "\n";
+//            if (s.contains(endString)) {
+//                break;
+//            }
+//            long endTime = System.nanoTime();
+//            if (endTime - startTime > 1000000000) {
+//                break;
+//            }
+//        }
+        return "result";
     }
 
     public String printAllLog() throws IOException {
-        String result = "";
-        String s = null;
-        while ((s = stdInput.readLine()) != null) {
-            System.out.println(s);
-            result += s + "\n";
-        }
-        return result;
+//        String result = "";
+//        String s = null;
+//        while ((s = stdInput.readLine()) != null) {
+//            String f = new String(s.getBytes(StandardCharsets.UTF_16), "UTF-16");
+//            System.out.println("=> " + f);
+//            String breakline = "main[1] Unrecognized command: 'info'.  Try help...";
+//            if (s.trim().equals(breakline)) {
+//                break;
+//            }
+//            result += s + "\n";
+//        }
+        FileHelper.writeInputStreamToFile(this.process.getInputStream(), "C:\\Users\\Dell\\Desktop\\APR_test\\data_test\\83778\\OUT.txt");
+        return "result";
     }
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
 ////        CASE 1: test in this project
 //        JDBDebugger jdbDebugger = new JDBDebugger("C:\\Users\\Dell\\Desktop\\DebuRepair\\src\\main\\java"
 //                ,"C:\\Users\\Dell\\Desktop\\DebuRepair\\target\\classes", "MyTest1");
@@ -114,14 +146,14 @@ public class JDBDebugger {
 
         //CASE 2: test in student Project
         JDBDebugger jdbDebugger = new JDBDebugger("C:\\Users\\Dell\\Desktop\\APR_Test\\data_test\\83778"
-                ,"C:\\Users\\Dell\\Desktop\\APR_Test\\data_test\\83778", "MyTest");
+                , "C:\\Users\\Dell\\Desktop\\APR_Test\\data_test\\83778", "MyTest");
         jdbDebugger.addDebugJDB("MyTest", 78);
 //        jdbDebugger.addDebugJDB("MyTest", 21);
         jdbDebugger.runJDB();
 
-        String var  = jdbDebugger.printVarJDB("customerList");
+        String var = jdbDebugger.printVarJDB("customerList");
         System.out.println("===VARRR==: " + var);
-        for (int i = 0 ; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             jdbDebugger.stepJDB();
         }
 //        jdbDebugger.contJDB();

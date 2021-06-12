@@ -171,7 +171,7 @@ public class JDIExampleDebugger<T> {
                 String name = entry.getKey().name();
                 Value value = entry.getValue();
                 if (value instanceof StringReferenceImpl) {
-//                        System.out.println(entry.getValue().toString());
+                        System.out.println(entry.getValue().toString());
                     }
                  else if (value instanceof ObjectReference) {
                     ObjectReference ref = (ObjectReference) value;
@@ -227,14 +227,11 @@ public class JDIExampleDebugger<T> {
 
         JDIExampleDebugger debuggerInstance = new JDIExampleDebugger();
 
-        debuggerInstance.setDebugClass(TestRunner.class);
-        int[] breakPoints = {76, 77, 80, 82, 83};
-//        int[] breakPoints = {58};
+        debuggerInstance.setDebugClass(JDIExampleDebuggee.class);
+        int[] breakPoints = {13};
         debuggerInstance.setBreakPointLines(breakPoints);
         VirtualMachine vm = null;
-//        for (int i = 0; i < 2; i++) {
-//
-//        }
+
         try {
             vm = debuggerInstance.connectAndLaunchVM();
             debuggerInstance.enableClassPrepareRequest(vm);

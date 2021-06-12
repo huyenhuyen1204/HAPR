@@ -13,19 +13,24 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JDIHelper {
-    public static final Logger logger = LoggerFactory.getLogger(JDIHelper.class);
+public class JDBHelper {
+    public static final Logger logger = LoggerFactory.getLogger(JDBHelper.class);
     public static List<DebugPoint> genDebugPoints(FolderNode folderNode, List<AssertStatement> assertStatements, ClassNode classNode) {
         List<ClassNode> classNodes = folderNode.getClassNodes();
         List<DebugPoint> debugPoints = new ArrayList<>();
         for (AssertStatement assertStatement : assertStatements) {
+            //Case 1: AssertEqualStm
             if (assertStatement instanceof AssertEqualStm) {
+                //Case 1.1 MethodInvocation
                 if (((AssertEqualStm) assertStatement).getActual() instanceof MethodInvocation) {
                     MethodInvocation methodInvocation =
                             (MethodInvocation) ((AssertEqualStm) assertStatement).getActual();
+                    System.out.println(((AssertEqualStm) assertStatement).getExpected());
                     List params = methodInvocation.arguments();
                     MethodInvocationStm methodInvoStm = getClassName(methodInvocation);
                     InitStatement initStatement = classNode.findTypeVar(methodInvoStm.getVarClass(), methodInvoStm.getMethodName(), params);
@@ -60,6 +65,20 @@ public class JDIHelper {
             } else {
                 return null;
             }
+        }
+
+    }
+
+    public static void setUTF8()  {
+        System.setProperty("file.encoding", "UTF-8");
+
+        Field charset = null;
+        try {
+            charset = Charset.class.getDeclaredField("defaultCharset");
+            charset.setAccessible(true);
+            charset.set(null, null);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
         }
 
     }

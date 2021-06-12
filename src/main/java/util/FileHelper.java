@@ -7,8 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class FileHelper {
     private static Logger logger = LoggerFactory.getLogger(FileHelper.class);
@@ -568,6 +570,82 @@ public class FileHelper {
             ex.printStackTrace();
             return null;
         }
+    }
+    public static void writeInputStreamToFile(InputStream initialStream, String pathToFile) {
+//        String content = readOutput(initialStream);
+        String content = read(initialStream);
+        File file = new File(pathToFile);
+        FileWriter writer = null;
+        BufferedWriter bw = null;
+
+        try {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            if (!file.exists()) file.createNewFile();
+            writer = new FileWriter(file);
+            bw = new BufferedWriter(writer);
+            bw.write(content);
+            bw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(bw);
+            close(writer);
+        }
+    }
+    public static String readFromInputStream(InputStream inputStream) {
+//        BufferedReader stdInput = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+        String s = "";
+        String save = "";
+//        try {
+//            while ((s = stdInput.readLine()) != null) {
+//                String f = new String(s.getBytes(StandardCharsets.UTF_16), "UTF-16");
+//                save+=s;
+//                System.out.println(f);
+//                System.out.println("s=> " +s);
+//            }
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        Scanner scanner = new Scanner(inputStream, "UTF-8");
+        while (scanner.hasNextLine()) {
+            s = scanner.nextLine();
+            save += s;
+            System.out.println(s);
+        }
+        return save;
+    }
+
+    public static String readOutput(InputStream outputStream) {
+        byte[] buffer = new byte[100000];
+        String s = "";
+        int bytesRead;
+        try {
+            while (outputStream.available() > 0) {
+                bytesRead = outputStream.read(buffer);
+                if (bytesRead > 0) {
+                    s += new String(buffer, 0, bytesRead);
+                    System.out.print(new String(buffer, 0, bytesRead));
+                }
+            }
+        } catch (Exception e) {
+
+        }
+        return s;
+    }
+    public static String read(InputStream modified) {
+        String s  = "";
+        try {
+            int c;
+            while ((c = modified.read()) != -1)
+
+                System.out.print((char) c);
+            modified.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return s;
     }
 //    public int getCurrentCursorLine(String editText, int pos)
 //    {

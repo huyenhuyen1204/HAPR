@@ -573,7 +573,7 @@ public class FileHelper {
     }
     public static void writeInputStreamToFile(InputStream initialStream, String pathToFile) {
 //        String content = readOutput(initialStream);
-        String content = read(initialStream);
+        String content = readFromInputStream(initialStream);
         File file = new File(pathToFile);
         FileWriter writer = null;
         BufferedWriter bw = null;

@@ -30,8 +30,8 @@ public class JDBDebugger {
 
     public void initDebugJDB(String pathTOSource, String pathToClass, String classname) throws IOException {
         JDBHelper.setUTF8();
-        String cmd = "jdb -classpath  " + pathToClass + ";" + Configure.APR_JAR_LIB + "\\oasis.jar;"
-                + Configure.APR_JAR_LIB + "\\junit-4.12.jar junit.textui.TestRunner " + classname;
+        String cmd = "jdb -classpath  " + pathToClass + ";" + Configure.APR_JAR_LIB + File.separator + "oasis.jar;"
+                + Configure.APR_JAR_LIB + File.separator + "junit-4.12.jar junit.textui.TestRunner " + classname;
         logger.info(cmd);
         this.process = Runtime.getRuntime().exec(cmd, null, new File(pathTOSource));
         this.printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream(),

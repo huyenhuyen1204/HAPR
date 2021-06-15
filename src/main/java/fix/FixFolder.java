@@ -29,7 +29,7 @@ public class FixFolder {
     public static final Logger logger = LoggerFactory.getLogger(FixFolder.class);
 
     public static void main(String[] args) throws IOException, NoSuchFieldException, IllegalAccessException, InterruptedException {
-        String pathToSouce = "/home/macvan/Documents/tmp/swimming/HAPR/data_test/83778";
+        String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83778/";
         //TODO: copy TestRunner to folder
         //Compile and run (to get testcase)
         RunningHelper.compileFolder(pathToSouce, pathToSouce);

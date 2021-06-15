@@ -175,15 +175,15 @@ public class MyTestParser {
     public void parserStatements(List statements) {
         for (Object stm : statements) {
             if (stm instanceof VariableDeclarationStatement) {
-                System.out.println(((VariableDeclarationStatement) stm).getType());
+//                System.out.println(((VariableDeclarationStatement) stm).getType());
             } else if (stm instanceof IfStatement) {
-                System.out.println(((IfStatement) stm).getExpression());
+//                System.out.println(((IfStatement) stm).getExpression());
             } else if (stm instanceof ExpressionStatement) {
                 if (((ExpressionStatement) stm).getExpression() instanceof MethodInvocation) {
-                    System.out.println(stm.toString());
+//                    System.out.println(stm.toString());
                 } else if (((ExpressionStatement) stm).getExpression() instanceof Assignment) {
-                    System.out.println("ASSIGN ment");
-                    System.out.println(((Assignment) ((ExpressionStatement) stm).getExpression()).getLeftHandSide());
+//                    System.out.println("ASSIGN ment");
+//                    System.out.println(((Assignment) ((ExpressionStatement) stm).getExpression()).getLeftHandSide());
                 }
             } else if (stm instanceof ReturnStatement) {
 

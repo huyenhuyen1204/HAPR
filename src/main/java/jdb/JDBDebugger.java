@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileHelper;
 import util.JDBHelper;
+import util.OSHelper;
 import util.RunningHelper;
 
 import java.io.*;
@@ -30,7 +31,8 @@ public class JDBDebugger {
 
     public void initDebugJDB(String pathTOSource, String pathToClass, String classname) throws IOException {
         JDBHelper.setUTF8();
-        String cmd = "jdb -classpath  " + pathToClass + ";" + Configure.APR_JAR_LIB + File.separator + "oasis.jar;"
+        String cmd = "jdb -classpath  " + pathToClass + OSHelper.delimiter()
+                + Configure.APR_JAR_LIB + File.separator + "oasis.jar" + OSHelper.delimiter()
                 + Configure.APR_JAR_LIB + File.separator + "junit-4.12.jar junit.textui.TestRunner " + classname;
         logger.info(cmd);
         this.process = Runtime.getRuntime().exec(cmd, null, new File(pathTOSource));
@@ -67,7 +69,7 @@ public class JDBDebugger {
 
     private String parseLog(String var, String log) {
         String newLog = log.replace(var + " =", Separate_Char);
-        String[] strings = log.split(Separate_Char);
+        String[] strings = newLog.split(Separate_Char);
         if (strings.length > 1) {
             return strings[1];
         }
@@ -94,36 +96,35 @@ public class JDBDebugger {
 
     public String printLog(String endString) throws IOException {
         String result = "";
-//        String s = null;
-//        long startTime = System.nanoTime();
-//        while ((s = stdInput.readLine()) != null) {
-//            System.out.println("==" + s);
-//            result += s + "\n";
-//            if (s.contains(endString)) {
-//                break;
-//            }
-//            long endTime = System.nanoTime();
-//            if (endTime - startTime > 1000000000) {
-//                break;
-//            }
-//        }
-        return "result";
+        String s = null;
+        long startTime = System.nanoTime();
+        while ((s = stdInput.readLine()) != null) {
+            System.out.println("==" + s);
+            result += s + "\n";
+            if (s.contains(endString)) {
+                break;
+            }
+            long endTime = System.nanoTime();
+            if (endTime - startTime > 1000000000) {
+                break;
+            }
+        }
+        return result;
     }
 
     public String printAllLog() throws IOException {
-//        String result = "";
-//        String s = null;
-//        while ((s = stdInput.readLine()) != null) {
-//            String f = new String(s.getBytes(StandardCharsets.UTF_16), "UTF-16");
-//            System.out.println("=> " + f);
-//            String breakline = "main[1] Unrecognized command: 'info'.  Try help...";
-//            if (s.trim().equals(breakline)) {
-//                break;
-//            }
-//            result += s + "\n";
-//        }
-        FileHelper.writeInputStreamToFile(this.process.getInputStream(), "C:\\Users\\Dell\\Desktop\\APR_test\\data_test\\83778\\OUT.txt");
-        return "result";
+        String result = "";
+        String s = null;
+        while ((s = stdInput.readLine()) != null) {
+            System.out.println("=> " + s);
+            String breakline = "main[1] Unrecognized command: 'info'.  Try help...";
+            if (s.trim().equals(breakline)) {
+                break;
+            }
+            result += s + "\n";
+        }
+//        FileHelper.writeInputStreamToFile(this.process.getInputStream(), "C:\\Users\\Dell\\Desktop\\APR_test\\data_test\\83778\\OUT.txt");
+        return result;
     }
 
 
@@ -153,9 +154,9 @@ public class JDBDebugger {
 
         String var = jdbDebugger.printVarJDB("customerList");
         System.out.println("===VARRR==: " + var);
-        for (int i = 0; i < 10; i++) {
-            jdbDebugger.stepJDB();
-        }
+//        for (int i = 0; i < 10; i++) {
+//            jdbDebugger.stepJDB();
+//        }
 //        jdbDebugger.contJDB();
 //        String var1 = jdbDebugger.printVarJDB("Assert.assertEquals(237225996L, customerList.get(3).getIdNumber())");
 //        System.out.println("===VARRR=="+  var1);

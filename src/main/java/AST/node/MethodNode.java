@@ -274,15 +274,15 @@ public class MethodNode extends AbstractableElementNode {
                 VariableDeclarationStatement variable = (VariableDeclarationStatement) stm;
                 parserVariableDeclarationInfo(variableElements, variable, params, line);
 
-                System.out.println(((VariableDeclarationStatement) stm).getType());
+//                System.out.println(((VariableDeclarationStatement) stm).getType());
             } else if (stm instanceof IfStatement) {
-                System.out.println(((IfStatement) stm).getExpression());
+//                System.out.println(((IfStatement) stm).getExpression());
             } else if (stm instanceof ExpressionStatement) {
                 if (((ExpressionStatement) stm).getExpression() instanceof MethodInvocation) {
                     parserMethodInVocationInfo();
                 } else if (((ExpressionStatement) stm).getExpression() instanceof Assignment) {
-                    System.out.println("ASSIGN ment");
-                    System.out.println(((Assignment) ((ExpressionStatement) stm).getExpression()).getLeftHandSide());
+//                    System.out.println("ASSIGN ment");
+//                    System.out.println(((Assignment) ((ExpressionStatement) stm).getExpression()).getLeftHandSide());
                 }
             } else if (stm instanceof ReturnStatement) {
 

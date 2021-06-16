@@ -1,6 +1,7 @@
 package util;
 
 import AST.obj.DebugPoint;
+import fix.object.DebugData;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -14,10 +15,10 @@ import static java.util.Arrays.asList;
 
 public class JavaLibrary {
 
-	public static boolean debugPointContainsName(final List<DebugPoint> list, final DebugPoint debugPoint){
+	public static boolean debugPointContainsName(final List<DebugData> list, final DebugData debugData){
 		if (list.size() > 0) {
-			return list.stream().filter(o -> (o.getClassname().equals(debugPoint.getClassname())
-					&& o.getLine() == debugPoint.getLine())).findFirst().isPresent();
+			return list.stream().filter(o -> (o.getDebugPoint().getClassname().equals(debugData.getDebugPoint().getClassname())
+					&& o.getDebugPoint().getLine() == debugData.getDebugPoint().getLine())).findFirst().isPresent();
 		} else {
 			return false;
 		}

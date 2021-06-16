@@ -30,6 +30,7 @@ public class ClassNode extends AbstractableElementNode {
     protected int numOfmethod;
     protected int numOfvariable;
     protected int line;
+    @JsonIgnore
     protected List<InitStatement> variables; //to save var & type when init
     private List<MethodTest> methodTests;
 

@@ -3,7 +3,9 @@ package AST.node;
 import AST.stm.InitInMethodStm;
 import AST.stm.abstrct.InitStatement;
 import AST.parser.ASTHelper;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.eclipse.jdt.core.dom.*;
 
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ public class MethodNode extends AbstractableElementNode {
     private boolean isConstructor = false;
     private int startLine;
     private int endLine;
+    @JsonIgnore
     private List statements;
 
     public List getStatements() {

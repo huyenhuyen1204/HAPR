@@ -61,7 +61,7 @@ public class MyTestParser {
             for (MethodNode methodNode : methodNodes) {
                 MethodTest methodTest = parserAssertStatements(methodNode, type, cu);
                 methodTests.add(methodTest);
-                System.out.println(methodNode.toString());
+//                System.out.println(methodNode.toString());
             }
             classNode.setMethodTests(methodTests);
         }

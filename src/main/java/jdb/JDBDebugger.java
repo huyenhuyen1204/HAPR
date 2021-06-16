@@ -47,24 +47,32 @@ public class JDBDebugger {
         this.printWriter.flush(); //tra ra stream
     }
 
-    public String runJDB() throws IOException {
-        this.printWriter.println("run");
-        this.printWriter.flush(); //tra ra stream
-        return printLog(END_RUN);
+    public String runJDB() {
+        try {
+            this.printWriter.println("run");
+            this.printWriter.flush(); //tra ra stream
+            return printLog(END_RUN);
+        } catch (IOException e) {
+            logger.error("Run JDB error");
+        }
+        return null;
     }
 
 
-    public String printVarJDB(String var) throws IOException, InterruptedException {
-        this.printWriter.println("print " + var);
-        this.printWriter.flush();
-        Thread.sleep(1000);
+    public String printVarJDB(String var) {
 
-        this.printWriter.println("info");
-        this.printWriter.flush();
-
-        String s = printAllLog();
-        return parseLog(var, s);
-
+        try {
+            this.printWriter.println("print " + var);
+            this.printWriter.flush();
+            Thread.sleep(1000);
+            this.printWriter.println("info");
+            this.printWriter.flush();
+            String s = printAllLog();
+            return parseLog(var, s);
+        } catch (InterruptedException | IOException e) {
+           logger.error("Print var ERROR: " + var);
+        }
+        return null;
     }
 
     private String parseLog(String var, String log) {

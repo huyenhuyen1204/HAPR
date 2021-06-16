@@ -4,10 +4,12 @@ import AST.node.ClassNode;
 import AST.node.FolderNode;
 import AST.node.MethodNode;
 import AST.obj.DebugPoint;
+import AST.obj.MethodTest;
 import AST.stm.AssertEqualStm;
 import AST.stm.MethodInvocationStm;
 import AST.stm.abstrct.AssertStatement;
 import AST.stm.abstrct.InitStatement;
+import fix.object.DebugData;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.slf4j.Logger;
@@ -20,9 +22,10 @@ import java.util.List;
 
 public class JDBHelper {
     public static final Logger logger = LoggerFactory.getLogger(JDBHelper.class);
-    public static List<DebugPoint> genDebugPoints(FolderNode folderNode, List<AssertStatement> assertStatements, ClassNode classNode) {
+    public static List<DebugData> genDebugPoints(FolderNode folderNode, MethodTest methodTest, ClassNode classNode) {
+        List<AssertStatement> assertStatements = methodTest.getAssertList();
         List<ClassNode> classNodes = folderNode.getClassNodes();
-        List<DebugPoint> debugPoints = new ArrayList<>();
+        List<DebugData> debugDatas = new ArrayList<>();
         for (AssertStatement assertStatement : assertStatements) {
             //Case 1: AssertEqualStm
             if (assertStatement instanceof AssertEqualStm) {
@@ -30,17 +33,19 @@ public class JDBHelper {
                 if (((AssertEqualStm) assertStatement).getActual() instanceof MethodInvocation) {
                     MethodInvocation methodInvocation =
                             (MethodInvocation) ((AssertEqualStm) assertStatement).getActual();
-                    System.out.println(((AssertEqualStm) assertStatement).getExpected());
+
                     List params = methodInvocation.arguments();
+
                     MethodInvocationStm methodInvoStm = getClassName(methodInvocation);
-                    InitStatement initStatement = classNode.findTypeVar(methodInvoStm.getVarClass(), methodInvoStm.getMethodName(), params);
+                    InitStatement initStatement = classNode.findTypeVar(methodInvoStm.getVarClass(), methodTest.getMethodName(), params);
                     if (initStatement != null) {
                         if (methodInvoStm != null) {
                             MethodNode methodNode = ParserHelper.findMethodInClass(classNodes, initStatement.getType().toString(), methodInvoStm.getMethodName(), params);
                             if (initStatement != null) {
                                 DebugPoint debugPoint = new DebugPoint(initStatement.getType(), methodNode.getEndLine());
-                                if (!JavaLibrary.debugPointContainsName(debugPoints, debugPoint)) {
-                                    debugPoints.add(debugPoint);
+                                DebugData debugData = new DebugData(debugPoint, ((AssertEqualStm) assertStatement).getExpected());
+                                if (!JavaLibrary.debugPointContainsName(debugDatas, debugData)) {
+                                    debugDatas.add(debugData);
                                 }
                             }
                         }
@@ -51,7 +56,7 @@ public class JDBHelper {
                 }
             }
         }
-        return debugPoints;
+        return debugDatas;
     }
 
     public static MethodInvocationStm getClassName(MethodInvocation methodInvocation) {
@@ -82,4 +87,5 @@ public class JDBHelper {
         }
 
     }
+
 }

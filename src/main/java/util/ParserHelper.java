@@ -1,6 +1,7 @@
 package util;
 
 import AST.node.ClassNode;
+import AST.node.FolderNode;
 import AST.node.MethodNode;
 
 import java.util.List;
@@ -10,6 +11,15 @@ public class ParserHelper {
         for (ClassNode classNode : classNodes) {
             if(classNode.getName().equals(classname)) {
                 return classNode.findMethodNode(methodname, params);
+            }
+        }
+        return null;
+    }
+    public static ClassNode findByClassName (FolderNode folderNode, String classname) {
+        List<ClassNode> classNodes = folderNode.getClassNodes();
+        for (ClassNode classNode : classNodes) {
+            if(classNode.getName().equals(classname)) {
+                return classNode;
             }
         }
         return null;

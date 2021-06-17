@@ -1,9 +1,6 @@
 package AST.parser;
 
-import AST.node.ClassNode;
-import AST.node.FieldNode;
-import AST.node.MethodNode;
-import AST.node.Node;
+import AST.node.*;
 import AST.stm.abstrct.InitStatement;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -14,20 +11,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Convert {
-    public static List<Node> convertASTListNodeToFieldNode(FieldDeclaration[] fields, List<InitStatement> variableElements) {
+    public static List<Node> convertASTListNodeToFieldNode(FieldDeclaration[] fields, CompilationUnit cu, List<InitNode> initNodes) {
         List<Node> result = new ArrayList<>();
         for (int i = 0; i < fields.length; i++) {
-            List<FieldNode> fieldNodes = FieldNode.setInforFromASTNode(fields[i], variableElements);
+            List<FieldNode> fieldNodes = FieldNode.setInforFromASTNode(fields[i], cu, initNodes);
             result.addAll(fieldNodes);
         }
         return result;
     }
 
-    public static List<Node> convertASTListNodeToMethodNode(MethodDeclaration[] methods, List<InitStatement> variableElements , CompilationUnit cu) {
+    public static List<Node> convertASTListNodeToMethodNode(MethodDeclaration[] methods,  CompilationUnit cu) {
         List<Node> result = new ArrayList<>();
         for (int i = 0; i < methods.length; i++) {
             MethodNode methodNode = new MethodNode();
-            methodNode.setInforFromASTNode(methods[i], variableElements, cu);
+            methodNode.setInforFromASTNode(methods[i],  cu);
             result.add(methodNode);
         }
         return result;

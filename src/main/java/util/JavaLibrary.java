@@ -1,7 +1,5 @@
 package util;
 
-import AST.obj.DebugPoint;
-import fix.object.DebugData;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -15,14 +13,20 @@ import static java.util.Arrays.asList;
 
 public class JavaLibrary {
 
-	public static boolean debugPointContainsName(final List<DebugData> list, final DebugData debugData){
-		if (list.size() > 0) {
-			return list.stream().filter(o -> (o.getDebugPoint().getClassname().equals(debugData.getDebugPoint().getClassname())
-					&& o.getDebugPoint().getLine() == debugData.getDebugPoint().getLine())).findFirst().isPresent();
+	public static void compareTwoString(String a, String b) {
+		String[] listA = a.split(" ");
+		String[] listB = b.split(" ");
+		if (listA.length != listB.length) {
+			System.out.println("Diff");
 		} else {
-			return false;
+			for (int i = 0; i < a.length(); i++) {
+				if (a.charAt(i) != b.charAt(i)) {
+					System.out.println("At " + i + ": " + a.charAt(i)  + " - " + b.charAt(i));
+				}
+			}
 		}
 	}
+
 
 	public static URL[] classPathFrom(String classpath) {
 		List<String> folderNames = split(classpath, classpathSeparator());

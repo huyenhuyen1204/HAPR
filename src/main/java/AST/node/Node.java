@@ -125,8 +125,6 @@ public class Node implements Serializable {
     public void addChildren(List<Node> children, CompilationUnit cu) {
         for (Node node : children) {
             int lineNumber = cu.getLineNumber(node.getStartPosition());
-//            int nodeLength = node.le;
-
             node.setStartLine(lineNumber);
             node.setParentNodeId(this.getId());
             node.setParent(this);

@@ -76,7 +76,7 @@ public class JDBDebugger {
     }
 
     private String parseLog(String var, String log) {
-        String newLog = log.replace(var + " =", Separate_Char);
+        String newLog = log.replace(var + " = ", Separate_Char);
         String[] strings = newLog.split(Separate_Char);
         if (strings.length > 1) {
             return strings[1];
@@ -90,10 +90,10 @@ public class JDBDebugger {
         String end = printLog(END_RUN);
     }
 
-    public void stepJDB() throws IOException {
+    public void stepJDB() {
         this.printWriter.println("step");
         this.printWriter.flush(); //tra ra stream
-        String end = printLog(END_RUN);
+//        String end = printLog(END_RUN);
     }
 
     public void destroyProcessJDB() {

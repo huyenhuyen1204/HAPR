@@ -2,8 +2,11 @@ package AST.stm;
 
 import AST.stm.abstrct.InitStatement;
 
+import java.util.List;
+
 public class InitInClassStm extends InitStatement {
     private String classname;
+    private List statements;
 
     public String getClassname() {
         return classname;
@@ -20,6 +23,18 @@ public class InitInClassStm extends InitStatement {
         this.type = type;
         this.varName = varname;
         this.line = line;
+    }
+
+    public void addStatement(Object stm) {
+        this.statements.add(stm);
+    }
+
+    public List getStatements() {
+        return statements;
+    }
+
+    public void setStatements(List statements) {
+        this.statements = statements;
     }
 
     @Override

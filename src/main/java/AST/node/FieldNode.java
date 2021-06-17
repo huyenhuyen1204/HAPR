@@ -45,14 +45,13 @@ public class FieldNode extends VisibleElementNode {
                 '}';
     }
 
-    public static List<FieldNode> setInforFromASTNode(FieldDeclaration node, List<InitStatement> variableElements) {
+    public static List<FieldNode> setInforFromASTNode(FieldDeclaration node, CompilationUnit cu, List<InitNode> initNodes) {
         List<FieldNode> fieldNodes = new ArrayList<>();
         for (int i = 0; i < node.fragments().size(); i++) {
             FieldNode fieldNode = new FieldNode();
             fieldNode.setType(ASTHelper.getFullyQualifiedName(node.getType(), (CompilationUnit)node.getRoot()));
             fieldNode.setStartPosition(node.getStartPosition());
-
-
+            fieldNode.setStartLine(cu.getLineNumber(node.getStartPosition()));
             //set ten cua thuoc tinh
             if (node.fragments().get(i) instanceof VariableDeclarationFragment) {
                 VariableDeclarationFragment vdf = (VariableDeclarationFragment) node.fragments().get(i);
@@ -91,11 +90,12 @@ public class FieldNode extends VisibleElementNode {
                 }
             }
             fieldNodes.add(fieldNode);
-            InitInClassStm initInClass = new InitInClassStm(fieldNode.getType(),fieldNode.getName(), fieldNode.getValue(),
-                    ((TypeDeclaration) node.getParent()).getName().getIdentifier(), fieldNode.getStartLine());
+            InitInClassNode initInClassNode = new InitInClassNode(fieldNode.getName(), fieldNode.getStartLine(), fieldNode.getType());
+//            InitInClassStm initInClass = new InitInClassStm(,, fieldNode.getValue(),
+//                    ((TypeDeclaration) node.getParent()).getName().getIdentifier(), );
 //            InitInClass variableElement = new I(AccessRange.IN_CLASS, ((TypeDeclaration) node.getParent()).getName().getIdentifier(),
 //                    null, fieldNode.getName(), fieldNode.getType(), fieldNode.getValue(), fieldNode.getStartLine());
-            variableElements.add(initInClass);
+            initNodes.add(initInClassNode);
         }
         return fieldNodes;
 //        //TODO chua xet cac truong hop cua type

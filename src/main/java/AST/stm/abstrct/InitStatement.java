@@ -1,16 +1,11 @@
 package AST.stm.abstrct;
 
-import AST.model.Statement;
 
-public abstract class InitStatement implements Statement {
-    protected int line;
+public abstract class InitStatement extends Statement {
     protected String varName;
     protected Object type;
     protected Object value;
 
-    public abstract int getLine();
-
-    public abstract void setLine(int line) ;
 
     public abstract String getVarName();
 

@@ -1,7 +1,10 @@
 package AST.stm;
 
-public class MethodInvocationStm {
+import AST.stm.abstrct.Statement;
+
+public class MethodInvocationStm extends Statement {
     private String varClass;
+    private Object typeVarClass;
     private String methodName;
 
     public MethodInvocationStm() {
@@ -26,5 +29,23 @@ public class MethodInvocationStm {
 
     public void setMethodName(String methodName) {
         this.methodName = methodName;
+    }
+
+    public Object getTypeVarClass() {
+        return typeVarClass;
+    }
+
+    public void setTypeVarClass(Object typeVarClass) {
+        this.typeVarClass = typeVarClass;
+    }
+
+    @Override
+    public int getLine() {
+        return line;
+    }
+
+    @Override
+    public void setLine(int line) {
+        this.line = line;
     }
 }

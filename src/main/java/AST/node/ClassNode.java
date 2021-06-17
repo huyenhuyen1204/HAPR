@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by cuong on 3/22/2017.
@@ -31,7 +30,7 @@ public class ClassNode extends AbstractableElementNode {
     protected int numOfvariable;
     protected int line;
     @JsonIgnore
-    protected List<InitStatement> variables; //to save var & type when init
+    protected List<InitNode> initNodes; //to save var & type when init
     private List<MethodTest> methodTests;
 
     public String getParentClass() {
@@ -82,13 +81,7 @@ public class ClassNode extends AbstractableElementNode {
         this.line = line;
     }
 
-    public List<InitStatement> getVariables() {
-        return variables;
-    }
 
-    public void setVariables(List<InitStatement> variables) {
-        this.variables = variables;
-    }
 
     public List<MethodTest> getMethodTests() {
         return methodTests;
@@ -98,11 +91,19 @@ public class ClassNode extends AbstractableElementNode {
         this.methodTests = methodTests;
     }
 
+    public List<InitNode> getInitNodes() {
+        return initNodes;
+    }
+
+    public void setInitNodes(List<InitNode> initNodes) {
+        this.initNodes = initNodes;
+    }
+
     public ClassNode() {
         super();
         interfaceList = new ArrayList<>();
-        this.variables = new ArrayList<>();
         this.methodTests = new ArrayList<>();
+        this.initNodes = new ArrayList<>();
     }
 
 
@@ -207,14 +208,15 @@ public class ClassNode extends AbstractableElementNode {
 
         //lay cac properties
         FieldDeclaration[] fieldList = node.getFields();
-        List<Node> fieldNodes = Convert.convertASTListNodeToFieldNode(fieldList, variables);
+        List<Node> fieldNodes = Convert.convertASTListNodeToFieldNode(fieldList, cu, initNodes);
 
         this.addChildren(fieldNodes, cu);
         //lay cac methods
         MethodDeclaration[] methodList = node.getMethods();
-        List<Node> methodNodes = Convert.convertASTListNodeToMethodNode(methodList, variables, cu);
-
+        List<Node> methodNodes = Convert.convertASTListNodeToMethodNode(methodList, cu);
         this.addChildren(methodNodes, cu);
+
+        parserStatements(methodNodes, cu);
 
         //TODO lay cac class con ben trong
         TypeDeclaration[] classList = node.getTypes();
@@ -246,47 +248,75 @@ public class ClassNode extends AbstractableElementNode {
         }
 
     }
-
-    public InitStatement findTypeVar(String varName, String methodName, List params) {
-        List<InitStatement> variableElements = new ArrayList<>();
-        List<InitStatement> temp = new ArrayList<>();
-            //varname in method
-            for (int i = variables.size() - 1; i >= 0; i--) {
-                InitStatement var = variables.get(i);
-                if (var.getVarName().equals(varName)) {
-                    variableElements.add(var);
-                    temp.add(var);
-                }
-            }
-            for (InitStatement varElement : variableElements) {
-                //case 1: init in method
-                if (varElement instanceof InitInMethodStm) {
-                    if (((InitInMethodStm) varElement).getMethodName().equals(methodName)) {
-                        //TODO: need edit compare params
-                        if (((InitInMethodStm) varElement).getParams().equals(params)) {
-                            return varElement;
-                        } else {
-                            temp.remove(varElement);
-                        }
-                    } else {
-                        // !methodName
-                        temp.remove(varElement);
-                    }
-                }
-            }
-            //case 2: init in class
-            if (temp.size() == 1) {
-                return temp.get(0);
-            } else {
-                for (InitStatement var : variableElements) {
-                    logger.error("=>CHƯA XỬ LÝ 1: " + var.print(methodName));
-                }
-            }
-
-
-
-        return null;
+    private void parserStatements(List<Node> methodNodes, CompilationUnit cu) {
+        for (Node node: methodNodes) {
+            MethodNode methodNode = (MethodNode) node;
+            methodNode.parserStatements(methodNode.getStatements(), cu);
+        }
     }
+
+//    public InitStatement findTypeVar(String varName, String methodName, List<ParameterNode> params) {
+//        List<InitStatement> variableElements = new ArrayList<>();
+//        List<InitStatement> temp = new ArrayList<>();
+//        //varname in method
+//        for (int i = variables.size() - 1; i >= 0; i--) {
+//            InitStatement var = variables.get(i);
+//            if (var.getVarName().equals(varName)) {
+//                variableElements.add(var);
+//                temp.add(var);
+//            }
+//        }
+
+//        //case 2: init in class
+//        if (temp.size() == 1 && variableElements.size() == 1) {
+//            return temp.get(0);
+//        } else {
+//            for (InitStatement var : variableElements) {
+//                logger.error("=>CHƯA XỬ LÝ 1:findTypeVar: " + var.print(methodName));
+//            }
+//        }
+
+//        for (InitStatement varElement : variableElements) {
+//            //case 1: init in method
+//            if (varElement instanceof InitInMethodStm) {
+//                if (((InitInMethodStm) varElement).getMethodName().equals(methodName)) {
+//                    //TODO: need edit compare params
+//                    if (compareParams(params, ((InitInMethodStm) varElement).getParams())) {
+//                        return varElement;
+//                    } else {
+//                        temp.remove(varElement);
+//                    }
+//                } else {
+//                    // !methodName
+//                    temp.remove(varElement);
+//                }
+//            }
+//        }
+//
+//        //case 2: init in class
+//        if (temp.size() == 1 && variableElements.size() == 1) {
+//            return temp.get(0);
+//        } else {
+//            for (InitStatement var : variableElements) {
+//                logger.error("=>CHƯA XỬ LÝ 1:findTypeVar: " + var.print(methodName));
+//            }
+//        }
+//
+//        return null;
+//    }
+
+    public int findIndexTypeVar(String varname) {
+        for (int i = 0; i < initNodes.size(); i ++) {
+            InitNode initNode = initNodes.get(i);
+            if (initNode instanceof InitInClassNode) {
+                if (initNode.getVarname().equals(varname)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
 
     public MethodNode findMethodNode(String methodName, List params) {
         for (MethodNode methodNode : getMethodList()) {

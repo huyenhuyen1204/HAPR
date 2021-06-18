@@ -1,6 +1,9 @@
 package AST.obj;
 
+import org.eclipse.jdt.core.dom.SimpleType;
+
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BaseType {
@@ -8,10 +11,12 @@ public class BaseType {
     private List<String> argurements;
 
     public BaseType() {
+        this.argurements = new ArrayList<>();
     }
 
     public BaseType(String type, List<String> argurements) {
         this.type = type;
+        this.argurements = new ArrayList<>();
         this.argurements = argurements;
     }
 
@@ -31,9 +36,11 @@ public class BaseType {
         return argurements;
     }
 
-    public void setArgurements(Type[] argurements) {
-        for (Type type : argurements) {
-            this.argurements.add(type.getTypeName());
+    public void setArgurements(List argurements) {
+        for (Object type : argurements) {
+            if (type instanceof SimpleType) {
+                this.argurements.add(((SimpleType) type).getName().getFullyQualifiedName());
+            }
         }
     }
 }

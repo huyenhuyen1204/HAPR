@@ -2,8 +2,7 @@ package AST.node;
 
 import AST.obj.BaseType;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import org.eclipse.jdt.core.dom.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +20,10 @@ public class InitInClassNode extends InitNode{
     private void addType(Object type) {
         if (type instanceof ParameterizedType) {
             BaseType baseType = new BaseType();
-            baseType.setType(((ParameterizedType) type).getTypeName());
-            Type[] types = ((ParameterizedType) type).getActualTypeArguments();
+            baseType.setType(((ParameterizedType) type).getType().toString());
+            List types = ((ParameterizedType) type).typeArguments();
             baseType.setArgurements(types);
+            this.setType(baseType);
         } else {
             this.setType(type);
         }

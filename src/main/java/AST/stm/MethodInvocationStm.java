@@ -2,33 +2,55 @@ package AST.stm;
 
 import AST.stm.abstrct.Statement;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MethodInvocationStm extends Statement {
-    private String varClass;
+    private String varName;
     private Object typeVarClass;
-    private String methodName;
+    private String methodCalled = null; // eg: student.getname() - method called is getname
+    //for list method call eg: customerList.get(0).toString()
+    // methods called: get, tostring
+    private List<String> methodsCalled;
 
     public MethodInvocationStm() {
     }
 
-    public MethodInvocationStm(String varClass, String methodName) {
-        this.varClass = varClass;
-        this.methodName = methodName;
+    public MethodInvocationStm(List<String> methods) {
+        methodsCalled = new ArrayList<>();
+        this.varName = methods.get(methods.size() -1);
+        for (int i = methods.size()-2; i >=0; i --) {
+            methodsCalled.add(methods.get(i));
+        }
     }
 
-    public String getVarClass() {
-        return varClass;
+    public List<String> getMethodsCalled() {
+        return methodsCalled;
     }
 
-    public void setVarClass(String varClass) {
-        this.varClass = varClass;
+    public void setMethodsCalled(List<String> methodsCalled) {
+        this.methodsCalled = methodsCalled;
     }
 
-    public String getMethodName() {
-        return methodName;
+    public MethodInvocationStm(String varName, String methodCalled) {
+        this.varName = varName;
+        this.methodCalled = methodCalled;
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
+    public String getVarName() {
+        return varName;
+    }
+
+    public void setVarName(String varName) {
+        this.varName = varName;
+    }
+
+    public String getMethodCalled() {
+        return methodCalled;
+    }
+
+    public void setMethodCalled(String methodCalled) {
+        this.methodCalled = methodCalled;
     }
 
     public Object getTypeVarClass() {

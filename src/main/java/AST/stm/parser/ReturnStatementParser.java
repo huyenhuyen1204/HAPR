@@ -1,15 +1,12 @@
 package AST.stm.parser;
 
-import AST.node.ClassNode;
 import AST.node.MethodNode;
 import AST.stm.MethodInvocationStm;
-import AST.stm.abstrct.InitStatement;
 import AST.stm.abstrct.Statement;
 import org.eclipse.jdt.core.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 //Just for return method
@@ -87,8 +84,8 @@ public class ReturnStatementParser {
             for (Statement statement : rootVar) {
                 if (statement instanceof MethodInvocationStm
                 && stm instanceof MethodInvocationStm ) {
-                    if (((MethodInvocationStm) stm).getVarClass()
-                    .equals(((MethodInvocationStm) statement).getVarClass())) {
+                    if (((MethodInvocationStm) stm).getVarName()
+                    .equals(((MethodInvocationStm) statement).getVarName())) {
                         varRelationship.add(stm);
                     }
                 }

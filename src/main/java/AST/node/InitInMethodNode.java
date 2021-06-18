@@ -1,5 +1,9 @@
 package AST.node;
 
+import AST.obj.BaseType;
+import org.eclipse.jdt.core.dom.ParameterizedType;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +25,19 @@ public class InitInMethodNode extends InitNode{
         this.line = line;
         this.methodNode = methodNode;
         this.varname = varname;
-        setType();
+        addType(type);
         this.statements = new ArrayList();
+    }
+    private void addType(Object type) {
+        if (type instanceof ParameterizedType) {
+            BaseType baseType = new BaseType();
+            baseType.setType(((ParameterizedType) type).getType().toString());
+            List types = ((ParameterizedType) type).typeArguments();
+            baseType.setArgurements(types);
+            this.setType(baseType);
+        } else {
+            this.setType(type);
+        }
     }
     @Override
     public void addStatement(StatementNode stm) {

@@ -331,12 +331,13 @@ public class MethodNode extends AbstractableElementNode {
         if (methodInvocation.getExpression() instanceof MethodInvocation) {
             //TODO: Test this case with AssertEquals
             MethodInvocation methodInvo = (MethodInvocation) methodInvocation.getExpression();
-            MethodInvocationStm methodInvocationStm = new MethodInvocationStm(methodInvo.getName().getIdentifier(),
-                    this.getName());
-            String classname = methodInvocationStm.getVarClass();
+
+            String classname = ((SimpleName) methodInvocation.getExpression()).getIdentifier();
             String methodName = methodInvocation.getName().getIdentifier();
+            MethodInvocationStm methodInvocationStm = new MethodInvocationStm(classname,
+                    methodName);
             //set type
-            int index = findIndexTypeVar(methodInvocationStm.getVarClass(), this.getName(), line);
+            int index = findIndexTypeVar(classname,  this.getName(), line);
 
             if (index >= 0) {
                 methodInvocationStm.setTypeVarClass(initNodes.get(index).getType());
@@ -345,10 +346,11 @@ public class MethodNode extends AbstractableElementNode {
                 index = classNode.findIndexTypeVar(methodInvocationStm.getVarClass());
                 if (index >= 0) {
                     methodInvocationStm.setTypeVarClass(classNode.getInitNodes().get(index).getType());
+                    classNode.getInitNodes().get(index).addStatement(new StatementNode(line, methodInvocationStm));
                 } else {
-                    logger.error("Not found: " + line + " " + methodInvo.toString());
+                    logger.error("Not found: {line:" + line + ", classname:" + classname
+                            + ", methodName:" + methodName + "}");
                 }
-                classNode.getInitNodes().get(index).addStatement(new StatementNode(line, methodInvocationStm));
             }
             //--end set type
 //            statements.add(methodInvocationStm);
@@ -375,7 +377,8 @@ public class MethodNode extends AbstractableElementNode {
                     invocationStm.setTypeVarClass(classNode.getInitNodes().get(index).getType());
                     classNode.getInitNodes().get(index).addStatement(new StatementNode(line, invocationStm));
                 } else {
-                    logger.error("Not found in class: " + line + "-" + methodInvocation.toString() );
+                    logger.error("Not found in class: {line:" + line + ", classname:" + classname
+                    + ", methodName:" + methodName + "}");
                 }
 
             }

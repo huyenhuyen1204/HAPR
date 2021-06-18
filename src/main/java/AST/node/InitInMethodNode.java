@@ -21,7 +21,7 @@ public class InitInMethodNode extends InitNode{
         this.line = line;
         this.methodNode = methodNode;
         this.varname = varname;
-        this.type = type;
+        setType();
         this.statements = new ArrayList();
     }
     @Override

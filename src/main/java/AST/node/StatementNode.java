@@ -2,7 +2,7 @@ package AST.node;
 
 public class StatementNode {
     private int line;
-    private Object statement;
+    private Object statementNode;
 
     public int getLine() {
         return line;
@@ -12,17 +12,17 @@ public class StatementNode {
         this.line = line;
     }
 
-    public Object getStatement() {
-        return statement;
+    public Object getStatementNode() {
+        return statementNode;
     }
 
-    public void setStatement(Object statement) {
-        this.statement = statement;
+    public void setStatementNode(Object statementNode) {
+        this.statementNode = statementNode;
     }
 
-    public StatementNode(int line, Object statement) {
+    public StatementNode(int line, Object statementNode) {
         super();
         this.line = line;
-        this.statement = statement;
+        this.statementNode = statementNode;
     }
 }

@@ -3,6 +3,7 @@ package AST.node;
 import AST.stm.InitInClassStm;
 import AST.stm.abstrct.InitStatement;
 import AST.parser.ASTHelper;
+import common.config.InitLevel;
 import org.eclipse.jdt.core.dom.*;
 
 import java.util.ArrayList;
@@ -90,7 +91,7 @@ public class FieldNode extends VisibleElementNode {
                 }
             }
             fieldNodes.add(fieldNode);
-            InitInClassNode initInClassNode = new InitInClassNode(fieldNode.getName(), fieldNode.getStartLine(), fieldNode.getType());
+            InitNode initInClassNode = new InitNode(1, fieldNode.getName(), fieldNode.getType(), fieldNode.getStartLine());
 //            InitInClassStm initInClass = new InitInClassStm(,, fieldNode.getValue(),
 //                    ((TypeDeclaration) node.getParent()).getName().getIdentifier(), );
 //            InitInClass variableElement = new I(AccessRange.IN_CLASS, ((TypeDeclaration) node.getParent()).getName().getIdentifier(),

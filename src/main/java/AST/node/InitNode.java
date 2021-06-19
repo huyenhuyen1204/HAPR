@@ -3,25 +3,57 @@ package AST.node;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class InitNode {
-    protected int line;
-    protected String varname;
-    protected List<StatementNode> statements;
-    protected Object type;
-    public abstract String getVarname();
+public class InitNode {
+    private int level;
+    private int line;
+    private String varname;
+    private List<StatementNode> statementsUsed;
+    private String type;
+    public InitNode() {
+        super();
+    }
+    public InitNode(int level, String varname,  String type, int line) {
+        this.level = level;
+        this.varname = varname;
+        this.line = line;
+        this.type = type;
+        this.statementsUsed = new ArrayList();
+    }
 
-    public abstract void setVarname(String varname);
+    public String getVarname() {
+        return this.varname;
+    }
 
-    public abstract int getLine();
+    public void setVarname(String varname) {
+        this.varname = varname;
+    }
 
-    public abstract void setLine(int line);
-    public abstract List getStatements();
+    public int getLine() {
+        return this.line;
+    }
 
-    public abstract void setStatements(List statements);
+    public void setLine(int line) {
+        this.line = line;
+    }
 
-    public abstract Object getType();
+    public List getStatementsUsed() {
+        return this.statementsUsed;
+    }
 
-    public abstract void setType(Object type);
-    public abstract void addStatement(StatementNode obj);
+    public void setStatementsUsed(List statementsUsed) {
+        this.statementsUsed = statementsUsed;
+    }
+
+    public Object getType() {
+        return this.type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void addStatement(StatementNode obj) {
+        this.statementsUsed.add(obj);
+    }
 
 }

@@ -7,6 +7,7 @@ import AST.parser.ASTHelper;
 import AST.parser.Convert;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import common.config.InitLevel;
 import org.eclipse.jdt.core.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,6 @@ public class ClassNode extends AbstractableElementNode {
     public void setLine(int line) {
         this.line = line;
     }
-
 
 
     public List<MethodTest> getMethodTests() {
@@ -248,10 +248,11 @@ public class ClassNode extends AbstractableElementNode {
         }
 
     }
+
     private void parserStatements(List<Node> methodNodes, CompilationUnit cu) {
-        for (Node node: methodNodes) {
+        for (Node node : methodNodes) {
             MethodNode methodNode = (MethodNode) node;
-            methodNode.parserStatements(methodNode.getStatements(), cu);
+            methodNode.parserStatements(1, methodNode.getStatements(), cu);
         }
     }
 
@@ -306,13 +307,13 @@ public class ClassNode extends AbstractableElementNode {
 //    }
 
     public int findIndexTypeVar(String varname) {
-        for (int i = 0; i < initNodes.size(); i ++) {
+        for (int i = 0; i < initNodes.size(); i++) {
             InitNode initNode = initNodes.get(i);
-            if (initNode instanceof InitInClassNode) {
-                if (initNode.getVarname().equals(varname)) {
-                    return i;
-                }
+//            if (initNode instanceof InitInClassNode) {
+            if (initNode.getVarname().equals(varname)) {
+                return i;
             }
+//            }
         }
         return -1;
     }

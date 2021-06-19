@@ -38,20 +38,21 @@ public class ParserHelper {
         return null;
     }
 
-    public static MethodInvocationStm getVarClassAndMethod(MethodInvocation methodInvocation) {
-        if (methodInvocation.getExpression() instanceof MethodInvocation) {
-            return getVarClassAndMethod((MethodInvocation) methodInvocation.getExpression());
-        } else {
-            if (methodInvocation.getExpression() instanceof SimpleName) {
-                String classname = ((SimpleName) methodInvocation.getExpression()).getIdentifier();
-                String methodName = methodInvocation.getName().getIdentifier();
-                return new MethodInvocationStm(classname, methodName);
-            } else {
-                return null;
-            }
-        }
-
-    }
+//    public static MethodInvocationStm getVarClassAndMethod(MethodInvocation methodInvocation) {
+//        if (methodInvocation.getExpression() instanceof MethodInvocation) {
+//            return getVarClassAndMethod((MethodInvocation) methodInvocation.getExpression());
+//        } else {
+//            if (methodInvocation.getExpression() instanceof SimpleName) {
+//                String classname = ((SimpleName) methodInvocation.getExpression()).getIdentifier();
+//                String methodName = methodInvocation.getName().getIdentifier();
+//                List<String> argTypes =
+//                return new MethodInvocationStm(classname, methodName);
+//            } else {
+//                return null;
+//            }
+//        }
+//
+//    }
 
 
 

@@ -76,7 +76,7 @@ public class MyTestParser {
      * @return
      */
     private MethodTest parserAssertStatements(MethodNode methodNode, TestType type, CompilationUnit cu) {
-        MethodTest methodTest = new MethodTest(methodNode.getName());
+        MethodTest methodTest = new MethodTest(methodNode.getName(), methodNode);
         List statements = methodNode.getStatements();
         int line = -1;
 
@@ -90,6 +90,7 @@ public class MyTestParser {
                         if (((MethodInvocation) expression).getName().toString().equals("assertEquals")) {
                             List arguments = ((MethodInvocation) expression).arguments();
                             AssertStatement assertEqual = getAssertEquals(arguments, line);
+
                             if (assertEqual != null) {
                                 methodTest.addToAsserts(assertEqual);
                             }

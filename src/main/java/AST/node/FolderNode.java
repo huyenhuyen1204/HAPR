@@ -67,5 +67,14 @@ public class FolderNode extends Node {
         return -1;
     }
 
+    public ClassNode findClassByName(String className) {
+        for (ClassNode classNode : this.getClassNodes()) {
+            if (className.equals(classNode.getName())) {
+                return classNode;
+            }
+        }
+        return null;
+    }
+
 
 }

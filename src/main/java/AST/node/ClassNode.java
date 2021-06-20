@@ -318,6 +318,18 @@ public class ClassNode extends AbstractableElementNode {
         return -1;
     }
 
+    public InitNode findTypeVar(String varname) {
+        for (int i = 0; i < initNodes.size(); i++) {
+            InitNode initNode = initNodes.get(i);
+//            if (initNode instanceof InitInClassNode) {
+            if (initNode.getVarname().equals(varname)) {
+                return initNodes.get(i);
+            }
+//            }
+        }
+        return null;
+    }
+
 
     public MethodNode findMethodNode(String methodName, List params) {
         for (MethodNode methodNode : getMethodList()) {

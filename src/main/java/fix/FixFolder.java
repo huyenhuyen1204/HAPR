@@ -2,8 +2,6 @@ package fix;
 
 import AST.node.ClassNode;
 import AST.node.FolderNode;
-import AST.node.MethodNode;
-import AST.obj.DebugPoint;
 import AST.obj.MethodTest;
 import AST.parser.MyTestParser;
 import AST.parser.ProjectParser;
@@ -24,9 +22,6 @@ import java.util.List;
 public class FixFolder {
     public static final Logger logger = LoggerFactory.getLogger(FixFolder.class);
 //    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83453/";
-//    static final String MyTest_Name = "MyTest";
-//    static final String TestRunner_Name = "TestRunner";
-//    static final String Path_AST_Output = pathToSouce + File.separator +"AST.txt"; // path_to_source/AST.txt
     static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
     static final String MyTest_Name = "MyTest";
     static final String TestRunner_Name = "TestRunner";
@@ -50,13 +45,9 @@ public class FixFolder {
         //Parser folder
         FolderNode folderNode = ProjectParser.parse(pathToSouce);
         String json = JsonHelper.getInstance().getJson(folderNode);
-        FileHelper.createFile(new File(Path_AST_Output),
-                json);
-//        for (ClassNode classNode : folderNode.getClassNodes()) {
-//            for (MethodNode methodNode : classNode.getMethodList()) {
-//                methodNode.parserStatements(methodNode.getStatements(), );
-//            }
-//        }
+//        FileHelper.createFile(new File(Path_AST_Output),
+//                json);
+
 
         if (!outputFile.exists()) {
             logger.error(ObjectNotFound.MSG + Configure.OUTPUT_TestRunner);
@@ -92,14 +83,14 @@ public class FixFolder {
             }
     }
 
-    private static void fix(DebugData debugData) {
-        Object expected = debugData.getExpected();
-        String astString = FileHelper.readFile(new File(Path_AST_Output));
-        FolderNode folderNode = JsonHelper.getInstance().getObject(astString, FolderNode.class);
-        //buggy context
-        ClassNode classNode = ParserHelper.findByClassName(folderNode, debugData.getDebugPoint().getClassname());
-
-    }
+//    private static void fix(DebugData debugData) {
+//        Object expected = debugData.getExpected();
+//        String astString = FileHelper.readFile(new File(Path_AST_Output));
+//        FolderNode folderNode = JsonHelper.getInstance().getObject(astString, FolderNode.class);
+//        //buggy context
+//        ClassNode classNode = ParserHelper.findByClassName(folderNode, debugData.getDebugPoint().getClassname());
+//
+//    }
 
     /**
      * @param classNodes      of MyTest
@@ -116,6 +107,7 @@ public class FixFolder {
             for (MethodTest methodTest : methodTests) {
                 for (String testname : tests) {
                     if (testname.equals(methodTest.getMethodName())) {
+                        DebugPointSetter.genDebugPoints(folderNode, methodTest, classNode);
 //                        List<DebugData> debugData = JDBHelper.genDebugPoints(folderNode, methodTest, classNode);
 //                        addDebugData(debugDataList, debugData);
                     }
@@ -125,21 +117,21 @@ public class FixFolder {
         return debugDataList;
     }
 
-    private static void addDebugData(final List<DebugData> list, final List<DebugData> debugData){
-        if (list.size() > 0) {
-            for (DebugData ddlist : list) {
-                for (DebugData dd : debugData) {
-                    if (ddlist.getDebugPoint().getClassname().equals(dd.getDebugPoint().getClassname())
-                            && ddlist.getDebugPoint().getLine() == dd.getDebugPoint().getLine()) {
-                        list.remove(ddlist);
-                        list.add(dd);
-                    }
-                }
-            }
-        } else {
-            list.addAll(debugData);
-        }
-    }
+//    private static void addDebugData(final List<DebugData> list, final List<DebugData> debugData){
+//        if (list.size() > 0) {
+//            for (DebugData ddlist : list) {
+//                for (DebugData dd : debugData) {
+//                    if (ddlist.getDebugPoint().getClassname().equals(dd.getDebugPoint().getClassname())
+//                            && ddlist.getDebugPoint().getLine() == dd.getDebugPoint().getLine()) {
+//                        list.remove(ddlist);
+//                        list.add(dd);
+//                    }
+//                }
+//            }
+//        } else {
+//            list.addAll(debugData);
+//        }
+//    }
 
 }
 

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class MethodInvocationStm extends Statement {
     private String varName;
-    private Object typeVarClass;
+    private String typeVar;
 //    private String methodCalled = null; // eg: student.getname() - method called is getname
     //for list method call eg: customerList.get(0).toString()
     // methods called: get, tostring
@@ -19,8 +19,9 @@ public class MethodInvocationStm extends Statement {
     }
 
 
-    public MethodInvocationStm(String varName, String methodName, List<String> argTypes) {
+    public MethodInvocationStm(String varName, String methodName, List<String> argTypes, int line) {
         this.varName = varName;
+        this.line = line;
         this.methodsCalled = new ArrayList<>();
         addMethodCall(methodName, argTypes);
     }
@@ -54,12 +55,12 @@ public class MethodInvocationStm extends Statement {
         this.varName = varName;
     }
 
-    public Object getTypeVarClass() {
-        return typeVarClass;
+    public String getTypeVar() {
+        return typeVar;
     }
 
-    public void setTypeVarClass(Object typeVarClass) {
-        this.typeVarClass = typeVarClass;
+    public void setTypeVar(String typeVar) {
+        this.typeVar = typeVar;
     }
 
     @Override

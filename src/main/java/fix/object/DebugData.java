@@ -3,19 +3,15 @@ package fix.object;
 import AST.obj.DebugPoint;
 import AST.stm.abstrct.AssertStatement;
 
+import java.util.List;
+
 public class DebugData {
-    private DebugPoint debugPoint;
+    private List<DebugPoint> debugPoints;
     private AssertStatement assertStatement;
     private Object expected;
     private String testname;
 
-    public DebugPoint getDebugPoint() {
-        return debugPoint;
-    }
 
-    public void setDebugPoint(DebugPoint debugPoint) {
-        this.debugPoint = debugPoint;
-    }
 
     public Object getExpected() {
         return expected;
@@ -25,10 +21,17 @@ public class DebugData {
         this.expected = expected;
     }
 
-    public DebugData(DebugPoint debugPoint, Object expected, String testname) {
-        this.debugPoint = debugPoint;
+    public DebugData( Object expected, String testname) {
         this.expected = expected;
         this.testname = testname;
+    }
+
+    public List<DebugPoint> getDebugPoints() {
+        return debugPoints;
+    }
+
+    public void setDebugPoints(List<DebugPoint> debugPoints) {
+        this.debugPoints = debugPoints;
     }
 
     public String getTestname() {

@@ -20,6 +20,11 @@ public class StatementNode {
         this.statementNode = statementNode;
     }
 
+    public StatementNode(int line) {
+        super();
+        this.line = line;
+    }
+
     public StatementNode(int line, Object statementNode) {
         super();
         this.line = line;

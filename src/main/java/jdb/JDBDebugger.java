@@ -3,13 +3,11 @@ package jdb;
 import common.config.Configure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.FileHelper;
-import util.JDBHelper;
+import fix.DebugPointSetter;
 import util.OSHelper;
 import util.RunningHelper;
 
 import java.io.*;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public class JDBDebugger {
@@ -30,7 +28,7 @@ public class JDBDebugger {
 
 
     public void initDebugJDB(String pathTOSource, String pathToClass, String classname) throws IOException {
-        JDBHelper.setUTF8();
+        DebugPointSetter.setUTF8();
         String cmd = "jdb -classpath  " + pathToClass + OSHelper.delimiter()
                 + Configure.APR_JAR_LIB + File.separator + "oasis.jar" + OSHelper.delimiter()
                 + Configure.APR_JAR_LIB + File.separator + "junit-4.12.jar junit.textui.TestRunner " + classname;

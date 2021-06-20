@@ -44,7 +44,7 @@ public class InitNode {
         this.statementsUsed = statementsUsed;
     }
 
-    public Object getType() {
+    public String getType() {
         return this.type;
     }
 

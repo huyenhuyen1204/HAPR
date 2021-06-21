@@ -1,13 +1,13 @@
 package AST.obj;
 
 public class DebugPoint {
-    private Object classname;
+    private String classname;
     private int line;
 
     public DebugPoint() {
     }
 
-    public DebugPoint(Object classname, int line) {
+    public DebugPoint(String classname, int line) {
         this.classname = classname;
         this.line = line;
     }

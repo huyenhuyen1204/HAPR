@@ -5,9 +5,9 @@ import java.util.List;
 
 public class MethodCalled {
     private String methodName;
-    private List<String> agurementTypes = null;
+    private List<Object> agurementTypes = null;
 
-    public MethodCalled(String methodName, List<String> agurementTypes) {
+    public MethodCalled(String methodName, List<Object> agurementTypes) {
         this.methodName = methodName;
         if (agurementTypes.size() > 0) {
             this.agurementTypes = new ArrayList<>();
@@ -23,11 +23,11 @@ public class MethodCalled {
         this.methodName = methodName;
     }
 
-    public List<String> getAgurementTypes() {
+    public List<Object> getAgurementTypes() {
         return agurementTypes;
     }
 
-    public void setAgurementTypes(List<String> agurementTypes) {
+    public void setAgurementTypes(List<Object> agurementTypes) {
         this.agurementTypes = agurementTypes;
     }
 }

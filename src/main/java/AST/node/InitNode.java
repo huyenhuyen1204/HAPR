@@ -36,11 +36,11 @@ public class InitNode {
         this.line = line;
     }
 
-    public List getStatementsUsed() {
+    public List<StatementNode> getStatementsUsed() {
         return this.statementsUsed;
     }
 
-    public void setStatementsUsed(List statementsUsed) {
+    public void setStatementsUsed(List<StatementNode> statementsUsed) {
         this.statementsUsed = statementsUsed;
     }
 

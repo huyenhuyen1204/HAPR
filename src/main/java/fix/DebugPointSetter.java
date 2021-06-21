@@ -127,6 +127,20 @@ public class DebugPointSetter {
                 }
             }
         }
+        setDebugPointWithArgurements(methodCalleds, folderNode);
+    }
+
+    private static void setDebugPointWithArgurements(List<MethodCalled> methodCalleds, FolderNode folderNode) {
+        for (MethodCalled methodCalled : methodCalleds) {
+            List<Object> argurements = methodCalled.getAgurementTypes();
+            if (argurements != null) {
+                for (Object obj : argurements) {
+                    if (obj instanceof MethodInvocationStm) {
+                        setDebugPointWithMethodInvoStm((MethodInvocationStm) obj, folderNode);
+                    }
+                }
+            }
+        }
     }
 
     private static void setDebugPointInReturnStatements(MethodNode methodNode, ClassNode classNode, FolderNode folderNode) {
@@ -134,7 +148,8 @@ public class DebugPointSetter {
         for (StatementNode statementNode : returnStatements) {
             DebugPoint debugPoint = new DebugPoint(classNode.getName(), statementNode.getLine());
             //set for returnStm
-            debugPoints.add(debugPoint);
+            addDebugPoint(debugPoint);
+//            debugPoints.add(debugPoint);
             setDebugPointFromStatement(statementNode, methodNode, classNode, folderNode);
         }
     }
@@ -143,54 +158,70 @@ public class DebugPointSetter {
         if (statementNode.getStatementNode() instanceof MethodInvocationStm) {
             setDebugPointWithMethodInvoStm((MethodInvocationStm) statementNode.getStatementNode(), folderNode);
             //set related var
-            setDebugPointWithRelatedVar(statementNode.getStatementNode(), methodNode, classNode);
-        } else  if (statementNode.getStatementNode() instanceof BaseVariable) {
+            setDebugPointWithRelatedVar(statementNode, methodNode, classNode, folderNode);
+        } else if (statementNode.getStatementNode() instanceof BaseVariable) {
             //set Related var
+            setDebugPointWithRelatedVar(statementNode, methodNode, classNode, folderNode);
         } else {
             logger.error("Chưa xử lý:setDebugPointFromStatement " + statementNode.getStatementNode());
         }
     }
 
-    private static void setDebugPointWithRelatedVar(Object statementNode, MethodNode methodNode, ClassNode classNode) {
-       if (statementNode instanceof MethodInvocationStm) {
-           String varname = ((MethodInvocationStm) statementNode).getVarName();
-           int line = ((MethodInvocationStm) statementNode).getLine();
-            List statementsRelated = getStatementsRelated(methodNode, classNode, varname, line);
+    private static void setDebugPointRelatedFromStatement(StatementNode statementNode, ClassNode classNode, FolderNode folderNode) {
+        if (statementNode.getStatementNode() instanceof MethodInvocationStm) {
+            DebugPoint debugPoint = new DebugPoint(classNode.getName(), ((MethodInvocationStm) statementNode.getStatementNode()).getLine());
+            addDebugPoint(debugPoint);
+            setDebugPointWithMethodInvoStm((MethodInvocationStm) statementNode.getStatementNode(), folderNode);
+
+        } else if (statementNode.getStatementNode() instanceof BaseVariable) {
+
+        } else {
+            logger.error("Chưa xử lý:setDebugPointFromStatement " + statementNode.getStatementNode());
+        }
+    }
+
+    private static void setDebugPointWithRelatedVar(StatementNode statementNode, MethodNode methodNode, ClassNode classNode, FolderNode folderNode) {
+        if (statementNode.getStatementNode() instanceof MethodInvocationStm) {
+            String varname = ((MethodInvocationStm) statementNode.getStatementNode()).getVarName();
+            int line = ((MethodInvocationStm) statementNode.getStatementNode()).getLine();
+            List<StatementNode> statementsRelated = getStatementsRelated(methodNode, classNode, varname, line);
             if (statementsRelated != null) {
-                debugPointStatementRelated(statementsRelated);
+                debugPointStatementsRelated(statementsRelated, classNode, folderNode);
             }
-       } else  if (statementNode instanceof BaseVariable) {
-           String varName = ((BaseVariable) statementNode).getVarname();
-           int line = ((BaseVariable) statementNode).getLine();
-           List statementsRelated = getStatementsRelated(methodNode, classNode, varName, line);
-           if (statementsRelated != null) {
-                debugPointStatementRelated(statementsRelated);
-           }
-       } else {
-           logger.error("Chưa xử lý:setDebugPointWithRelatedVar " + statementNode);
-       }
+        } else if (statementNode.getStatementNode() instanceof BaseVariable) {
+            String varName = ((BaseVariable) statementNode.getStatementNode()).getVarname();
+            int line = ((BaseVariable) statementNode.getStatementNode()).getLine();
+            List statementsRelated = getStatementsRelated(methodNode, classNode, varName, line);
+            if (statementsRelated != null) {
+                debugPointStatementsRelated(statementsRelated, classNode, folderNode);
+            }
+        } else {
+            logger.error("Chưa xử lý:setDebugPointWithRelatedVar " + statementNode);
+        }
         System.out.println("ABAAH");
     }
 
-    private static List<DebugPoint> debugPointStatementRelated (List statementsRelated) {
-        for (Object stmRelated:
-             statementsRelated) {
+    private static List<DebugPoint> debugPointStatementsRelated(List<StatementNode> statementsRelated, ClassNode classNode, FolderNode folderNode) {
+        for (StatementNode stmRelated :
+                statementsRelated) {
+            setDebugPointRelatedFromStatement(stmRelated, classNode, folderNode);
+//            debugPointStatementRelated(Object stmRelated)
             // TODO: need parser
         }
         return null;
     }
 
-    private static List getStatementsRelated(MethodNode methodNode, ClassNode classNode, String varName, int line) {
+    private static List<StatementNode> getStatementsRelated(MethodNode methodNode, ClassNode classNode, String varName, int line) {
         InitNode initInMethodNode = methodNode.findTypeVar(varName, line);
-            if (initInMethodNode != null) {
-               return initInMethodNode.getStatementsUsed();
-            } else {
-                InitNode initInClassNode = classNode.findTypeVar(varName);
-                if (initInClassNode != null) {
-                    return initInClassNode.getStatementsUsed();
-                }
+        if (initInMethodNode != null) {
+            return initInMethodNode.getStatementsUsed();
+        } else {
+            InitNode initInClassNode = classNode.findTypeVar(varName);
+            if (initInClassNode != null) {
+                return initInClassNode.getStatementsUsed();
             }
-            return null;
+        }
+        return null;
     }
 
     private static MethodNode getMethodNode(MethodCalled methodCalled, List<MethodNode> methodNodes) {
@@ -213,5 +244,19 @@ public class DebugPointSetter {
             logger.error("Dupplicate Method: " + list.toString());
         }
         return null;
+    }
+
+    private static void addDebugPoint(DebugPoint debugPoint) {
+        boolean exist = false;
+        for (DebugPoint debugPoint1 : debugPoints) {
+            if (debugPoint1.getLine() == debugPoint.getLine()) {
+                if (debugPoint1.getClassname().equals(debugPoint.getClassname())) {
+                    exist = true;
+                }
+            }
+        }
+        if (!exist) {
+            debugPoints.add(debugPoint);
+        }
     }
 }

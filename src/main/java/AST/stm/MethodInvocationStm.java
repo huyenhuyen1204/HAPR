@@ -17,9 +17,12 @@ public class MethodInvocationStm extends Statement {
     public MethodInvocationStm() {
         this.methodsCalled = new ArrayList<>();
     }
+    public MethodInvocationStm(int line) {
+        this.methodsCalled = new ArrayList<>();
+        this.line = line;
+    }
 
-
-    public MethodInvocationStm(String varName, String methodName, List<String> argTypes, int line) {
+    public MethodInvocationStm(String varName, String methodName, List<Object> argTypes, int line) {
         this.varName = varName;
         this.line = line;
         this.methodsCalled = new ArrayList<>();
@@ -34,7 +37,7 @@ public class MethodInvocationStm extends Statement {
         }
     }
 
-    public void addMethodCall(String methodName, List<String> argTypes) {
+    public void addMethodCall(String methodName, List<Object> argTypes) {
         MethodCalled methodCalled = new MethodCalled(methodName, argTypes);
         this.methodsCalled.add(methodCalled);
     }

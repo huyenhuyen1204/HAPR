@@ -1,9 +1,10 @@
 package jdb;
 
-import common.config.Configure;
+import common.Configure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import fix.DebugPointSetter;
+import util.JavaLibrary;
 import util.OSHelper;
 import util.RunningHelper;
 
@@ -28,7 +29,7 @@ public class JDBDebugger {
 
 
     public void initDebugJDB(String pathTOSource, String pathToClass, String classname) throws IOException {
-        DebugPointSetter.setUTF8();
+        JavaLibrary.setUTF8();
         String cmd = "jdb -classpath  " + pathToClass + OSHelper.delimiter()
                 + Configure.APR_JAR_LIB + File.separator + "oasis.jar" + OSHelper.delimiter()
                 + Configure.APR_JAR_LIB + File.separator + "junit-4.12.jar junit.textui.TestRunner " + classname;
@@ -37,7 +38,7 @@ public class JDBDebugger {
         this.printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream(),
                 StandardCharsets.UTF_8)), false);
 
-
+//       print new java.lang.String("Lịch sử giao dịch của tài khoản 7562459315:\n".getBytes("UTF-16"), "UTF-8")
     }
 
     public void addDebugJDB(String classname, int line) {
@@ -105,7 +106,7 @@ public class JDBDebugger {
         String s = null;
         long startTime = System.nanoTime();
         while ((s = stdInput.readLine()) != null) {
-            System.out.println("==" + s);
+            System.out.println("Log: " + s);
             result += s + "\n";
             if (s.contains(endString)) {
                 break;
@@ -122,7 +123,7 @@ public class JDBDebugger {
         String result = "";
         String s = null;
         while ((s = stdInput.readLine()) != null) {
-            System.out.println("=> " + s);
+            System.out.println("Log: " + s);
             String breakline = "main[1] Unrecognized command: 'info'.  Try help...";
             if (s.trim().equals(breakline)) {
                 break;

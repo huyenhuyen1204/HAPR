@@ -62,13 +62,12 @@ public abstract class Account {
         res.append("Lịch sử giao dịch của tài khoản ");
         res.append(accountNumber);
         res.append(":" + "\n");
-
         for (Transaction transaction : transactionList) {
             res.append(transaction.getTransactionSummary()).append("\n");
         }
         res.deleteCharAt(res.lastIndexOf("\n"));
         return res.toString();
-    } 
+    }
 
     /**
      * This is comment.

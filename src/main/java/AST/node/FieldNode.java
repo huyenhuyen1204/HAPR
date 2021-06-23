@@ -1,9 +1,6 @@
 package AST.node;
 
-import AST.stm.InitInClassStm;
-import AST.stm.abstrct.InitStatement;
 import AST.parser.ASTHelper;
-import common.config.InitLevel;
 import org.eclipse.jdt.core.dom.*;
 
 import java.util.ArrayList;

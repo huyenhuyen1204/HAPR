@@ -5,8 +5,8 @@ import AST.node.FolderNode;
 import AST.obj.MethodTest;
 import AST.parser.MyTestParser;
 import AST.parser.ProjectParser;
-import common.config.Configure;
-import common.config.TestType;
+import common.Configure;
+import common.TestType;
 import common.error.ObjectNotFound;
 import fix.object.DebugData;
 import jdb.JDBDebugger;
@@ -21,8 +21,9 @@ import java.util.List;
 
 public class FixFolder {
     public static final Logger logger = LoggerFactory.getLogger(FixFolder.class);
-//    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83453/";
-    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
+    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83453/";
+    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83453/";
+    //    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
     static final String MyTest_Name = "MyTest";
     static final String TestRunner_Name = "TestRunner";
     static final String Path_AST_Output = pathToSouce + File.separator +"AST.txt"; // path_to_source/AST.txt
@@ -32,7 +33,7 @@ public class FixFolder {
         //TODO: copy TestRunner to folder
         //Compile and run (to get testcase)
         RunningHelper.compileFolder(pathToSouce, pathToSouce);
-        RunningHelper.runFolder(pathToSouce, pathToSouce, TestRunner_Name);
+        RunningHelper.runFolder(pathToSouce,TestRunner_Name);
 
         String output = pathToSouce + File.separator + Configure.OUTPUT_TestRunner;
         File outputFile = new File(output);
@@ -54,7 +55,12 @@ public class FixFolder {
         } else {
             //Get List testName Error & get list debug point
             List<DebugData> debugDatas = getListDebugData(classNodes, folderNode, output);
-//            debugger(debugDatas, folderNode);
+            JDBDebugger jdbDebugger = new JDBDebugger(pathToSouce
+                            ,pathToOutput, MyTest_Name);
+            jdbDebugger.addDebugJDB("Transaction", 42);
+            jdbDebugger.runJDB();
+            String var = jdbDebugger.printVarJDB(debugDatas.get(0).getExpected());
+            System.out.println(var);
         }
 
     }
@@ -107,9 +113,7 @@ public class FixFolder {
             for (MethodTest methodTest : methodTests) {
                 for (String testname : tests) {
                     if (testname.equals(methodTest.getMethodName())) {
-                        DebugPointSetter.genDebugPoints(folderNode, methodTest, classNode);
-//                        List<DebugData> debugData = JDBHelper.genDebugPoints(folderNode, methodTest, classNode);
-//                        addDebugData(debugDataList, debugData);
+                        debugDataList.addAll(DebugPointSetter.genDebugPoints(folderNode, methodTest));
                     }
                 }
             }

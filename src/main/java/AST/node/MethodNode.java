@@ -195,7 +195,6 @@ public class MethodNode extends AbstractableElementNode {
             }
         }
 
-        //TODO Tim parametersof methods
         List parameters = node.parameters();
         List<Node> paraNodes = new ArrayList<>();
         for (Object o : parameters) {
@@ -283,7 +282,7 @@ public class MethodNode extends AbstractableElementNode {
     //===================== By Huyen: parser statement=============================
 
     /**
-     * parser and get info of statement
+     * parser and get information of statement
      *
      * @param statements
      */
@@ -364,6 +363,10 @@ public class MethodNode extends AbstractableElementNode {
         StatementNode statementNode = new StatementNode(line);
         if (stm.getExpression() instanceof MethodInvocation) {
             MethodInvocationStm methodInvocationStm = parserMethodInvoStm((MethodInvocation) stm.getExpression(), line);
+            //if it doesnt has "var" to call method (or this method can call in class)
+            if ( methodInvocationStm.getVarName() == null) {
+                methodInvocationStm.setTypeVar(this.getParent().getName());
+            }
             statementNode.setStatementNode(methodInvocationStm);
 
         } else if (stm.getExpression() instanceof Assignment) {
@@ -371,20 +374,53 @@ public class MethodNode extends AbstractableElementNode {
 
         } else if (stm.getExpression() instanceof SimpleName) {
             String value = ((SimpleName) stm.getExpression()).getIdentifier();
-            BaseVariable baseVariable = new BaseVariable(line,  value);
+            BaseVariable baseVariable = new BaseVariable(line, value);
             statementNode.setStatementNode(baseVariable);
             setStatementToInits(stm, ((SimpleName) stm.getExpression()).getIdentifier(), line);
 
         } else if (stm.getExpression() instanceof StringLiteral) {
             String value = stm.getExpression().toString().substring(1, stm.getExpression().toString().length() - 1);
-//            BaseVariable baseVariable = new BaseVariable(line, value);
             statementNode.setStatementNode(value);
-
+        } else if (stm.getExpression() instanceof InfixExpression) {
+            InfixExpression infixEx = (InfixExpression) stm.getExpression();
+            List<Object> objects = convertListToMethodInvoStms(infixEx.extendedOperands(), line);
+            Object left = convertToMethodInvoStm(infixEx.getLeftOperand(), line);
+            Object right = convertToMethodInvoStm(infixEx.getRightOperand(), line);
+            InfixExpressionNode infixExpressionNode = new InfixExpressionNode(infixEx.getOperator().toString(),
+                    left, right, objects);
+            statementNode.setStatementNode(infixExpressionNode);
         } else {
             statementNode.setStatementNode(stm.getExpression());
             logger.error("Chua xu ly:parserReturnInfo " + stm.getExpression());
         }
         this.returnStatements.add(statementNode);
+    }
+
+    /**
+     * Almost convert MethodInvocation to methodNode
+     * @param extendedOperands
+     * @return
+     */
+    private List<Object> convertListToMethodInvoStms(List extendedOperands, int line) {
+        List<Object> objects = new ArrayList<>();
+        for (Object obj : extendedOperands) {
+            Object object = convertToMethodInvoStm(obj, line);
+            objects.add(object);
+        }
+        return objects;
+    }
+
+    private Object convertToMethodInvoStm (Object obj, int line) {
+        if (obj instanceof MethodInvocation) {
+            MethodInvocationStm methodInvocationStm = parserMethodInvoStm((MethodInvocation) obj, line);
+            //if it doesnt has "var" to call method (or this method can call in class)
+            if ( methodInvocationStm.getVarName() == null) {
+                methodInvocationStm.setTypeVar(this.getParent().getName());
+            }
+            return methodInvocationStm;
+        } else {
+            return obj;
+        }
     }
 
     private void parserExpressionStatementInfo(ExpressionStatement stm, int line) {
@@ -423,45 +459,26 @@ public class MethodNode extends AbstractableElementNode {
         }
     }
 
-
-    //    private void parserMethodInvoStm(MethodInvocation methodInvocation, int line) {
-//        ClassNode classNode = (ClassNode) this.getParent();
-//        if (methodInvocation.getExpression() instanceof MethodInvocation) {
-//            MethodInvocationStm methodInvocationStm = new MethodInvocationStm();
-//            parserInMethodInvo(methodInvocationStm, methodInvocation, line);
-//            setStatementToInits(methodInvocationStm, classNode, line);
-//            parserArgurement(methodInvocation, line);
-//
-//        } else if (methodInvocation.getExpression() instanceof SimpleName) {
-//            String varname = ((SimpleName) methodInvocation.getExpression()).getIdentifier();
-//
-//            List<String> argTypes = parserArgToString(methodInvocation.arguments(), line);
-//            MethodInvocationStm methodInvocationStm = new MethodInvocationStm(varname, methodInvocation.getName().getIdentifier(), argTypes);
-//
-//            setStatementToInits(methodInvocationStm, classNode, line);
-//            parserArgurement(methodInvocation, line);
-//        } else if (methodInvocation.getExpression() instanceof FieldAccess) {
-//            FieldAccess fieldAccess = (FieldAccess) methodInvocation.getExpression();
-//            List<String> argTypes = parserArgToString(methodInvocation.arguments(), line);
-//            MethodInvocationStm methodInvocationStm = new MethodInvocationStm(fieldAccess.getName().getIdentifier(), methodInvocation.getName().getIdentifier(), argTypes);
-//
-//            setStatementToInits(methodInvocationStm, classNode, line);
-//            parserArgurement(methodInvocation, line);
-//
-//        } else {
-//
-//            logger.error("Chưa xử lý:parserMethodInvoStm " + methodInvocation.toString() + "-end");
-//
-//        }
-//
-//    }
-    //ver2
+    /**
+     * Parser a MethodInvocation (in JDT) to MethodInvocationStm (of me)
+     * MethodInvocationStm contents: varname, list MethodCalleds eg: customers.get(0).getTransaction().
+     * => list MethodCalleds: { getTransaction, get}
+     * in MethodCalled has agurementTypes: eg: MethodInvocation, String, ...
+     *
+     * @param methodInvocation
+     * @param line
+     * @return
+     */
     public MethodInvocationStm parserMethodInvoStm(MethodInvocation methodInvocation, int line) {
         ClassNode classNode = (ClassNode) this.getParent();
         MethodInvocationStm methodInvocationStm = null;
         if (methodInvocation.getExpression() instanceof MethodInvocation) {
             methodInvocationStm = new MethodInvocationStm(line);
             parserInMethodInvo(methodInvocationStm, methodInvocation, line);
+            //if it doesnt has "var" to call method (or this method can call in class)
+            if ( methodInvocationStm.getVarName() == null) {
+                methodInvocationStm.setTypeVar(this.getParent().getName());
+            }
             setStatementToInits(methodInvocationStm, classNode, line);
 
         } else if (methodInvocation.getExpression() instanceof SimpleName) {
@@ -469,7 +486,10 @@ public class MethodNode extends AbstractableElementNode {
 
             List<Object> argTypes = parserAruments(methodInvocation, line);
             methodInvocationStm = new MethodInvocationStm(varname, methodInvocation.getName().getIdentifier(), argTypes, line);
-
+            //if it doesnt has "var" to call method (or this method can call in class)
+            if (varname == null ) {
+                methodInvocationStm.setTypeVar(this.getParent().getName());
+            }
             setStatementToInits(methodInvocationStm, classNode, line);
 
         } else if (methodInvocation.getExpression() instanceof FieldAccess) {
@@ -480,17 +500,24 @@ public class MethodNode extends AbstractableElementNode {
 
             setStatementToInits(methodInvocationStm, classNode, line);
 
-        } else {
-
+        } else if (methodInvocation.getExpression()  == null) {
+            List<Object> argTypes = parserAruments(methodInvocation, line);
+            methodInvocationStm = new MethodInvocationStm(null, methodInvocation.getName().getIdentifier(), argTypes, line);
+            setStatementToInits(methodInvocationStm, classNode, line);
+        }else {
             logger.error("Chưa xử lý:parserMethodInvoStm " + methodInvocation.toString() + "-end");
-
         }
         return methodInvocationStm;
-
     }
 
-
-
+    /**
+     * set a statements to List init variable. So, from "varName", we can find type in InitNodes
+     * and can find all related statements with "varName" to debug
+     *
+     * @param invocationStm
+     * @param classNode
+     * @param line
+     */
     private void setStatementToInits(MethodInvocationStm invocationStm, ClassNode classNode, int line) {
         int index = findIndexTypeVar(invocationStm.getVarName(), line);
         if (index >= 0) {
@@ -509,6 +536,14 @@ public class MethodNode extends AbstractableElementNode {
         }
     }
 
+    /**
+     * set a statements to List init variable. So, from "varName", we can find type in InitNodes
+     * and can find all related statements with "varName" to debug
+     *
+     * @param stm
+     * @param varname
+     * @param line
+     */
     private void setStatementToInits(Object stm, String varname, int line) {
         ClassNode classNode = (ClassNode) this.getParent();
         int index = findIndexTypeVar(varname, line);
@@ -525,7 +560,13 @@ public class MethodNode extends AbstractableElementNode {
         }
     }
 
-
+    /**
+     * parser a MethodInvocation, get all import information from MethodInvocation to MethodInvocationStm
+     *
+     * @param methodInvocationStm
+     * @param obj
+     * @param line
+     */
     private void parserInMethodInvo(MethodInvocationStm methodInvocationStm, MethodInvocation obj, int line) {
         if (obj.getExpression() instanceof MethodInvocation) {
             List<Object> argTypes = parserAruments(obj, line);
@@ -534,19 +575,23 @@ public class MethodNode extends AbstractableElementNode {
         } else if (obj.getExpression() instanceof SimpleName) {
             List<Object> argTypes = parserAruments(obj, line);
             methodInvocationStm.addMethodCall(((MethodInvocation) obj).getName().getIdentifier(), argTypes);
-            methodInvocationStm.setVarName((((SimpleName) obj.getExpression()).getIdentifier()));
+            //if it doesnt has "var" to call method (or this method can call in class)
+            if ((((SimpleName) obj.getExpression()).getIdentifier()) == null) {
+                methodInvocationStm.setVarName(this.getParent().getName());
+            } else {
+                methodInvocationStm.setVarName((((SimpleName) obj.getExpression()).getIdentifier()));
+            }
         }
     }
-//    private void parserArgurement(MethodInvocation methodInvocation, int line) {
-//        if (methodInvocation.arguments().size() > 0) {
-//            for (Object arg : methodInvocation.arguments()) {
-//                if (arg instanceof MethodInvocation) {
-//                    parserMethodInvoStm((MethodInvocation) arg, line);
-//                }
-//            }
-//        }
-//    }
 
+    /**
+     * parser Argurement, if (argurement instanceof MethodInvocation), need to countinue parser
+     * and save in List<Object> is list argurements of methodInvocation.
+     *
+     * @param methodInvo
+     * @param line
+     * @return
+     */
     private List<Object> parserAruments(MethodInvocation methodInvo, int line) {
         List<Object> argTypes = new ArrayList<>();
         if (methodInvo.arguments().size() > 0) {
@@ -563,7 +608,6 @@ public class MethodNode extends AbstractableElementNode {
                     argTypes.add(obj.getClass().getName());
                     MethodInvocationStm methodInvocationStm = parserMethodInvoStm((MethodInvocation) obj, line);
                     argTypes.add(methodInvocationStm);
-                    System.out.println("AAAAAA");
                 } else {
 //                logger.info("Chưa xu ly:parserArgToString Param:" + obj.getClass().getName());
                     argTypes.add(obj.getClass().getName());
@@ -573,7 +617,13 @@ public class MethodNode extends AbstractableElementNode {
         return argTypes;
     }
 
-
+    /**
+     * find index of InitNode in initNodes (initNode has type var)
+     *
+     * @param varname
+     * @param line
+     * @return
+     */
     public int findIndexTypeVar(String varname, int line) {
         for (int i = 0; i < initNodes.size(); i++) {
             InitNode initNode = initNodes.get(i);

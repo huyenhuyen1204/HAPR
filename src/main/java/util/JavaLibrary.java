@@ -2,8 +2,10 @@ package util;
 
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +29,24 @@ public class JavaLibrary {
 		}
 	}
 
+	public static String convertStringToStatement(String string) {
+		return string;
+//		return string.substring(1, string.length() - 1);
+	}
+
+	public static void setUTF8() {
+		System.setProperty("file.encoding", "UTF-8");
+
+		Field charset = null;
+		try {
+			charset = Charset.class.getDeclaredField("defaultCharset");
+			charset.setAccessible(true);
+			charset.set(null, null);
+		} catch (NoSuchFieldException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+
+	}
 
 	public static URL[] classPathFrom(String classpath) {
 		List<String> folderNames = split(classpath, classpathSeparator());

@@ -8,20 +8,20 @@ import java.util.List;
 public class DebugData {
     private List<DebugPoint> debugPoints;
     private AssertStatement assertStatement;
-    private Object expected;
+    private String expected;
     private String testname;
 
 
 
-    public Object getExpected() {
+    public String getExpected() {
         return expected;
     }
 
-    public void setExpected(Object expected) {
+    public void setExpected(String expected) {
         this.expected = expected;
     }
 
-    public DebugData( Object expected, String testname) {
+    public DebugData( String expected, String testname) {
         this.expected = expected;
         this.testname = testname;
     }

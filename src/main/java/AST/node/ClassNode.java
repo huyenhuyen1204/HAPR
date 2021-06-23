@@ -1,13 +1,10 @@
 package AST.node;
 
 import AST.obj.MethodTest;
-import AST.stm.InitInMethodStm;
-import AST.stm.abstrct.InitStatement;
 import AST.parser.ASTHelper;
 import AST.parser.Convert;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import common.config.InitLevel;
 import org.eclipse.jdt.core.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

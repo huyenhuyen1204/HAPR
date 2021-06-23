@@ -1,6 +1,6 @@
 package util;
 
-import common.config.Configure;
+import common.Configure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,7 @@ public class RunningHelper {
         Runtime.getRuntime().exec(cmd, null, new File(pathToSource));
     }
 
-    public static void runFolder(String pathToSource, String pathToOutClass, String className) throws IOException {
+    public static void runFolder(String pathToSource, String className) throws IOException {
 //        JDBHelper.setUTF8();
         String hamscore = Configure.APR_JAR_LIB + OSHelper.separator() + "hamcrest-core-1.3.jar";
         String cmd = "java" +

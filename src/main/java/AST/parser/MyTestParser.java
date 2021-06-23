@@ -7,7 +7,7 @@ import AST.stm.abstrct.AssertStatement;
 import AST.stm.AssertEqualStm;
 import AST.stm.AssertTrueStm;
 import AST.obj.MethodTest;
-import common.config.TestType;
+import common.TestType;
 import org.eclipse.jdt.core.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -2,14 +2,19 @@ package fix;
 
 import AST.node.ClassNode;
 import AST.node.FolderNode;
+import AST.node.InitNode;
+import AST.node.MethodNode;
+import AST.obj.DebugPoint;
 import AST.obj.MethodTest;
 import AST.parser.MyTestParser;
 import AST.parser.ProjectParser;
 import common.Configure;
 import common.TestType;
 import common.error.ObjectNotFound;
+import fix.jdb.JDBHelper;
+import fix.object.BreakPointHit;
 import fix.object.DebugData;
-import jdb.JDBDebugger;
+import fix.jdb.JDBDebugger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.*;
@@ -57,13 +62,47 @@ public class FixFolder {
             List<DebugData> debugDatas = getListDebugData(classNodes, folderNode, output);
             JDBDebugger jdbDebugger = new JDBDebugger(pathToSouce
                             ,pathToOutput, MyTest_Name);
-            jdbDebugger.addDebugJDB("Transaction", 42);
-            jdbDebugger.runJDB();
-            String var = jdbDebugger.printVarJDB(debugDatas.get(0).getExpected());
-            System.out.println(var);
-        }
+            //add debug to JDB
+            DebugData debugData = debugDatas.get(0);
+            for (DebugPoint debugPoint : debugData.getDebugPoints()) {
+                jdbDebugger.addDebugJDB(debugPoint.getClassname(), debugPoint.getLine());
+            }
+            //run
+            String stopAt = jdbDebugger.runJDB();
+            String value = watchValueChange(stopAt, debugData, jdbDebugger, folderNode);
+            for (int i = 0; i < debugData.getDebugPoints().size() - 1; i++) {
 
+            }
+//            jdbDebugger.listJDB();
+
+//            String var = jdbDebugger.printVarJDB("java.lang.String a = " + debugDatas.get(0).getExpected());
+//            String var = jdbDebugger.printVarJDB(debugDatas.get(0).getExpected());
+//            System.out.println(var);
+        }
     }
+
+    private static String watchValueChange (String runningLog, DebugData debugData, JDBDebugger jdbDebugger, FolderNode folderNode) {
+        BreakPointHit breakPointHit = JDBHelper.parserLogRunning(runningLog);
+        DebugPoint debugPoint = JDBHelper.findDebugPoint(breakPointHit, debugData.getDebugPoints());
+        ClassNode classNode = folderNode.findClassByName(breakPointHit.getClassName());
+        String content = null;
+        if (classNode != null) {
+            MethodNode methodNode = classNode.findMethodNodeByStmLine(breakPointHit.getMethodName(), breakPointHit.getLine());
+            if (methodNode != null) {
+                InitNode initNode = methodNode.findTypeVar(debugPoint.getKeyVar(), debugPoint.getLine());
+                content = jdbDebugger.printVarJDB(debugPoint.getKeyVar());
+            } else {
+                logger.error("Method not fount in class: " + "{class:"  + breakPointHit.getClassName() + ",method:"
+                        + breakPointHit.getMethodName() + "}");
+            }
+        } else {
+            logger.error("Method not fount in class: " + "{class:"  + breakPointHit.getClassName() + ",method:"
+                    + breakPointHit.getMethodName() + "}");
+        }
+        return content;
+    }
+
+
 
 
 //    public static void debugger(List<DebugData> debugDatas, FolderNode folderNode) throws IOException, NoSuchFieldException, IllegalAccessException, InterruptedException {
@@ -85,7 +124,7 @@ public class FixFolder {
                 String result = jdbDebugger.printVarJDB( debugData.getExpected().toString());
                 String string =  debugData.getExpected().toString();
                 System.out.println("expected: " + string);
-                JavaLibrary.compareTwoString(var.substring(1, var.length()-2), string);
+                JavaLibraryHelper.compareTwoString(var.substring(1, var.length()-2), string);
             }
     }
 

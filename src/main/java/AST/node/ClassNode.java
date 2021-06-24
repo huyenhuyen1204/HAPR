@@ -338,6 +338,17 @@ public class ClassNode extends AbstractableElementNode {
         return null;
     }
 
+    public MethodNode findMethodNodeByStmLine(String methodName, int line) {
+        for (MethodNode methodNode : getMethodList()) {
+            if (methodName.equals(methodNode.getName())) {
+                if (line <= methodNode.getEndLine()
+                && line >= methodNode.getStartLine())
+                    return methodNode;
+            }
+        }
+        return null;
+    }
+
     private boolean compareParams(List<ParameterNode> parameterNodes, List params) {
         if (parameterNodes.size() == params.size()) {
             if (params.size() == 0) {

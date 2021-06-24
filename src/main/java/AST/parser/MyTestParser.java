@@ -2,6 +2,7 @@ package AST.parser;
 
 import AST.node.ClassNode;
 import AST.node.FieldNode;
+import AST.node.InfixExpressionNode;
 import AST.node.MethodNode;
 import AST.stm.abstrct.AssertStatement;
 import AST.stm.AssertEqualStm;
@@ -12,6 +13,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileService;
+import util.JavaLibraryHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,7 +91,7 @@ public class MyTestParser {
                     if (expression instanceof MethodInvocation) {
                         if (((MethodInvocation) expression).getName().toString().equals("assertEquals")) {
                             List arguments = ((MethodInvocation) expression).arguments();
-                            AssertStatement assertEqual = getAssertEquals(arguments, line);
+                            AssertStatement assertEqual = getAssertEquals(arguments, line, methodNode);
 
                             if (assertEqual != null) {
                                 methodTest.addToAsserts(assertEqual);
@@ -119,13 +121,14 @@ public class MyTestParser {
      * @param arguments
      * @return
      */
-    private AssertStatement getAssertEquals(List arguments, int line) {
+    private AssertStatement getAssertEquals(List arguments, int line, MethodNode methodNode) {
         AssertEqualStm assertEqualStm = null;
         // 1.for Assert.assertEquals(message, expected, actual)
         if (arguments.size() == 3) {
             if (arguments.get(0) instanceof StringLiteral) {
+                Object numbersString =  parserExpected(arguments.get(1));
                 assertEqualStm = new AssertEqualStm((StringLiteral) arguments.get(0),
-                        arguments.get(1), arguments.get(2), line);
+                        numbersString, arguments.get(2), line);
             } else {
                 //2. Assert.assertEquals(double expected, double actual, double delta),
                 if (arguments.get(0) instanceof NumberLiteral
@@ -136,13 +139,56 @@ public class MyTestParser {
             }
             //3.  for Assert.assertEquals(expected, actual)
         } else if (arguments.size() == 2) {
+            Object expected = parserExpected(arguments.get(0));
             assertEqualStm = new AssertEqualStm(
-                    arguments.get(0), arguments.get(1), line);
+                    expected, arguments.get(1), line);
         }
         if (assertEqualStm == null) {
             logger.error("CAN'T PARSER: assertEquals(" + arguments.toString() + ")");
         }
         return assertEqualStm;
+    }
+
+    private Object parserExpected(Object obj) {
+        if (obj instanceof InfixExpression) {
+            InfixExpression infixEx = (InfixExpression) obj;
+            List<Object> objects = convertListToStm(infixEx.extendedOperands());
+            Object left = convertToStm(infixEx.getLeftOperand());
+            Object right = convertToStm(infixEx.getRightOperand());
+            InfixExpressionNode infixExpressionNode = new InfixExpressionNode(infixEx.getOperator().toString(),
+                    left, right, objects);
+            return infixExpressionNode;
+        } else if (obj instanceof StringLiteral){
+            return JavaLibraryHelper.convertStringToNumbers((String) obj);
+        } else {
+            return obj;
+        }
+    }
+
+    private Object convertToStm(Expression leftOperand) {
+        if (leftOperand instanceof StringLiteral) {
+            String content = ((StringLiteral) leftOperand).getEscapedValue();
+//            content = JavaLibrary.removeFirstAndLastChars(content);
+            content = JavaLibraryHelper.convertStringToNumbers(content);
+            return content;
+        } else {
+            return leftOperand;
+        }
+    }
+
+    private List<Object> convertListToStm(List extendedOperands) {
+        List<Object> objects = new ArrayList<>();
+        for (Object obj : extendedOperands) {
+            if (obj instanceof StringLiteral) {
+//                String string = JavaLibrary.removeFirstAndLastChars(((StringLiteral) obj).getEscapedValue());
+                String string = ((StringLiteral) obj).getEscapedValue();
+                string = JavaLibraryHelper.convertStringToNumbers(string);
+                objects.add(string);
+            } else {
+                objects.add(obj);
+            }
+        }
+        return objects;
     }
 
     /**

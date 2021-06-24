@@ -3,13 +3,15 @@ package AST.obj;
 public class DebugPoint {
     private String classname;
     private int line;
+    private String keyVar;
 
     public DebugPoint() {
     }
 
-    public DebugPoint(String classname, int line) {
+    public DebugPoint(String classname, int line, String keyVar) {
         this.classname = classname;
         this.line = line;
+        this.keyVar = keyVar;
     }
 
     public String getClassname() {
@@ -26,5 +28,13 @@ public class DebugPoint {
 
     public void setLine(int line) {
         this.line = line;
+    }
+
+    public String getKeyVar() {
+        return keyVar;
+    }
+
+    public void setKeyVar(String keyVar) {
+        this.keyVar = keyVar;
     }
 }

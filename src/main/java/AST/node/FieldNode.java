@@ -88,11 +88,9 @@ public class FieldNode extends VisibleElementNode {
                 }
             }
             fieldNodes.add(fieldNode);
-            InitNode initInClassNode = new InitNode(0, fieldNode.getName(), fieldNode.getType(), fieldNode.getStartLine());
-//            InitInClassStm initInClass = new InitInClassStm(,, fieldNode.getValue(),
-//                    ((TypeDeclaration) node.getParent()).getName().getIdentifier(), );
-//            InitInClass variableElement = new I(AccessRange.IN_CLASS, ((TypeDeclaration) node.getParent()).getName().getIdentifier(),
-//                    null, fieldNode.getName(), fieldNode.getType(), fieldNode.getValue(), fieldNode.getStartLine());
+            InitNode initInClassNode = new InitNode(0, fieldNode.getName(), fieldNode.getType(),
+                    fieldNode.getStartLine());
+//
             initNodes.add(initInClassNode);
         }
         return fieldNodes;

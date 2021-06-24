@@ -12,6 +12,7 @@ public class InitNode {
     public InitNode() {
         super();
     }
+
     public InitNode(int level, String varname,  String type, int line) {
         this.level = level;
         this.varname = varname;
@@ -55,5 +56,4 @@ public class InitNode {
     public void addStatement(StatementNode obj) {
         this.statementsUsed.add(obj);
     }
-
 }

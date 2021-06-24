@@ -1,10 +1,9 @@
-package jdb;
+package fix.jdb;
 
 import common.Configure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import fix.DebugPointSetter;
-import util.JavaLibrary;
+import util.JavaLibraryHelper;
 import util.OSHelper;
 import util.RunningHelper;
 
@@ -16,20 +15,19 @@ public class JDBDebugger {
     Process process;
     PrintWriter printWriter;
     BufferedReader stdInput;
-    public static final String END_RUN = "Breakpoint hit: \"thread=main\",";
+    public static final String END_RUN = "Breakpoint hit: \"thread=main\", ";
     public final String Separate_Char = "/huyenhuyen1204/";
 
     public JDBDebugger(String pathToSource, String pathToOutClass, String classname) throws IOException {
         RunningHelper.compileFolder(pathToSource, pathToOutClass);
         initDebugJDB(pathToSource, pathToOutClass, classname);
-//        this.process.getInputStream().
         stdInput = new BufferedReader(new
                 InputStreamReader(this.process.getInputStream(), StandardCharsets.UTF_8));
     }
 
 
     public void initDebugJDB(String pathTOSource, String pathToClass, String classname) throws IOException {
-        JavaLibrary.setUTF8();
+        JavaLibraryHelper.setUTF8();
         String cmd = "jdb -classpath  " + pathToClass + OSHelper.delimiter()
                 + Configure.APR_JAR_LIB + File.separator + "oasis.jar" + OSHelper.delimiter()
                 + Configure.APR_JAR_LIB + File.separator + "junit-4.12.jar junit.textui.TestRunner " + classname;
@@ -38,7 +36,6 @@ public class JDBDebugger {
         this.printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream(),
                 StandardCharsets.UTF_8)), false);
 
-//       print new java.lang.String("Lịch sử giao dịch của tài khoản 7562459315:\n".getBytes("UTF-16"), "UTF-8")
     }
 
     public void addDebugJDB(String classname, int line) {
@@ -83,6 +80,12 @@ public class JDBDebugger {
         return null;
     }
 
+    public void listJDB() throws IOException {
+        this.printWriter.println("list");
+        this.printWriter.flush(); //tra ra stream
+        String end = printLog(END_RUN);
+    }
+
     public void contJDB() throws IOException {
         this.printWriter.println("cont");
         this.printWriter.flush(); //tra ra stream
@@ -109,6 +112,7 @@ public class JDBDebugger {
             System.out.println("Log: " + s);
             result += s + "\n";
             if (s.contains(endString)) {
+                result = s.replace(endString, "");
                 break;
             }
             long endTime = System.nanoTime();

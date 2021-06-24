@@ -12,7 +12,6 @@ import fix.object.DebugData;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.JavaLibrary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,6 @@ public class DebugPointSetter {
      * Generate List DebugDate, a debugData contents: expected result & list DebugPoint
      * @param folderNode
      * @param methodTest
-     * @param classNode
      * @return
      */
     public static List<DebugData> genDebugPoints(FolderNode folderNode, MethodTest methodTest) {
@@ -51,7 +49,8 @@ public class DebugPointSetter {
             if (assertStatement instanceof AssertEqualStm) {
                 //Case 1.1 actual  = MethodInvocation
                 //TODO: FIX debugData (convertString...)
-                DebugData debugData = new DebugData(JavaLibrary.convertStringToStatement(((AssertEqualStm) assertStatement).getExpected().toString()),
+                String expected = expectedToStm((((AssertEqualStm) assertStatement).getExpected()));
+                DebugData debugData = new DebugData(expected,
                         methodTest.getMethodName());
                 if (((AssertEqualStm) assertStatement).getActual() instanceof MethodInvocation) {
                     MethodInvocation methodInvocation =
@@ -68,6 +67,33 @@ public class DebugPointSetter {
             }
         }
         return debugDataList;
+    }
+
+    private static String expectedToStm(Object expected) {
+        if (expected instanceof InfixExpressionNode) {
+            InfixExpressionNode infix = (InfixExpressionNode) expected;
+            String stm = infixToStm(infix) ;
+            return stm;
+        } else {
+            return expected.toString();
+        }
+    }
+
+    private static String infixToStm(InfixExpressionNode infix) {
+        String operator = infix.getOperator();
+        String content = infix.getLeft() + infix.getOperator() + infix.getRight();
+        for (Object obj : infix.getExtendedOperands()) {
+            if (obj instanceof String) {
+                if (operator.equals("+") ) {
+                    content = content + obj;
+                } else {
+                    logger.error("Chuwa xuw ly TH: '" + operator + "'");
+                }
+            } else {
+                logger.error("Chuwa xuw ly:infixToStm " + obj );
+            }
+        }
+        return content;
     }
 
     private static void findDebugWithMethodInvoStm(MethodInvocationStm methodInvocationStm, FolderNode folderNode) {
@@ -113,7 +139,7 @@ public class DebugPointSetter {
     private static void addDebugPointInReturnStatements(MethodNode methodNode, ClassNode classNode, FolderNode folderNode) {
         List<StatementNode> returnStatements = methodNode.getReturnStatements();
         for (StatementNode statementNode : returnStatements) {
-            DebugPoint debugPoint = new DebugPoint(classNode.getName(), statementNode.getLine());
+            DebugPoint debugPoint = new DebugPoint(classNode.getName(), statementNode.getLine(), statementNode.getKeyVar());
             addDebugPoint(debugPoint);
             findDebugFromStatement(statementNode, methodNode, classNode, folderNode);
         }
@@ -171,7 +197,8 @@ public class DebugPointSetter {
      */
     private static void addDebugPointRelatedFromStatement(StatementNode statementNode, ClassNode classNode, FolderNode folderNode) {
         if (statementNode.getStatementNode() instanceof MethodInvocationStm) {
-            DebugPoint debugPoint = new DebugPoint(classNode.getName(), ((MethodInvocationStm) statementNode.getStatementNode()).getLine());
+            DebugPoint debugPoint = new DebugPoint(classNode.getName(), ((MethodInvocationStm) statementNode.getStatementNode()).getLine(),
+                   statementNode.getKeyVar());
             addDebugPoint(debugPoint);
             findDebugWithMethodInvoStm((MethodInvocationStm) statementNode.getStatementNode(), folderNode);
         } else if (statementNode.getStatementNode() instanceof BaseVariable) {

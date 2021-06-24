@@ -2,7 +2,7 @@ package faultlocalization.dataprepare;
 
 
 import util.FileHelper;
-import util.JavaLibrary;
+import util.JavaLibraryHelper;
 import util.PathUtils;
 
 import java.io.File;
@@ -93,16 +93,16 @@ public class DataPreparer {
 	}
 
 	private void loadTestCases() {
-		testCases = new TestClassesFinder().findIn(JavaLibrary.classPathFrom(testClassPath + ";" + classPath), false);
+		testCases = new TestClassesFinder().findIn(JavaLibraryHelper.classPathFrom(testClassPath + ";" + classPath), false);
 		Arrays.sort(testCases);
 	}
 
 	private void loadClassPaths() {
-		classPaths = JavaLibrary.classPathFrom(testClassPath);
-		classPaths = JavaLibrary.extendClassPathWith(classPath, classPaths);
+		classPaths = JavaLibraryHelper.classPathFrom(testClassPath);
+		classPaths = JavaLibraryHelper.extendClassPathWith(classPath, classPaths);
 		if (libPaths != null) {
 			for (String lpath : libPaths) {
-				classPaths = JavaLibrary.extendClassPathWith(lpath, classPaths);
+				classPaths = JavaLibraryHelper.extendClassPathWith(lpath, classPaths);
 			}
 		}
 	}

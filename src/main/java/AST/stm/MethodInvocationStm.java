@@ -9,6 +9,7 @@ import java.util.List;
 public class MethodInvocationStm extends Statement {
     private String varName;
     private String typeVar;
+    private String expression;
 //    private String methodCalled = null; // eg: student.getname() - method called is getname
     //for list method call eg: customerList.get(0).toString()
     // methods called: get, tostring
@@ -17,16 +18,18 @@ public class MethodInvocationStm extends Statement {
     public MethodInvocationStm() {
         this.methodsCalled = new ArrayList<>();
     }
-    public MethodInvocationStm(int line) {
+    public MethodInvocationStm(int line, String expression) {
         this.methodsCalled = new ArrayList<>();
         this.line = line;
+        this.expression = expression;
     }
 
-    public MethodInvocationStm(String varName, String methodName, List<Object> argTypes, int line) {
+    public MethodInvocationStm(String varName, String methodName, List<Object> argTypes, int line, String expression) {
         this.varName = varName;
         this.line = line;
         this.methodsCalled = new ArrayList<>();
         addMethodCall(methodName, argTypes);
+        this.expression = expression;
     }
 
     public MethodInvocationStm(String varname, List<MethodCalled> methods) {
@@ -74,5 +77,13 @@ public class MethodInvocationStm extends Statement {
     @Override
     public void setLine(int line) {
         this.line = line;
+    }
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expression) {
+        this.expression = expression;
     }
 }

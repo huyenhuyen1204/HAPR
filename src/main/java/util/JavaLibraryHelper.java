@@ -1,37 +1,115 @@
 package util;
 
 
+import core.object.*;
+import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class JavaLibraryHelper {
 
-    public static void compareTwoString(String a, String b) {
-        String[] listA = a.split(" ");
-        String[] listB = b.split(" ");
-        if (listA.length != listB.length) {
-            System.out.println("Diff");
-        } else {
-            for (int i = 0; i < a.length(); i++) {
-                if (a.charAt(i) != b.charAt(i)) {
-                    System.out.println("At " + i + ": " + a.charAt(i) + " - " + b.charAt(i));
+    public static final Logger logger = LoggerFactory.getLogger(JavaLibraryHelper.class);
+
+//    public static void compareTwoString(String a, String b) {
+//        String[] listA = a.split(" ");
+//        String[] listB = b.split(" ");
+//        if (listA.length != listB.length) {
+//            System.out.println("Diff");
+//        } else {
+//            for (int i = 0; i < a.length(); i++) {
+//                if (a.charAt(i) != b.charAt(i)) {
+//                    System.out.println("At " + i + ": " + a.charAt(i) + " - " + b.charAt(i));
+//                }
+//            }
+//        }
+//    }
+    public static StringComparisonResult compareTwoString(String expected, String actual, DebugData debugData) {
+        DiffMatchPatch dmp = new DiffMatchPatch();
+        LinkedList<DiffMatchPatch.Diff> diff = dmp.diffMain(actual, expected, false);
+        if (diff.get(0).text.length() == actual.length() && diff.get(0).operation.name().equals("EQUAL")) {
+//            debugData.setIndexActual(actual.length() + debugData.getIndexActual());
+            debugData.setIndexExpected(actual.length());
+            return new StringComparisonResult(true);
+        }
+        return new StringComparisonResult(diff);
+    }
+
+//    public static StringComparisonResult compareTwoString(String expected, String actual) {
+//        DiffMatchPatch dmp = new DiffMatchPatch();
+//        LinkedList<DiffMatchPatch.Diff> diff = dmp.diffMain(actual, expected, false);
+//        if (diff.get(0).text.length() == actual.length() && diff.get(0).operation.name().equals("EQUAL")) {
+//            return new StringComparisonResult(true);
+//        }
+//        return new StringComparisonResult(diff);
+//    }
+
+    public static ComparisonResult getStringComparisonResult(String expectedString, String actual, DebugData debugData) {
+        StringComparisonResult stringComparisonResult = compareTwoString(expectedString, actual, debugData);
+        if (!stringComparisonResult.isEquals()) {
+            List<DiffMatchPatch.Diff> diffs = stringComparisonResult.getDifferentCharacters();
+            List<StringModify> stringModifies = new ArrayList<>();
+            int index = 0;
+            int equalSize = 0;
+            int i = 0;
+            String expected = "";
+            do {
+                DiffMatchPatch.Diff diff = diffs.get(i);
+                if (diff.operation.name().equals("EQUAL")) {
+                    String stringEqual = diff.text;
+                    expected += stringEqual;
+                    equalSize += stringEqual.length();
+                    index += stringEqual.length();
+                    // DELETE + INSERT = REPLACE
+                } else if (diff.operation.name().equals("DELETE") && (i + 1) <= diffs.size() &&
+                        diffs.get(i + 1).operation.name().equals("INSERT")) {
+                    String stringDelete = diff.text;
+                    String stringReplace = diffs.get(i + 1).text;
+                    StringModify stringModify = new StringModify(StringOperation.REPLACE, index, index + stringDelete.length(),
+                            diffs.get(i + 1).text);
+                    index += stringDelete.length();
+                    expected += stringReplace;
+                    stringModifies.add(stringModify);
+                    i++;
+                } else if (diff.operation.name().equals("DELETE")) {
+                    logger.error("Chua xu ly:diff.operation.name().equals(StringOperation.DELETE");
+                } else if (diff.operation.name().equals("INSERT")) {
+                    expected += diff.text;
+                    logger.error("Chuw xu ly:diff.operation.name().equals(StringOperation.DELETE");
                 }
-            }
+                i++;
+            } while (i < diffs.size() && index < actual.length());
+            int percentEquals = equalSize * 100 / actual.length();
+            return new ComparisonResult(percentEquals, expected, stringModifies);
+        } else {
+            return new ComparisonResult(100, actual, null);
         }
     }
 
+
     public static String removeFirstAndLastChars(String string) {
-//        return string;
-		return string.substring(1, string.length() - 1);
+        if (string != null && string.length() > 0) {
+            if (!string.equals("") && !string.equals("\"")) {
+                if (string.charAt(0) == '"' && string.charAt(string.length() - 1) == '"') {
+                    return string.substring(1, string.length() - 1).replace("\\n", "\n");
+                }
+                return string.replace("\\n", "\n");
+            } else {
+                return string.replace("\\n", "\n");
+            }
+        } else {
+            return string.replace("\\n", "\n");
+        }
+
     }
 
     public static String convertStringToNumbers(String string) {
@@ -58,6 +136,7 @@ public class JavaLibraryHelper {
         }
         return content;
     }
+
 
     public static void main(String[] args) {
         String arr = convertStringToNumbers("- Kiểu giao dịch: ");

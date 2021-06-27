@@ -349,20 +349,24 @@ public class ClassNode extends AbstractableElementNode {
         return null;
     }
 
-    private boolean compareParams(List<ParameterNode> parameterNodes, List params) {
+    private boolean compareParams(List<ParameterNode> parameterNodes, List<String> params) {
+        boolean result = true;
         if (parameterNodes.size() == params.size()) {
             if (params.size() == 0) {
                 return true;
             }
             for (ParameterNode parameterNode : parameterNodes) {
-                params.forEach(param -> {
-                    //TODO: need to compare
-                });
+                for(String param: params) {
+                    if (!param.equals(parameterNode.getType())) {
+                        result = false;
+                        break;
+                    }
+                }
             }
+            return result;
         } else {
             return false;
         }
-        return false;
     }
 
 

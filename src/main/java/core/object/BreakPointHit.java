@@ -1,4 +1,4 @@
-package fix.object;
+package core.object;
 
 public class BreakPointHit {
     private String className;

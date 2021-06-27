@@ -1,8 +1,10 @@
-package AST.node;
+package AST.stm;
+
+import AST.stm.abstrct.Statement;
 
 import java.util.List;
 
-public class InfixExpressionNode {
+public class InfixExpressionNode extends Statement {
     private String operator;
     private Object left;
     private Object right;
@@ -48,5 +50,15 @@ public class InfixExpressionNode {
 
     public void setExtendedOperands(List<Object> extendedOperands) {
         this.extendedOperands = extendedOperands;
+    }
+
+    @Override
+    public int getLine() {
+        return 0;
+    }
+
+    @Override
+    public void setLine(int line) {
+
     }
 }

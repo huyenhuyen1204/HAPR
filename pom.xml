@@ -87,6 +87,11 @@
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.bitbucket.cowwoc</groupId>
+            <artifactId>diff-match-patch</artifactId>
+            <version>1.2</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.mozilla/juniversalchardet -->
 <!--        <dependency>-->
 <!--            <groupId>org.mozilla</groupId>-->

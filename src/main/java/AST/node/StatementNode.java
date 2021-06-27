@@ -3,6 +3,7 @@ package AST.node;
 public class StatementNode {
     private int line;
     private String keyVar;
+    private String statement;
     private Object statementNode;
 
     public int getLine() {
@@ -17,9 +18,10 @@ public class StatementNode {
         return statementNode;
     }
 
-    public void setStatementNode(Object statementNode, String keyVar) {
+    public void setStatementNode(Object statementNode, String keyVar, String statement) {
         this.statementNode = statementNode;
         this.keyVar = keyVar;
+        this.statement = statement;
     }
 
     public String getKeyVar() {
@@ -35,10 +37,23 @@ public class StatementNode {
         this.line = line;
     }
 
-    public StatementNode(int line, Object statementNode, String keyvar) {
+    public StatementNode(int line, Object statementNode, String keyvar, String statement) {
         super();
         this.line = line;
         this.statementNode = statementNode;
         this.keyVar = keyvar;
+        this.statement = statement;
+    }
+
+    public String getStatement() {
+        return statement;
+    }
+
+    public void setStatement(String statement) {
+        this.statement = statement;
+    }
+
+    public void setStatementNode(Object statementNode) {
+        this.statementNode = statementNode;
     }
 }

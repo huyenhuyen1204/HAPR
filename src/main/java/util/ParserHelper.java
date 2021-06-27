@@ -3,11 +3,7 @@ package util;
 import AST.node.ClassNode;
 import AST.node.FolderNode;
 import AST.node.MethodNode;
-import AST.obj.DebugPoint;
-import AST.stm.MethodInvocationStm;
-import AST.stm.parser.ReturnStatementParser;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.SimpleName;
+import core.object.DebugPoint;
 
 import java.util.List;
 

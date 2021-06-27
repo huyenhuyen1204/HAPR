@@ -1,4 +1,4 @@
-package fix.jdb;
+package core.jdb;
 
 import common.Configure;
 import org.slf4j.Logger;
@@ -40,6 +40,7 @@ public class JDBDebugger {
 
     public void addDebugJDB(String classname, int line) {
         this.printWriter.println("stop at " + classname + ":" + line);
+        System.out.println("stop at " + classname + ":" + line);
         this.printWriter.flush(); //tra ra stream
     }
 
@@ -56,15 +57,14 @@ public class JDBDebugger {
 
 
     public String printVarJDB(String var) {
-
         try {
             this.printWriter.println("print " + var);
             this.printWriter.flush();
-            Thread.sleep(1000);
+            Thread.sleep(500);
             this.printWriter.println("info");
             this.printWriter.flush();
             String s = printAllLog();
-            return parseLog(var, s);
+            return JavaLibraryHelper.removeFirstAndLastChars(parseLog(var, s));
         } catch (InterruptedException | IOException e) {
            logger.error("Print var ERROR: " + var);
         }
@@ -86,10 +86,16 @@ public class JDBDebugger {
         String end = printLog(END_RUN);
     }
 
-    public void contJDB() throws IOException {
-        this.printWriter.println("cont");
-        this.printWriter.flush(); //tra ra stream
-        String end = printLog(END_RUN);
+    public String contJDB() {
+        try {
+            this.printWriter.println("cont");
+            this.printWriter.flush(); //tra ra stream
+            String end = printLog(END_RUN);
+            return end;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void stepJDB() {
@@ -132,7 +138,7 @@ public class JDBDebugger {
             if (s.trim().equals(breakline)) {
                 break;
             }
-            result += s + "\n";
+            result += "\n" +JavaLibraryHelper.removeFirstAndLastChars(s);
         }
 //        FileHelper.writeInputStreamToFile(this.process.getInputStream(), "C:\\Users\\Dell\\Desktop\\APR_test\\data_test\\83778\\OUT.txt");
         return result;

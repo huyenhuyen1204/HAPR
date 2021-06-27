@@ -37,7 +37,7 @@ public class InitInClassStm extends InitStatement {
         this.statements = statements;
     }
 
-    @Override
+     @Override
     public int getLine() {
         return this.line;
     }

@@ -2,7 +2,7 @@ package AST.parser;
 
 import AST.node.ClassNode;
 import AST.node.FieldNode;
-import AST.node.InfixExpressionNode;
+import AST.stm.InfixExpressionNode;
 import AST.node.MethodNode;
 import AST.stm.abstrct.AssertStatement;
 import AST.stm.AssertEqualStm;
@@ -13,7 +13,6 @@ import org.eclipse.jdt.core.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileService;
-import util.JavaLibraryHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -159,7 +158,8 @@ public class MyTestParser {
                     left, right, objects);
             return infixExpressionNode;
         } else if (obj instanceof StringLiteral){
-            return JavaLibraryHelper.convertStringToNumbers((String) obj);
+            return (String) obj;
+//            return JavaLibraryHelper.convertStringToNumbers((String) obj);
         } else {
             return obj;
         }
@@ -169,7 +169,7 @@ public class MyTestParser {
         if (leftOperand instanceof StringLiteral) {
             String content = ((StringLiteral) leftOperand).getEscapedValue();
 //            content = JavaLibrary.removeFirstAndLastChars(content);
-            content = JavaLibraryHelper.convertStringToNumbers(content);
+//            content = JavaLibraryHelper.convertStringToNumbers(content);
             return content;
         } else {
             return leftOperand;
@@ -180,9 +180,8 @@ public class MyTestParser {
         List<Object> objects = new ArrayList<>();
         for (Object obj : extendedOperands) {
             if (obj instanceof StringLiteral) {
-//                String string = JavaLibrary.removeFirstAndLastChars(((StringLiteral) obj).getEscapedValue());
                 String string = ((StringLiteral) obj).getEscapedValue();
-                string = JavaLibraryHelper.convertStringToNumbers(string);
+//                string = JavaLibraryHelper.convertStringToNumbers(string);
                 objects.add(string);
             } else {
                 objects.add(obj);

@@ -1,6 +1,6 @@
 package AST.node;
 
-public class StatementNode {
+public class StatementNode extends Node{
     private int line;
     private String keyVar;
     private String statement;

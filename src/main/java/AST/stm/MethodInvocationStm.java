@@ -2,6 +2,7 @@ package AST.stm;
 
 import AST.obj.MethodCalled;
 import AST.stm.abstrct.Statement;
+import util.JavaLibraryHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,20 @@ public class MethodInvocationStm extends Statement {
     }
 
     public String getTypeVar() {
-        return typeVar;
+        if (typeVar != null) {
+            String[] list = JavaLibraryHelper.getClassName(typeVar);
+            if (list == null) {
+                return typeVar;
+            } else {
+                if (list.length == 1) {
+                    return list[0];
+                } else {
+                    return typeVar;
+                }
+            }
+        } else {
+            return null;
+        }
     }
 
     public void setTypeVar(String typeVar) {

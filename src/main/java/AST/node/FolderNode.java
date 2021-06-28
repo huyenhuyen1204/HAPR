@@ -1,6 +1,7 @@
 package AST.node;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import util.JavaLibraryHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,16 @@ public class FolderNode extends Node {
     }
 
     public ClassNode findClassByName(String className) {
-        if (className != null) {
+        String[] justclass = JavaLibraryHelper.getClassName(className);
+        if (justclass != null) {
+            for (ClassNode classNode : this.getClassNodes()) {
+                for (String name : justclass) {
+                    if (name.equals(classNode.getName())) {
+                        return classNode;
+                    }
+                }
+            }
+        } else {
             for (ClassNode classNode : this.getClassNodes()) {
                 if (className.equals(classNode.getName())) {
                     return classNode;

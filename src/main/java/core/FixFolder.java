@@ -23,8 +23,8 @@ import java.util.List;
 
 public class FixFolder {
     public static final Logger logger = LoggerFactory.getLogger(FixFolder.class);
-    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83453/";
-    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83453/";
+    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
+    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
     //    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
     static final String MyTest_Name = "MyTest";
     static final String TestRunner_Name = "TestRunner";

@@ -14,8 +14,8 @@ public class RunningHelper {
 //        JDBHelper.setUTF8();
         //TODO: need edit here when compile Project
         String cmd = "javac -J-Dfile.encoding=UTF-8 -g -d " + pathToOutClass +
-                " -cp " + Configure.APR_JAR_LIB + File.separator + "tools.jar" + OSHelper.delimiter() +
-                Configure.APR_JAR_LIB + File.separator + "junit-4.12.jar" + OSHelper.delimiter() + Configure.APR_JAR_LIB + File.separator + "oasis-junit-1.0.jar  *.java TestRunner.java";
+                " -cp " + Configure.APR_JAR_LIB + File.separator + "junit-4.12.jar" + OSHelper.delimiter() + Configure.APR_JAR_LIB + File.separator + "oasis-junit-1.0.jar"
+                + " -sourcepath " + pathToSource + " MyTest.java TestRunner.java";
         logger.info(cmd);
         Runtime.getRuntime().exec(cmd, null, new File(pathToSource));
     }

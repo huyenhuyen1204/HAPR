@@ -12,6 +12,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -236,6 +238,16 @@ public class JavaLibraryHelper {
             javaPathSeparator = File.pathSeparatorChar;
         }
         return javaPathSeparator;
+    }
+
+    public static String[] getClassName(String classname) {
+        Pattern p2 = Pattern.compile("<((\\w+(\\s*,\\s*)*)+)>"); // to match <jkhkj, Tran , saction>
+        Matcher m = p2.matcher(classname);
+        if (m.find()) {
+            String string = m.group(1); // to get "jkhkj, Tran , saction"
+           return string.split("\\s*,\\s*"); // to get "jkhkj", "Tran", and "saction"
+        }
+        return null;
     }
 
     private static Character javaPathSeparator;

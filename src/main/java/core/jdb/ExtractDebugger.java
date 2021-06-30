@@ -2,8 +2,10 @@ package core.jdb;
 
 import AST.node.*;
 import AST.obj.MethodCalled;
-import AST.stm.InfixExpressionNode;
-import AST.stm.MethodInvocationStm;
+import AST.stm.abst.StatementNode;
+import AST.stm.node.StringStmNode;
+import AST.stm.node.InfixExpressionStmNode;
+import AST.stm.node.MethodInvocationStmNode;
 import core.object.*;
 
 import org.slf4j.Logger;
@@ -72,9 +74,9 @@ public class ExtractDebugger {
         return breakPointInfo;
     }
 
-    public String watchValueChangeInMethodInvo(MethodInvocationStm obj, BreakPointInfo breakPointInfo, JDBDebugger jdbDebugger, FolderNode folderNode) {
+    public String watchValueChangeInMethodInvo(MethodInvocationStmNode obj, BreakPointInfo breakPointInfo, JDBDebugger jdbDebugger, FolderNode folderNode) {
         ClassNode classNode = folderNode.findClassByName(obj.getTypeVar());
-        String method = obj.getExpression();
+        String method = obj.getStatementString();
         String content = null;
         VariableInfo variableInfo = new VariableInfo();
         if (classNode != null) {
@@ -122,20 +124,20 @@ public class ExtractDebugger {
         BreakPointInfo breakPointInfo = new BreakPointInfo(debugPoint.getLine(),
                 debugPoint.getKeyVar());
         //return stm
-        if (statementNode.getStatementNode() instanceof InfixExpressionNode) {
-            content = getValueInfixExpression((InfixExpressionNode) statementNode.getStatementNode(), breakPointInfo, debugData, jdbDebugger, folderNode);
-        } else if (statementNode.getStatementNode() instanceof MethodInvocationStm) {
+        if (statementNode instanceof InfixExpressionStmNode) {
+            content = getValueInfixExpression((InfixExpressionStmNode) statementNode, breakPointInfo, debugData, jdbDebugger, folderNode);
+        } else if (statementNode instanceof MethodInvocationStmNode) {
             logger.error("chuwa xu ly:getValueNodeNullVar instanceof MethodInvocationStm");
-        } else if (statementNode.getStatementNode() instanceof String) {
-            content = (String) statementNode.getStatementNode();
+        } else if (statementNode instanceof StringStmNode) {
+            content = ((StringStmNode) statementNode).getValue();
         } else {
-            logger.error("Chua xu ly: getValueNodeNullVar " + statementNode.getStatementNode());
+            logger.error("Chua xu ly: getValueNodeNullVar " + statementNode);
         }
         breakPointInfo.setValue(content);
         return breakPointInfo;
     }
 
-    private String getValueInfixExpression(InfixExpressionNode statementNode,BreakPointInfo breakPointInfo, DebugData debugData, JDBDebugger jdbDebugger, FolderNode folderNode) {
+    private String getValueInfixExpression(InfixExpressionStmNode statementNode, BreakPointInfo breakPointInfo, DebugData debugData, JDBDebugger jdbDebugger, FolderNode folderNode) {
         Object left = statementNode.getLeft();
         String value = "";
         String txt = getValueObject(left, breakPointInfo, debugData, jdbDebugger, folderNode);
@@ -170,8 +172,8 @@ public class ExtractDebugger {
             obj = JavaLibraryHelper.removeFirstAndLastChars((String) obj);
             breakPointInfo.addVariable(obj);
             return (String) obj;
-        } else if (obj instanceof MethodInvocationStm) {
-            String value = watchValueChangeInMethodInvo((MethodInvocationStm) obj, breakPointInfo, jdbDebugger, folderNode);
+        } else if (obj instanceof MethodInvocationStmNode) {
+            String value = watchValueChangeInMethodInvo((MethodInvocationStmNode) obj, breakPointInfo, jdbDebugger, folderNode);
             return value;
         } else {
             logger.error("Chuwa xu lys:getValueInfixExpression " + obj);

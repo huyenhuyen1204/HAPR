@@ -1,6 +1,6 @@
-package AST.node;
+package AST.stm.node;
 
-import AST.stm.AssignmentNode;
+import AST.stm.abst.StatementNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ public class InitNode {
     private int level;
     private int line;
     private String varname;
-    private List<Node> statementsUsed;
+    private List<StatementNode> statementsUsed;
     private String type;
     public InitNode() {
         super();
@@ -39,11 +39,11 @@ public class InitNode {
         this.line = line;
     }
 
-    public List<Node> getStatementsUsed() {
+    public List<StatementNode> getStatementsUsed() {
         return this.statementsUsed;
     }
 
-    public void setStatementsUsed(List<Node> statementsUsed) {
+    public void setStatementsUsed(List<StatementNode> statementsUsed) {
         this.statementsUsed = statementsUsed;
     }
 
@@ -59,9 +59,9 @@ public class InitNode {
         this.statementsUsed.add(obj);
     }
 
-    public void replaceStatementsUsed(AssignmentNode assignmentNode) {
+    public void replaceStatementsUsed(StatementNode assignmentStmNode) {
         this.statementsUsed.remove(this.statementsUsed.size() -1);
-        this.statementsUsed.add(assignmentNode);
+        this.statementsUsed.add(assignmentStmNode);
 
     }
 }

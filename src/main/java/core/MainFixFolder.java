@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FixFolder {
-    public static final Logger logger = LoggerFactory.getLogger(FixFolder.class);
-    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
-    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
+public class MainFixFolder {
+    public static final Logger logger = LoggerFactory.getLogger(MainFixFolder.class);
+    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83399/";
+    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83399/";
     //    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
     static final String MyTest_Name = "MyTest";
     static final String TestRunner_Name = "TestRunner";
@@ -47,7 +47,8 @@ public class FixFolder {
 
         //Parser folder
         FolderNode folderNode = ProjectParser.parse(pathToSouce);
-
+        List<SuspicionString> suspicionStrings = new ArrayList<>();
+        List<Candidate> candidates = new ArrayList<>();
         if (!outputFile.exists()) {
             logger.error(ObjectNotFound.MSG + Configure.OUTPUT_TestRunner);
         } else {
@@ -66,6 +67,9 @@ public class FixFolder {
             ExtractDebugger extractDebugger = new ExtractDebugger();
             BreakPointInfo breakPointInfo = extractDebugger.watchValueChange(breakPointHit, debugData, jdbDebugger, folderNode);
             BreakPointHit breakPointHitNext;
+
+            BreakPointHit before = breakPointHit;
+
             do {
                 String log = jdbDebugger.contJDB();
                 breakPointHitNext = DebuggerHelper.parserLogRunning(log);
@@ -76,38 +80,66 @@ public class FixFolder {
                     continue;
                 } else if (breakPointInfo.getVarname().equals
                         (debugData.getDebugPoints().get(0).getKeyVar())) {
+//                    String expected = JavaLibraryHelper.subString(debugData.getExpected(), debugData.getIndexExpected());
                     StringComparisonResult stringComparisonResult = JavaLibraryHelper.compareTwoString(debugData.getExpected(), breakPointInfo.getValue(), debugData);
                     if (!stringComparisonResult.isEquals()) {
-                        List<Candidate> candidate = FixString.fixString(extractDebugger, debugData);
-                        System.out.println(candidate.toString());
+                        List<Candidate> candidateList = FixString.fixString(extractDebugger, debugData);
+                        System.out.println(candidates.toString());
+                        if (candidateList.size() != 0) {
+                            for (Candidate cd : candidateList) {
+                                addCandidate(candidates, cd);
+                            }
+                        } else {
+                            SuspicionString suspicionString = new SuspicionString(debugData.getExpected(),
+                                    breakPointInfo.getValue(), before, stringComparisonResult.getDifferentCharacters());
+                            addSuspicious(suspicionStrings, suspicionString);
+                        }
                     }
                 }
+                before = breakPointHit;
             }
             while (debugData.getDebugPoints().get(0).getLine() != breakPointHitNext.getLine());
         }
+        for (Candidate candidate : candidates) {
+            System.out.println(candidate.toString());
+        }
+         for (SuspicionString string : suspicionStrings) {
+             System.out.println(string.toString());
+         }
+    }
+    private static void addSuspicious (List<SuspicionString> suspicionStrings, SuspicionString suspicionString) {
+        if (suspicionStrings.size() > 0) {
+            for (SuspicionString ss : suspicionStrings) {
+                if (ss.getBreakPointInfo().getLine() == suspicionString.getBreakPointInfo().getLine()
+                        && ss.getBreakPointInfo().getClassName().equals(suspicionString.getBreakPointInfo().getClassName())) {
+                    suspicionStrings.remove(ss);
+                }
+                suspicionStrings.add(suspicionString);
+            }
+        } else {
+            suspicionStrings.add(suspicionString);
+        }
     }
 
+    private static void addCandidate (List<Candidate> candidates, Candidate candidate) {
+        if (candidates.size() > 0) {
+            for (Candidate cd : candidates) {
+                if (cd instanceof CandidateString) {
+                    CandidateString cdStr = (CandidateString) cd;
+                    if (cdStr.getLine() == cdStr.getLine()
+                            && cdStr.getClassname().equals(cdStr.getClassname())) {
+                        candidates.remove(cd);
+                    }
+                    candidates.add(candidate);
+                } else {
+                    logger.error("Chua xu ly:addCandidate");
+                }
+            }
+        } else {
+            candidates.add(candidate);
+        }
+    }
 
-
-//    private static void fix(List<DebugData> debugDatas, JDBDebugger jdbDebugger) {
-//        for (DebugData debugData : debugDatas) {
-//            String var = jdbDebugger.printVarJDB("res");
-//            System.out.println("actual: " + var);
-//            String result = jdbDebugger.printVarJDB(debugData.getExpected().toString());
-//            String string = debugData.getExpected().toString();
-//            System.out.println("expected: " + string);
-//            JavaLibraryHelper.compareTwoString(var.substring(1, var.length() - 2), string);
-//        }
-//    }
-
-//    private static void fix(DebugData debugData) {
-//        Object expected = debugData.getExpected();
-//        String astString = FileHelper.readFile(new File(Path_AST_Output));
-//        FolderNode folderNode = JsonHelper.getInstance().getObject(astString, FolderNode.class);
-//        //buggy context
-//        ClassNode classNode = ParserHelper.findByClassName(folderNode, debugData.getDebugPoint().getClassname());
-//
-//    }
 
     /**
      * @param classNodes      of MyTest
@@ -138,22 +170,6 @@ public class FixFolder {
         }
         return debugDataList;
     }
-
-//    private static void addDebugData(final List<DebugData> list, final List<DebugData> debugData){
-//        if (list.size() > 0) {
-//            for (DebugData ddlist : list) {
-//                for (DebugData dd : debugData) {
-//                    if (ddlist.getDebugPoint().getClassname().equals(dd.getDebugPoint().getClassname())
-//                            && ddlist.getDebugPoint().getLine() == dd.getDebugPoint().getLine()) {
-//                        list.remove(ddlist);
-//                        list.add(dd);
-//                    }
-//                }
-//            }
-//        } else {
-//            list.addAll(debugData);
-//        }
-//    }
 
 }
 

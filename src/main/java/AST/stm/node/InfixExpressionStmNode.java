@@ -1,23 +1,27 @@
-package AST.stm;
+package AST.stm.node;
 
-import AST.stm.abstrct.Statement;
+import AST.stm.abst.StatementNode;
 
 import java.util.List;
 
-public class InfixExpressionNode extends Statement {
+public class InfixExpressionStmNode extends StatementNode {
     private String operator;
     private Object left;
     private Object right;
     private List<Object> extendedOperands;
 
-    public InfixExpressionNode() {
+    public InfixExpressionStmNode() {
     }
 
-    public InfixExpressionNode(String operator, Object left, Object right, List<Object> extendedOperands) {
+    public InfixExpressionStmNode(String operator, Object left, Object right,
+                                  List<Object> extendedOperands, int line, String keyVar, String stmString) {
         this.operator = operator;
         this.left = left;
         this.right = right;
         this.extendedOperands = extendedOperands;
+        this.line = line;
+        this.keyVar = keyVar;
+        this.statementString = stmString;
     }
 
     public String getOperator() {
@@ -54,11 +58,31 @@ public class InfixExpressionNode extends Statement {
 
     @Override
     public int getLine() {
-        return 0;
+        return this.line;
     }
 
     @Override
     public void setLine(int line) {
+        this.line = line;
+    }
+
+    @Override
+    public String getKeyVar() {
+        return this.keyVar;
+    }
+
+    @Override
+    public void setKeyVar(String keyVar) {
+        this.keyVar = keyVar;
+    }
+
+    @Override
+    public String getStatementString() {
+        return null;
+    }
+
+    @Override
+    public void setStatementString(String statementString) {
 
     }
 }

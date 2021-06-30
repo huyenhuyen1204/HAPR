@@ -2,11 +2,11 @@ package AST.parser;
 
 import AST.node.ClassNode;
 import AST.node.FieldNode;
-import AST.stm.InfixExpressionNode;
+import AST.stm.node.InfixExpressionStmNode;
 import AST.node.MethodNode;
-import AST.stm.abstrct.AssertStatement;
-import AST.stm.AssertEqualStm;
-import AST.stm.AssertTrueStm;
+import AST.stm.abst.AssertStatement;
+import AST.stm.node.AssertEqualStmNode;
+import AST.stm.node.AssertTrueStmNode;
 import AST.obj.MethodTest;
 import common.TestType;
 import org.eclipse.jdt.core.dom.*;
@@ -90,7 +90,7 @@ public class MyTestParser {
                     if (expression instanceof MethodInvocation) {
                         if (((MethodInvocation) expression).getName().toString().equals("assertEquals")) {
                             List arguments = ((MethodInvocation) expression).arguments();
-                            AssertStatement assertEqual = getAssertEquals(arguments, line, methodNode);
+                            AssertStatement assertEqual = getAssertEquals(arguments, line);
 
                             if (assertEqual != null) {
                                 methodTest.addToAsserts(assertEqual);
@@ -120,43 +120,43 @@ public class MyTestParser {
      * @param arguments
      * @return
      */
-    private AssertStatement getAssertEquals(List arguments, int line, MethodNode methodNode) {
-        AssertEqualStm assertEqualStm = null;
+    private AssertStatement getAssertEquals(List arguments, int line) {
+        AssertEqualStmNode assertEqualStmNode = null;
         // 1.for Assert.assertEquals(message, expected, actual)
         if (arguments.size() == 3) {
             if (arguments.get(0) instanceof StringLiteral) {
-                Object numbersString =  parserExpected(arguments.get(1));
-                assertEqualStm = new AssertEqualStm((StringLiteral) arguments.get(0),
+                Object numbersString =  parserExpected(arguments.get(1), line);
+                assertEqualStmNode = new AssertEqualStmNode((StringLiteral) arguments.get(0),
                         numbersString, arguments.get(2), line);
             } else {
                 //2. Assert.assertEquals(double expected, double actual, double delta),
                 if (arguments.get(0) instanceof NumberLiteral
                         && arguments.get(2) instanceof NumberLiteral) {
-                    assertEqualStm = new AssertEqualStm(arguments.get(0), arguments.get(1),
+                    assertEqualStmNode = new AssertEqualStmNode(arguments.get(0), arguments.get(1),
                             (NumberLiteral) arguments.get(2), line);
                 }
             }
             //3.  for Assert.assertEquals(expected, actual)
         } else if (arguments.size() == 2) {
-            Object expected = parserExpected(arguments.get(0));
-            assertEqualStm = new AssertEqualStm(
+            Object expected = parserExpected(arguments.get(0), line);
+            assertEqualStmNode = new AssertEqualStmNode(
                     expected, arguments.get(1), line);
         }
-        if (assertEqualStm == null) {
+        if (assertEqualStmNode == null) {
             logger.error("CAN'T PARSER: assertEquals(" + arguments.toString() + ")");
         }
-        return assertEqualStm;
+        return assertEqualStmNode;
     }
 
-    private Object parserExpected(Object obj) {
+    private Object parserExpected(Object obj, int line) {
         if (obj instanceof InfixExpression) {
             InfixExpression infixEx = (InfixExpression) obj;
             List<Object> objects = convertListToStm(infixEx.extendedOperands());
             Object left = convertToStm(infixEx.getLeftOperand());
             Object right = convertToStm(infixEx.getRightOperand());
-            InfixExpressionNode infixExpressionNode = new InfixExpressionNode(infixEx.getOperator().toString(),
-                    left, right, objects);
-            return infixExpressionNode;
+            InfixExpressionStmNode infixExpressionStmNode = new InfixExpressionStmNode(infixEx.getOperator().toString(),
+                    left, right, objects, line, null, infixEx.toString() );
+            return infixExpressionStmNode;
         } else if (obj instanceof StringLiteral){
             return (String) obj;
 //            return JavaLibraryHelper.convertStringToNumbers((String) obj);
@@ -199,18 +199,18 @@ public class MyTestParser {
      * @return
      */
     private AssertStatement getAssertTrue(List args, int line) {
-        AssertTrueStm assertTrueStm = null;
+        AssertTrueStmNode assertTrueStmNode = null;
         if (args.size() == 1) {
-            assertTrueStm = new AssertTrueStm(args.get(0), line);
+            assertTrueStmNode = new AssertTrueStmNode(args.get(0), line);
         } else if (args.size() == 2) {
             if (args.get(0) instanceof StringLiteral) {
-                assertTrueStm = new AssertTrueStm((StringLiteral) args.get(0), args.get(1), line);
+                assertTrueStmNode = new AssertTrueStmNode((StringLiteral) args.get(0), args.get(1), line);
             }
         }
-        if (assertTrueStm == null) {
+        if (assertTrueStmNode == null) {
             logger.error("CAN'T PARSER: assertTrue(" + args.toString() + ")");
         }
-        return assertTrueStm;
+        return assertTrueStmNode;
     }
 
     /**

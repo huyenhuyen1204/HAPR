@@ -1,7 +1,7 @@
 package AST.parser;
 
 import AST.node.*;
-import AST.stm.abstrct.InitStatement;
+import AST.stm.node.InitNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;

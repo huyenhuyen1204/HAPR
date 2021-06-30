@@ -1,9 +1,12 @@
-package AST.node;
+package AST.stm.block;
+
+import AST.stm.abst.ForNode;
+import AST.stm.node.InitNode;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EnhancedForNode extends ForNode{
+public class EnhancedForNode extends ForNode {
     private String listName;
     public EnhancedForNode() {
         super();

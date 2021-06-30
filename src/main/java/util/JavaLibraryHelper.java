@@ -39,11 +39,16 @@ public class JavaLibraryHelper {
         DiffMatchPatch dmp = new DiffMatchPatch();
         LinkedList<DiffMatchPatch.Diff> diff = dmp.diffMain(actual, expected, false);
         if (diff.get(0).text.length() == actual.length() && diff.get(0).operation.name().equals("EQUAL")) {
-//            debugData.setIndexActual(actual.length() + debugData.getIndexActual());
             debugData.setIndexExpected(actual.length());
             return new StringComparisonResult(true);
         }
         return new StringComparisonResult(diff);
+    }
+    public static String subString(String string, int startSub) {
+        if (string.length() > 0 && startSub < string.length()) {
+            return string.substring(startSub);
+        }
+        return string;
     }
 
 //    public static StringComparisonResult compareTwoString(String expected, String actual) {
@@ -64,15 +69,19 @@ public class JavaLibraryHelper {
             int equalSize = 0;
             int i = 0;
             String expected = "";
+            List<DiffMatchPatch.Diff> diffList = new ArrayList<>();
             do {
                 DiffMatchPatch.Diff diff = diffs.get(i);
+                diffList.add(diff);
+                boolean checkInserdAndDelete = false;
+
                 if (diff.operation.name().equals("EQUAL")) {
                     String stringEqual = diff.text;
                     expected += stringEqual;
                     equalSize += stringEqual.length();
                     index += stringEqual.length();
                     // DELETE + INSERT = REPLACE
-                } else if (diff.operation.name().equals("DELETE") && (i + 1) <= diffs.size() &&
+                } else if ((i + 1 < diffs.size()) && diff.operation.name().equals("DELETE")  &&
                         diffs.get(i + 1).operation.name().equals("INSERT")) {
                     String stringDelete = diff.text;
                     String stringReplace = diffs.get(i + 1).text;
@@ -81,6 +90,7 @@ public class JavaLibraryHelper {
                     index += stringDelete.length();
                     expected += stringReplace;
                     stringModifies.add(stringModify);
+                    diffList.add(diffs.get(i + 1));
                     i++;
                 } else if (diff.operation.name().equals("DELETE")) {
                     logger.error("Chua xu ly:diff.operation.name().equals(StringOperation.DELETE");
@@ -91,9 +101,9 @@ public class JavaLibraryHelper {
                 i++;
             } while (i < diffs.size() && index < actual.length());
             int percentEquals = equalSize * 100 / actual.length();
-            return new ComparisonResult(percentEquals, expected, stringModifies);
+            return new ComparisonResult(percentEquals, expected, stringModifies, diffList);
         } else {
-            return new ComparisonResult(100, actual, null);
+            return new ComparisonResult(100, actual, null, null);
         }
     }
 

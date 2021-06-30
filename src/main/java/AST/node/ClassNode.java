@@ -3,6 +3,7 @@ package AST.node;
 import AST.obj.MethodTest;
 import AST.parser.ASTHelper;
 import AST.parser.Convert;
+import AST.stm.node.InitNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.eclipse.jdt.core.dom.*;

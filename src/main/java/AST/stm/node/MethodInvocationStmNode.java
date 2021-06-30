@@ -1,41 +1,39 @@
-package AST.stm;
+package AST.stm.node;
 
 import AST.obj.MethodCalled;
-import AST.stm.abstrct.Statement;
+import AST.stm.abst.StatementNode;
 import util.JavaLibraryHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MethodInvocationStm extends Statement {
-    private String varName;
+public class MethodInvocationStmNode extends StatementNode {
     private String typeVar;
-    private String expression;
 //    private String methodCalled = null; // eg: student.getname() - method called is getname
     //for list method call eg: customerList.get(0).toString()
     // methods called: get, tostring
     private List<MethodCalled> methodsCalled = null; //customerList.get(0).toString() -> toString, get
 
-    public MethodInvocationStm() {
+    public MethodInvocationStmNode() {
         this.methodsCalled = new ArrayList<>();
     }
-    public MethodInvocationStm(int line, String expression) {
+    public MethodInvocationStmNode(int line, String statementString) {
         this.methodsCalled = new ArrayList<>();
         this.line = line;
-        this.expression = expression;
+        this.statementString = statementString;
     }
 
-    public MethodInvocationStm(String varName, String methodName, List<Object> argTypes, int line, String expression) {
-        this.varName = varName;
+    public MethodInvocationStmNode(String varName, String methodName, List<Object> argTypes, int line, String statementString) {
+        this.keyVar = varName;
         this.line = line;
         this.methodsCalled = new ArrayList<>();
         addMethodCall(methodName, argTypes);
-        this.expression = expression;
+        this.statementString = statementString;
     }
 
-    public MethodInvocationStm(String varname, List<MethodCalled> methods) {
+    public MethodInvocationStmNode(String keyVar, List<MethodCalled> methods) {
         methodsCalled = new ArrayList<>();
-        this.varName = varname;
+        this.keyVar = keyVar;
         for (int i = methods.size()-1; i >=0; i --) {
             methodsCalled.add(methods.get(i));
         }
@@ -54,13 +52,6 @@ public class MethodInvocationStm extends Statement {
         this.methodsCalled = methodsCalled;
     }
 
-    public String getVarName() {
-        return varName;
-    }
-
-    public void setVarName(String varName) {
-        this.varName = varName;
-    }
 
     public String getTypeVar() {
         if (typeVar != null) {
@@ -93,11 +84,23 @@ public class MethodInvocationStm extends Statement {
         this.line = line;
     }
 
-    public String getExpression() {
-        return expression;
+    @Override
+    public String getKeyVar() {
+        return this.keyVar;
     }
 
-    public void setExpression(String expression) {
-        this.expression = expression;
+    @Override
+    public void setKeyVar(String keyVar) {
+        this.keyVar = keyVar;
+    }
+
+    @Override
+    public String getStatementString() {
+        return this.statementString;
+    }
+
+    @Override
+    public void setStatementString(String statementString) {
+        this.statementString = statementString;
     }
 }

@@ -34,4 +34,7 @@ public class BreakPointHit {
     public void setLine(int line) {
         this.line = line;
     }
+    public String toString() {
+        return "{className:" + className + ", " + "methodName:" + methodName + ", line:" + line + "}";
+    }
 }

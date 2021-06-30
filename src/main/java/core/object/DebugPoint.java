@@ -1,6 +1,7 @@
 package core.object;
 
-import AST.node.StatementNode;
+
+import AST.stm.abst.StatementNode;
 
 public class DebugPoint {
     private String classname;

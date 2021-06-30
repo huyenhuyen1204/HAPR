@@ -1,24 +1,24 @@
-package AST.stm;
+package AST.stm.node;
 
-import AST.stm.abstrct.AssertStatement;
+import AST.stm.abst.AssertStatement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 
-public class AssertTrueStm extends AssertStatement {
+public class AssertTrueStmNode extends AssertStatement {
     private Object object;
     private StringLiteral message;
     public final boolean  expected = true;
 
-    public AssertTrueStm() {
+    public AssertTrueStmNode() {
         super();
     }
 
-    public AssertTrueStm(Object object, int line) {
+    public AssertTrueStmNode(Object object, int line) {
         super();
         this.object = object;
         this.line = line;
     }
 
-    public AssertTrueStm(StringLiteral message, Object object, int line) {
+    public AssertTrueStmNode(StringLiteral message, Object object, int line) {
         super();
         this.object = object;
         this.message = message;
@@ -51,6 +51,26 @@ public class AssertTrueStm extends AssertStatement {
 
     public void setLine(int line) {
         this.line = line;
+    }
+
+    @Override
+    public String getKeyVar() {
+        return this.keyVar;
+    }
+
+    @Override
+    public void setKeyVar(String keyVar) {
+        this.keyVar = keyVar;
+    }
+
+    @Override
+    public String getStatementString() {
+        return this.statementString;
+    }
+
+    @Override
+    public void setStatementString(String statementString) {
+        this.statementString = statementString;
     }
 
 

@@ -1,21 +1,21 @@
-package AST.stm;
+package AST.stm.node;
 
-import AST.stm.abstrct.AssertStatement;
+import AST.stm.abst.AssertStatement;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.StringLiteral;
 
-public class AssertEqualStm extends AssertStatement {
+public class AssertEqualStmNode extends AssertStatement {
     private StringLiteral message;
     private Object expected;
     private Object actual;
     private NumberLiteral delta;
 
 
-    public AssertEqualStm() {
+    public AssertEqualStmNode() {
         super();
 
     }
-    public AssertEqualStm(StringLiteral message, Object expected, Object actual, int line) {
+    public AssertEqualStmNode(StringLiteral message, Object expected, Object actual, int line) {
         super();
         this.message = message;
         this.expected = expected;
@@ -23,7 +23,7 @@ public class AssertEqualStm extends AssertStatement {
         this.line = line;
     }
 
-    public AssertEqualStm(Object expected, Object actual, NumberLiteral delta, int line) {
+    public AssertEqualStmNode(Object expected, Object actual, NumberLiteral delta, int line) {
         super();
         this.delta = delta;
         this.expected = expected;
@@ -31,7 +31,7 @@ public class AssertEqualStm extends AssertStatement {
         this.line = line;
     }
 
-    public AssertEqualStm(Object expected, Object actual, int line) {
+    public AssertEqualStmNode(Object expected, Object actual, int line) {
         super();
         this.expected = expected;
         this.actual = actual;
@@ -77,6 +77,26 @@ public class AssertEqualStm extends AssertStatement {
 
     public void setLine(int line) {
         this.line = line;
+    }
+
+    @Override
+    public String getKeyVar() {
+        return this.keyVar;
+    }
+
+    @Override
+    public void setKeyVar(String keyVar) {
+        this.keyVar = keyVar;
+    }
+
+    @Override
+    public String getStatementString() {
+        return this.statementString;
+    }
+
+    @Override
+    public void setStatementString(String statementString) {
+        this.statementString = statementString;
     }
 
 }

@@ -57,4 +57,8 @@ public class BreakPointInfo {
     public void addVariable(Object obj) {
         this.variableInfos.add(obj);
     }
+
+    public String toString() {
+        return "BreakPointInfo: {line:" + line + "," + "varname:" + varname + "}";
+    }
 }

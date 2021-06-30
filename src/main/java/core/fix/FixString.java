@@ -1,7 +1,8 @@
 package core.fix;
 
 import AST.node.MethodNode;
-import AST.node.StatementNode;
+import AST.stm.abst.StatementNode;
+import AST.stm.node.StringStmNode;
 import core.jdb.ExtractDebugger;
 import core.object.*;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class FixString {
 
     private static Candidate fixReturns(Object obj, DebugData debugData, int line) {
         Candidate candidate = null;
-        String expected = debugData.getTmpExpected().substring(debugData.getIndexExpected(), debugData.getTmpExpected().length() - 1);
+        String expected = JavaLibraryHelper.subString(debugData.getTmpExpected(), debugData.getIndexExpected());
         debugData.setTmpExpected(expected);
         if (obj instanceof String) {
             StringComparisonResult stringComparisonResult = JavaLibraryHelper.compareTwoString(
@@ -73,7 +74,7 @@ public class FixString {
                     }
                     return new CandidateString(isline, ((MethodNode) variableInfo.getPointToMethod()).getParent().getName(),
                             ((MethodNode) variableInfo.getPointToMethod()).getName(),
-                            FixType.EDIT_RETURN, comparisonResult.getStringModifies());
+                            FixType.EDIT_RETURN, comparisonResult.getStringModifies(), comparisonResult.getDiffs());
                 }
             } else {
                 //Xu ly returns khac equals => fix bug bang re nhanh return.
@@ -88,8 +89,8 @@ public class FixString {
             MethodNode methodNode = (MethodNode) obj;
             List<StatementNode> returnStatements = methodNode.getReturnStatements();
             for (StatementNode statementNode : returnStatements) {
-                if (string instanceof String && statementNode.getStatementNode() instanceof String) {
-                    if (string.equals(statementNode.getStatementNode())) {
+                if (string instanceof String && statementNode instanceof StringStmNode) {
+                    if (string.equals(((StringStmNode) statementNode).getValue())) {
                         return statementNode.getLine();
                     }
                 }

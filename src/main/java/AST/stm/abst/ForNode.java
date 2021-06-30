@@ -1,4 +1,6 @@
-package AST.node;
+package AST.stm.abst;
+
+import AST.stm.node.InitNode;
 
 import java.util.List;
 

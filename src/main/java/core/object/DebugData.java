@@ -1,6 +1,6 @@
 package core.object;
 
-import AST.stm.abstrct.AssertStatement;
+import AST.stm.abst.AssertStatement;
 
 import java.util.List;
 

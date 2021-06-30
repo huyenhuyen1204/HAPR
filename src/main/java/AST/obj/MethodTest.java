@@ -1,7 +1,7 @@
 package AST.obj;
 
 import AST.node.MethodNode;
-import AST.stm.abstrct.AssertStatement;
+import AST.stm.abst.AssertStatement;
 
 import java.util.ArrayList;
 import java.util.List;

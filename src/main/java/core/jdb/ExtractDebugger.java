@@ -55,10 +55,9 @@ public class ExtractDebugger {
             MethodNode methodNode = classNode.findMethodNodeByStmLine(breakPointHit.getMethodName(), breakPointHit.getLine());
             if (methodNode != null) {
                 if (debugPoint.getKeyVar() != null) {
-//                    String content = jdbDebugger.printVarJDB(debugPoint.getStatementNode().getStatement());
                     String contetn222 = jdbDebugger.printVarJDB(debugPoint.getKeyVar());
                     breakPointInfo = new BreakPointInfo(breakPointHit.getLine(),
-                            debugPoint.getKeyVar(), contetn222);
+                            debugPoint.getKeyVar(), contetn222, debugPoint);
                 } else {
                     breakPointInfo = getValueNodeNullVar(debugPoint, debugData, jdbDebugger, folderNode);
                 }
@@ -122,7 +121,7 @@ public class ExtractDebugger {
         String content = null;
         StatementNode statementNode = debugPoint.getStatementNode();
         BreakPointInfo breakPointInfo = new BreakPointInfo(debugPoint.getLine(),
-                debugPoint.getKeyVar());
+                debugPoint.getKeyVar(), debugPoint);
         //return stm
         if (statementNode instanceof InfixExpressionStmNode) {
             content = getValueInfixExpression((InfixExpressionStmNode) statementNode, breakPointInfo, debugData, jdbDebugger, folderNode);

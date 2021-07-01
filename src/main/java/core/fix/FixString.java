@@ -3,6 +3,7 @@ package core.fix;
 import AST.node.MethodNode;
 import AST.stm.abst.StatementNode;
 import AST.stm.node.StringStmNode;
+import core.MainFixFolder;
 import core.jdb.ExtractDebugger;
 import core.object.*;
 import org.slf4j.Logger;
@@ -10,42 +11,106 @@ import org.slf4j.LoggerFactory;
 import util.JavaLibraryHelper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class FixString {
     public static final Logger logger = LoggerFactory.getLogger(FixString.class);
+    private static int indexDebug = 0;
 
-    public static List<Candidate> fixString(ExtractDebugger extractDebugger, DebugData debugData, String classname, String methodname) {
+    public static void fixString(ExtractDebugger extractDebugger, DebugData debugData, List<Candidate> candidates, List<SuspicionString> suspicionStrings,  BreakPointHit breakPointHitNext, ComparisonResult comparisonResult ) {
         List<BreakPointInfo> breakPointInfos = extractDebugger.getHistoryDebug();
-        List<Candidate> candidates = new ArrayList<>();
-        for (int i = breakPointInfos.size() - 2; i >= 0; i--) {
-            BreakPointInfo breakPointInfo = breakPointInfos.get(i);
-            if (breakPointInfo.getVarname() != null) {
-                logger.error("Chuwa xu ly:fixString ");
-            } else {
-                if (breakPointInfo.getVariableInfos().size() > 0) {
-                    for (Object obj : breakPointInfo.getVariableInfos()) {
-                        Candidate candidate = fixReturns(obj, debugData, breakPointInfo.getLine(), classname, methodname);
-                        if (candidate != null) {
-                            candidates.add(candidate);
-                        }
+        Set<BreakPointInfo> done = new HashSet<>();
+        String classname = breakPointHitNext.getClassName();
+        String methodname = breakPointHitNext.getMethodName();
+        BreakPointInfo breakHere = breakPointInfos.get(breakPointInfos.size() - 1);
+        done.add(breakHere);
+        List<BreakPointInfo> breakPointInfoList = filterBreakpointInfor(breakPointInfos, breakHere);
+        for (BreakPointInfo breakPointIf : breakPointInfoList) {
+            Candidate candidate = null;
+            if (breakPointIf.getVariableInfos().size() > 0) {
+                for (Object obj : breakPointIf.getVariableInfos()) {
+                    candidate = fixReturns(obj, debugData, breakPointIf.getLine(), classname, methodname);
+                    if (candidate != null) {
+                        candidates.add(candidate);
                     }
-                } else {
-                    logger.error("Chuwa xu ly: breakPointInfo.getVariableInfos().size() <= 0");
+                }
+            } else {
+                logger.error("Chuwa xu ly: breakPointInfo.getVariableInfos().size() <= 0");
+            }
+            if (candidate == null) {
+                System.out.println("HHHH");
+                SuspicionString suspicionString = new SuspicionString(comparisonResult.getExpected(),
+                        comparisonResult.getActual(), breakPointIf.getDebugPoint(), comparisonResult.getDiffs());
+                addSuspicious(suspicionStrings, suspicionString);
+            }
+        }
+
+    }
+
+    private static void addSuspicious(List<SuspicionString> suspicionStrings, SuspicionString suspicionString) {
+        if (suspicionStrings.size() > 0) {
+            int size = suspicionStrings.size();
+            for (int i = 0; i < size; i++) {
+                SuspicionString ss = suspicionStrings.get(i);
+                if (ss.getDebugPoint().getLine() == suspicionString.getDebugPoint().getLine()
+                        && ss.getDebugPoint().getClassname().equals(suspicionString.getDebugPoint().getClassname())) {
+                    suspicionStrings.remove(i);
+                    i--;
+                    size--;
+                }
+            }
+            suspicionStrings.add(suspicionString);
+        } else {
+            suspicionStrings.add(suspicionString);
+        }
+    }
+
+
+    private static List<BreakPointInfo> filterBreakpointInfor(List<BreakPointInfo> breakPointInfos, BreakPointInfo breakPointInfoLatest) {
+        List<BreakPointInfo> breakPointInfoList = new ArrayList<>();
+        int floor = indexDebug;
+        for (int i = breakPointInfos.size() - 2; i > floor; i--) {
+            BreakPointInfo brp = breakPointInfos.get(i);
+            if (brp.getLine() == breakPointInfoLatest.getLine()) {
+                String varname1 = brp.getVarname() == null ? "" : brp.getVarname();
+                String varname2 = breakPointInfoLatest.getVarname() == null ? "" : breakPointInfoLatest.getVarname();
+                if (varname1.equals(varname2)) {
+                    indexDebug = i;
+                    break;
+                }
+            }
+            breakPointInfoList.add(brp);
+        }
+        return breakPointInfoList;
+    }
+
+    private static boolean breakPointDone(Set<BreakPointInfo> breakPointInfos, BreakPointInfo breakPointInfo) {
+        if (breakPointInfos.size() > 0) {
+            for (BreakPointInfo brp : breakPointInfos) {
+                if (brp.getLine() == breakPointInfo.getLine()) {
+                    String varname1 = brp.getVarname() == null ? "" : brp.getVarname();
+                    String varname2 = breakPointInfo.getVarname() == null ? "" : breakPointInfo.getVarname();
+                    if (varname1.equals(varname2)) {
+                        return true;
+                    }
                 }
             }
         }
-        return candidates;
+        breakPointInfos.add(breakPointInfo);
+        return false;
     }
 
     private static Candidate fixReturns(Object obj, DebugData debugData, int line, String classname, String methodname) {
         Candidate candidate = null;
         String expected = JavaLibraryHelper.subString(debugData.getTmpExpected(), debugData.getIndexExpected());
         debugData.setTmpExpected(expected);
+//        String expected = debugData.getTmpExpected();
         if (obj instanceof String) {
-            StringComparisonResult stringComparisonResult = JavaLibraryHelper.compareTwoString(
+            ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(true,
                     expected, (String) obj, debugData);
-            if (!stringComparisonResult.isEquals()) {
+            if (!comparisonResult.isEquals()) {
                 logger.error("Chuwa xu ly: obj instanceof String");
                 //TODO: get DIFF
             }
@@ -63,7 +128,7 @@ public class FixString {
     private static CandidateString fixStringStm(String expected, Object obj, int line, String classname, String methodName, DebugData debugData) {
         if (obj instanceof VariableInfo) {
             VariableInfo variableInfo = (VariableInfo) obj;
-            ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(expected, variableInfo.getValue(), debugData);
+            ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(true, expected, variableInfo.getValue(), debugData);
             int isline = line;
             //TH1: dong thuc thi hien tai equals
             if (comparisonResult.getPercent() > 50 && comparisonResult.getPercent() < 100) {
@@ -82,6 +147,8 @@ public class FixString {
                             methodName,
                             FixType.EDIT_RETURN, comparisonResult.getStringModifies(), comparisonResult.getDiffs());
                 }
+            } else {
+                //TODO: find diff type
             }
         }
         return null;

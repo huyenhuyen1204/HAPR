@@ -70,7 +70,7 @@ public class CandidateString extends Candidate {
         this.diffs = diffs;
     }
 
-    public String toString () {
+    public String toString() {
         return "{line:" + this.line + ", " +
                 "classname:" + this.classname + ", " +
                 "methodname:" + this.classname + ", " +
@@ -86,5 +86,18 @@ public class CandidateString extends Candidate {
             }
         }
         return s;
+    }
+
+    public boolean equalsDiff(List<DiffMatchPatch.Diff> diffs) {
+        if (this.diffs.size() == diffs.size()) {
+            for (int i = 0; i < diffs.size(); i++) {
+                if (!this.diffs.get(i).equals(diffs.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -77,7 +77,7 @@ public class JDBDebugger {
     }
 
     private String parseLog(String var, String log) {
-        String newLog = log.replace(var + " = ", Separate_Char);
+        String newLog = log.replace("main[1]  " +var + " = ", Separate_Char);
         String[] strings = newLog.split(Separate_Char);
         if (strings.length > 1) {
             return strings[1];

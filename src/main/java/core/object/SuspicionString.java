@@ -8,13 +8,13 @@ import java.util.List;
 public class SuspicionString {
     private String expected;
     private String actual;
-    private BreakPointHit breakPointHit;
+    private DebugPoint debugPoint;
     private List<DiffMatchPatch.Diff> diffs;
 
-    public SuspicionString(String expected, String actual, BreakPointHit breakPointHit, List<DiffMatchPatch.Diff> diffs) {
+    public SuspicionString(String expected, String actual, DebugPoint debugPoint, List<DiffMatchPatch.Diff> diffs) {
         this.expected = expected;
         this.actual = actual;
-        this.breakPointHit = breakPointHit;
+        this.debugPoint = debugPoint;
         if (diffs != null) {
             if (diffs.size() > 0) {
                 this.diffs = new ArrayList<>();
@@ -23,12 +23,20 @@ public class SuspicionString {
         }
     }
 
-    public BreakPointHit getBreakPointInfo() {
-        return breakPointHit;
+    public DebugPoint getDebugPoint() {
+        return debugPoint;
     }
 
-    public void setBreakPointInfo(BreakPointHit breakPointInfo) {
-        this.breakPointHit = breakPointInfo;
+    public void setDebugPoint(DebugPoint debugPoint) {
+        this.debugPoint = debugPoint;
+    }
+
+    public List<DiffMatchPatch.Diff> getDiffs() {
+        return diffs;
+    }
+
+    public void setDiffs(List<DiffMatchPatch.Diff> diffs) {
+        this.diffs = diffs;
     }
 
     public String getExpected() {
@@ -49,7 +57,7 @@ public class SuspicionString {
     public String toString () {
         return  "SuspicionString: { expected: " + expected + "\n"
         + "actual: " + actual + "\n"
-        + breakPointHit.toString() + "\n" + diffsToString() +"}";
+        + debugPoint.toString() + "\n" + diffsToString() +"}";
     }
 
     private String diffsToString() {

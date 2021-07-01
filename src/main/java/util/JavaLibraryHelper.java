@@ -35,13 +35,13 @@ public class JavaLibraryHelper {
 //            }
 //        }
 //    }
-    public static StringComparisonResult compareTwoString(String expected, String actual, DebugData debugData) {
+    private static StringComparisonResult compareTwoString(String expected, String actual, DebugData debugData) {
         DiffMatchPatch dmp = new DiffMatchPatch();
         LinkedList<DiffMatchPatch.Diff> diff = dmp.diffMain(actual, expected, false);
-        if (diff.get(0).text.length() == actual.length() && diff.get(0).operation.name().equals("EQUAL")) {
-            debugData.setIndexExpected(actual.length());
-            return new StringComparisonResult(true);
-        }
+//        if (diff.get(0).text.length() == actual.length() && diff.get(0).operation.name().equals("EQUAL")) {
+//            debugData.setIndexExpected(actual.length());
+//            return new StringComparisonResult(true);
+//        }
         return new StringComparisonResult(diff);
     }
     public static String subString(String string, int startSub) {
@@ -60,7 +60,7 @@ public class JavaLibraryHelper {
 //        return new StringComparisonResult(diff);
 //    }
 
-    public static ComparisonResult getStringComparisonResult(String expectedString, String actual, DebugData debugData) {
+    public static ComparisonResult getStringComparisonResult(boolean canSetIndex, String expectedString, String actual, DebugData debugData) {
         StringComparisonResult stringComparisonResult = compareTwoString(expectedString, actual, debugData);
         if (!stringComparisonResult.isEquals()) {
             List<DiffMatchPatch.Diff> diffs = stringComparisonResult.getDifferentCharacters();
@@ -73,7 +73,6 @@ public class JavaLibraryHelper {
             do {
                 DiffMatchPatch.Diff diff = diffs.get(i);
                 diffList.add(diff);
-                boolean checkInserdAndDelete = false;
 
                 if (diff.operation.name().equals("EQUAL")) {
                     String stringEqual = diff.text;
@@ -104,9 +103,18 @@ public class JavaLibraryHelper {
             if (actual.length() != 0) {
                 percentEquals = equalSize * 100 / expected.length();
             }
-            return new ComparisonResult(percentEquals, expected, stringModifies, diffList);
+            boolean isEq = percentEquals== 100 ? true : false;
+            if (canSetIndex) {
+                debugData.setIndexExpected(expected.length());
+            } else {
+                 if (isEq) {
+                     debugData.setIndexExpected(expected.length());
+                 }
+            }
+            return new ComparisonResult(isEq, percentEquals, expected,actual, stringModifies, diffList);
         } else {
-            return new ComparisonResult(100, actual, null, null);
+            debugData.setIndexExpected(actual.length());
+            return new ComparisonResult(true,100, actual, actual, null, null);
         }
     }
 
@@ -127,7 +135,7 @@ public class JavaLibraryHelper {
 
     }
 
-    public static String convertStringToNumbers(String string) {
+    private static String convertStringToNumbers(String string) {
 //        string = convertStringToStatement(string);
 		char[] chars = string.toCharArray();
 		String numbers = "";

@@ -23,9 +23,10 @@ import java.util.List;
 
 public class MainFixFolder {
     public static final Logger logger = LoggerFactory.getLogger(MainFixFolder.class);
-    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
-    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
-    //    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
+    //    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
+//    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
+    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
+    static String pathToOutput = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
     static final String MyTest_Name = "MyTest";
     static final String TestRunner_Name = "TestRunner";
     static final String Path_AST_Output = pathToSouce + File.separator + "AST.txt"; // path_to_source/AST.txt
@@ -52,7 +53,7 @@ public class MainFixFolder {
         if (!outputFile.exists()) {
             logger.error(ObjectNotFound.MSG + Configure.OUTPUT_TestRunner);
         } else {
-            //Get List testName Error & get list debug point
+            // Get List testName Error & get list debug point
             List<DebugData> debugDatas = getListDebugData(classNodes, folderNode, output);
             JDBDebugger jdbDebugger = new JDBDebugger(pathToSouce
                     , pathToOutput, MyTest_Name);
@@ -68,7 +69,6 @@ public class MainFixFolder {
             BreakPointInfo breakPointInfo = extractDebugger.watchValueChange(breakPointHit, debugData, jdbDebugger, folderNode);
             BreakPointHit breakPointHitNext;
 
-            BreakPointHit before = breakPointHit;
 
             do {
                 String log = jdbDebugger.contJDB();
@@ -76,69 +76,56 @@ public class MainFixFolder {
                 breakPointInfo = extractDebugger.watchValueChange(breakPointHitNext, debugData, jdbDebugger, folderNode);
 
                 //compare & fixing
-                if (breakPointInfo.getVarname()== null) {
+                if (breakPointInfo.getVarname() == null) {
                     continue;
                 } else if (breakPointInfo.getVarname().equals
                         (debugData.getDebugPoints().get(0).getKeyVar())) {
-//                    String expected = JavaLibraryHelper.subString(debugData.getExpected(), debugData.getIndexExpected());
-                    StringComparisonResult stringComparisonResult = JavaLibraryHelper.compareTwoString(debugData.getExpected(), breakPointInfo.getValue(), debugData);
-                    if (!stringComparisonResult.isEquals()) {
-                        List<Candidate> candidateList = FixString.fixString(extractDebugger, debugData, breakPointHitNext.getClassName(), breakPointHitNext.getMethodName());
-                        System.out.println(candidates.toString());
-                        if (candidateList.size() != 0) {
-                            for (Candidate cd : candidateList) {
-                                addCandidate(candidates, cd);
-                            }
-                        } else {
-                            SuspicionString suspicionString = new SuspicionString(debugData.getExpected(),
-                                    breakPointInfo.getValue(), before, stringComparisonResult.getDifferentCharacters());
-                            addSuspicious(suspicionStrings, suspicionString);
-                        }
-                    }
+                    findCandidates(candidates, suspicionStrings, extractDebugger, breakPointHitNext, breakPointInfo,
+                            debugData);
                 }
-                before = breakPointHit;
             }
             while (debugData.getDebugPoints().get(0).getLine() != breakPointHitNext.getLine());
-        }
-        for (Candidate candidate : candidates) {
-            System.out.println(candidate.toString());
-        }
-         for (SuspicionString string : suspicionStrings) {
-             System.out.println(string.toString());
-         }
-    }
-    private static void addSuspicious (List<SuspicionString> suspicionStrings, SuspicionString suspicionString) {
-        if (suspicionStrings.size() > 0) {
-            for (SuspicionString ss : suspicionStrings) {
-                if (ss.getBreakPointInfo().getLine() == suspicionString.getBreakPointInfo().getLine()
-                        && ss.getBreakPointInfo().getClassName().equals(suspicionString.getBreakPointInfo().getClassName())) {
-                    suspicionStrings.remove(ss);
-                }
-                suspicionStrings.add(suspicionString);
+            for (Candidate candidate : candidates) {
+                System.out.println(candidate.toString());
             }
-        } else {
-            suspicionStrings.add(suspicionString);
+            for (SuspicionString string : suspicionStrings) {
+                System.out.println(string.toString());
+            }
+        }
+
+    }
+
+    public static void findCandidates(List<Candidate> candidates, List<SuspicionString> suspicionStrings, ExtractDebugger extractDebugger, BreakPointHit breakPointHitHere, BreakPointInfo breakPointInfo, DebugData debugData) {
+        ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(false, debugData.getExpected(), breakPointInfo.getValue(), debugData);
+        if (!comparisonResult.isEquals()) {
+            FixString.fixString(extractDebugger, debugData, candidates, suspicionStrings, breakPointHitHere, comparisonResult);
+
         }
     }
 
-    private static void addCandidate (List<Candidate> candidates, Candidate candidate) {
-        if (candidates.size() > 0) {
-            for (Candidate cd : candidates) {
-                if (cd instanceof CandidateString) {
-                    CandidateString cdStr = (CandidateString) cd;
-                    if (cdStr.getLine() == cdStr.getLine()
-                            && cdStr.getClassname().equals(cdStr.getClassname())) {
-                        candidates.remove(cd);
-                    }
-                    candidates.add(candidate);
-                } else {
-                    logger.error("Chua xu ly:addCandidate");
-                }
-            }
-        } else {
-            candidates.add(candidate);
-        }
-    }
+
+
+
+//    private static void addCandidate (List<Candidate> candidates, Candidate candidate) {
+//        if (candidates.size() > 0) {
+//            List<Candidate> temps = new ArrayList<>();
+//            temps.addAll(candidates);
+//            for (Candidate cd : temps) {
+//                CandidateString cdStr = (CandidateString) cd;
+//                if (cd instanceof CandidateString && candidate instanceof CandidateString) {
+////                    CandidateString candidateString = (CandidateString) candidate;
+////                    if (cdStr.equalsDiff(candidateString.getDiffs())) {
+////                        candidates.remove(cd);
+////                    }
+//                    candidates.add(candidate);
+//                } else {
+//                    logger.error("Chua xu ly:addCandidate");
+//                }
+//            }
+//        } else {
+//            candidates.add(candidate);
+//        }
+//    }
 
 
     /**

@@ -7,19 +7,30 @@ public class BreakPointInfo {
     private int line;
     private String varname;
     private String value;
+    private DebugPoint debugPoint;
     private List<Object> variableInfos;
 
-    public BreakPointInfo(int line, String varname, String value) {
+    public BreakPointInfo(int line, String varname, String value, DebugPoint debugPoint) {
         this.line = line;
         this.varname = varname;
         this.value = value;
+        this.debugPoint = debugPoint;
         this.variableInfos = new ArrayList<>();
     }
 
-    public BreakPointInfo(int line, String keyVar) {
+    public BreakPointInfo(int line, String keyVar, DebugPoint debugPoint) {
         this.line = line;
         this.varname = keyVar;
+        this.debugPoint = debugPoint;
         this.variableInfos = new ArrayList<>();
+    }
+
+    public DebugPoint getDebugPoint() {
+        return debugPoint;
+    }
+
+    public void setDebugPoint(DebugPoint debugPoint) {
+        this.debugPoint = debugPoint;
     }
 
     public int getLine() {

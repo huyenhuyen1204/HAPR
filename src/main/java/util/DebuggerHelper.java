@@ -26,10 +26,14 @@ public class DebuggerHelper {
         for (int i = 0; i < classAndMethod.length - 1; i++) {
             classname += classAndMethod[i] + ".";
         }
-        // get classname
-        classname = classname.substring(0, classname.length() - 1);
-        String lineString = logs[logs.length - 2];
-        int line = Integer.parseInt(lineString.replace("line=", ""));
-        return new BreakPointHit(classname, methodname, line);
+        if (!classname.equals("")) {
+            // get classname
+            classname = classname.substring(0, classname.length() - 1);
+            String lineString = logs[logs.length - 2];
+            int line = Integer.parseInt(lineString.replace("line=", ""));
+            return new BreakPointHit(classname, methodname, line);
+        } else {
+            return null;
+        }
     }
 }

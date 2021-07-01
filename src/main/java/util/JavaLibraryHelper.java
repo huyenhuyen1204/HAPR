@@ -100,7 +100,10 @@ public class JavaLibraryHelper {
                 }
                 i++;
             } while (i < diffs.size() && index < actual.length());
-            int percentEquals = equalSize * 100 / actual.length();
+            int percentEquals = -1;
+            if (actual.length() != 0) {
+                percentEquals = equalSize * 100 / expected.length();
+            }
             return new ComparisonResult(percentEquals, expected, stringModifies, diffList);
         } else {
             return new ComparisonResult(100, actual, null, null);
@@ -119,7 +122,7 @@ public class JavaLibraryHelper {
                 return string.replace("\\n", "\n");
             }
         } else {
-            return string.replace("\\n", "\n");
+            return "";
         }
 
     }

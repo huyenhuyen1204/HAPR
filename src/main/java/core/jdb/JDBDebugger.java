@@ -39,9 +39,14 @@ public class JDBDebugger {
     }
 
     public void addDebugJDB(String classname, int line) {
-        this.printWriter.println("stop at " + classname + ":" + line);
-        System.out.println("stop at " + classname + ":" + line);
-        this.printWriter.flush(); //tra ra stream
+        try {
+            this.printWriter.println("stop at " + classname + ":" + line);
+            System.out.println("stop at " + classname + ":" + line);
+//            Thread.sleep(100);
+            this.printWriter.flush(); //tra ra stream
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public String runJDB() {
@@ -60,12 +65,12 @@ public class JDBDebugger {
         try {
             this.printWriter.println("print " + var);
             this.printWriter.flush();
-            Thread.sleep(500);
+            Thread.sleep(200);
             this.printWriter.println("info");
             this.printWriter.flush();
             String s = printAllLog();
             return JavaLibraryHelper.removeFirstAndLastChars(parseLog(var, s));
-        } catch (InterruptedException | IOException e) {
+        } catch (IOException | InterruptedException e) {
            logger.error("Print var ERROR: " + var);
         }
         return null;
@@ -90,9 +95,13 @@ public class JDBDebugger {
         try {
             this.printWriter.println("cont");
             this.printWriter.flush(); //tra ra stream
+            Thread.sleep(200);
             String end = printLog(END_RUN);
             return end;
         } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } catch (InterruptedException e) {
             e.printStackTrace();
             return null;
         }
@@ -133,7 +142,7 @@ public class JDBDebugger {
         String result = "";
         String s = null;
         while ((s = stdInput.readLine()) != null) {
-            System.out.println("Log: " + s);
+            System.out.println("LogALL: " + s);
             String breakline = "main[1] Unrecognized command: 'info'.  Try help...";
             if (s.trim().equals(breakline)) {
                 break;

@@ -69,4 +69,22 @@ public class CandidateString extends Candidate {
     public void setDiffs(List<DiffMatchPatch.Diff> diffs) {
         this.diffs = diffs;
     }
+
+    public String toString () {
+        return "{line:" + this.line + ", " +
+                "classname:" + this.classname + ", " +
+                "methodname:" + this.classname + ", " +
+                "methodname:" + this.classname + ", " +
+                diffsToString() + "}";
+    }
+
+    private String diffsToString() {
+        String s = "";
+        if (diffs != null) {
+            for (DiffMatchPatch.Diff diff : diffs) {
+                s += " -" + diff.toString() + "\n";
+            }
+        }
+        return s;
+    }
 }

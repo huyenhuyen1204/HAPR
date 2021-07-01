@@ -15,7 +15,7 @@ import java.util.List;
 public class FixString {
     public static final Logger logger = LoggerFactory.getLogger(FixString.class);
 
-    public static List<Candidate> fixString(ExtractDebugger extractDebugger, DebugData debugData) {
+    public static List<Candidate> fixString(ExtractDebugger extractDebugger, DebugData debugData, String classname, String methodname) {
         List<BreakPointInfo> breakPointInfos = extractDebugger.getHistoryDebug();
         List<Candidate> candidates = new ArrayList<>();
         for (int i = breakPointInfos.size() - 2; i >= 0; i--) {
@@ -25,7 +25,7 @@ public class FixString {
             } else {
                 if (breakPointInfo.getVariableInfos().size() > 0) {
                     for (Object obj : breakPointInfo.getVariableInfos()) {
-                        Candidate candidate = fixReturns(obj, debugData, breakPointInfo.getLine());
+                        Candidate candidate = fixReturns(obj, debugData, breakPointInfo.getLine(), classname, methodname);
                         if (candidate != null) {
                             candidates.add(candidate);
                         }
@@ -38,7 +38,7 @@ public class FixString {
         return candidates;
     }
 
-    private static Candidate fixReturns(Object obj, DebugData debugData, int line) {
+    private static Candidate fixReturns(Object obj, DebugData debugData, int line, String classname, String methodname) {
         Candidate candidate = null;
         String expected = JavaLibraryHelper.subString(debugData.getTmpExpected(), debugData.getIndexExpected());
         debugData.setTmpExpected(expected);
@@ -54,19 +54,19 @@ public class FixString {
             if (actual.length() + 10 <= expected.length()) {
                 expected = expected.substring(0, actual.length() + 10);
             }
-            candidate = fixStringStm(expected, obj, line, debugData);
+            candidate = fixStringStm(expected, obj, line, classname, methodname, debugData);
 
         }
         return candidate;
     }
 
-    private static CandidateString fixStringStm(String expected, Object obj, int line, DebugData debugData) {
+    private static CandidateString fixStringStm(String expected, Object obj, int line, String classname, String methodName, DebugData debugData) {
         if (obj instanceof VariableInfo) {
             VariableInfo variableInfo = (VariableInfo) obj;
             ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(expected, variableInfo.getValue(), debugData);
             int isline = line;
             //TH1: dong thuc thi hien tai equals
-            if (comparisonResult.getPercent() > 50) {
+            if (comparisonResult.getPercent() > 50 && comparisonResult.getPercent() < 100) {
                 if (variableInfo.getPointToMethod() != null) {
                     isline = findLineReturn(variableInfo.getValue(), variableInfo.getPointToMethod());
                     if (isline == -1) {
@@ -75,10 +75,13 @@ public class FixString {
                     return new CandidateString(isline, ((MethodNode) variableInfo.getPointToMethod()).getParent().getName(),
                             ((MethodNode) variableInfo.getPointToMethod()).getName(),
                             FixType.EDIT_RETURN, comparisonResult.getStringModifies(), comparisonResult.getDiffs());
+                } else {
+                    //Xu ly returns khac equals => fix bug bang re nhanh return.
+                    logger.error("Chua xu ly:fixStringStm ");
+                    return new CandidateString(isline, classname,
+                            methodName,
+                            FixType.EDIT_RETURN, comparisonResult.getStringModifies(), comparisonResult.getDiffs());
                 }
-            } else {
-                //Xu ly returns khac equals => fix bug bang re nhanh return.
-                logger.error("Chua xu ly:fixStringStm ");
             }
         }
         return null;

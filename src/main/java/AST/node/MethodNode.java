@@ -210,7 +210,6 @@ public class MethodNode extends AbstractableElementNode {
         List<Node> paraNodes = new ArrayList<>();
         for (Object o : parameters) {
             ParameterNode paraNode = new ParameterNode();
-//            paraNode.setId(Node.countId);
             if (o instanceof SingleVariableDeclaration) {
                 SingleVariableDeclaration temp = (SingleVariableDeclaration) o;
                 if (temp.getType() != null) {
@@ -232,10 +231,8 @@ public class MethodNode extends AbstractableElementNode {
                                     paraNode.setFinal(true);
                                 }
                             }
-
                         }
                         paraNodes.add(paraNode);
-
                     } else if (temp.getType() instanceof PrimitiveType) {
                         PrimitiveType primitiveType = (PrimitiveType) temp.getType();
                         if (primitiveType.getPrimitiveTypeCode() != null) {
@@ -308,7 +305,7 @@ public class MethodNode extends AbstractableElementNode {
 
                 } else if (stm instanceof IfStatement) {
                     logger.error("Chưa xử lý: IfStatement");
-                    parserIfStatementInfo((IfStatement) stm, line, level);
+                    parserIfStatementInfo((IfStatement) stm, level, cu);
 
                 } else if (stm instanceof ExpressionStatement) {
                     parserExpressionStatementInfo((ExpressionStatement) stm, line);
@@ -389,8 +386,17 @@ public class MethodNode extends AbstractableElementNode {
         System.out.println("Parserfor");
     }
 
-    private void parserIfStatementInfo(IfStatement ifStatement, int line, int level) {
+    private void parserIfStatementInfo(IfStatement ifStatement, int level, CompilationUnit cu) {
+        if (ifStatement.getThenStatement() != null) {
+            if (ifStatement.getThenStatement()instanceof Block) {
+                List statements = ((Block) ifStatement.getThenStatement()).statements();
+                parserStatements(level + 1, statements, cu);
+            } else {
+                logger.error("Chưa xử lý:parserEnhancedForInfo ");
+            }
+        }
         //TODO: DO IT
+        System.out.println("do it");
     }
 
     private void parserReturnInfo(ReturnStatement stm, int line) {

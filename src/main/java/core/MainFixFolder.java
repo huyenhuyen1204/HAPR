@@ -23,8 +23,8 @@ import java.util.List;
 
 public class MainFixFolder {
     public static final Logger logger = LoggerFactory.getLogger(MainFixFolder.class);
-    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83399/";
-    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83399/";
+    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
+    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
     //    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
     static final String MyTest_Name = "MyTest";
     static final String TestRunner_Name = "TestRunner";
@@ -83,7 +83,7 @@ public class MainFixFolder {
 //                    String expected = JavaLibraryHelper.subString(debugData.getExpected(), debugData.getIndexExpected());
                     StringComparisonResult stringComparisonResult = JavaLibraryHelper.compareTwoString(debugData.getExpected(), breakPointInfo.getValue(), debugData);
                     if (!stringComparisonResult.isEquals()) {
-                        List<Candidate> candidateList = FixString.fixString(extractDebugger, debugData);
+                        List<Candidate> candidateList = FixString.fixString(extractDebugger, debugData, breakPointHitNext.getClassName(), breakPointHitNext.getMethodName());
                         System.out.println(candidates.toString());
                         if (candidateList.size() != 0) {
                             for (Candidate cd : candidateList) {

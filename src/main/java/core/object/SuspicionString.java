@@ -49,7 +49,15 @@ public class SuspicionString {
     public String toString () {
         return  "SuspicionString: { expected: " + expected + "\n"
         + "actual: " + actual + "\n"
-        + breakPointHit.toString() + "}";
+        + breakPointHit.toString() + "\n" + diffsToString() +"}";
+    }
+
+    private String diffsToString() {
+        String s = "";
+        for (DiffMatchPatch.Diff diff : diffs) {
+            s+= " -" + diff.toString() + "\n";
+        }
+        return s;
     }
 
 }

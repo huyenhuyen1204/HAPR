@@ -3,6 +3,7 @@ package core.jdb;
 import AST.node.*;
 import AST.obj.MethodCalled;
 import AST.stm.abst.StatementNode;
+import AST.stm.node.BaseVariableNode;
 import AST.stm.node.StringStmNode;
 import AST.stm.node.InfixExpressionStmNode;
 import AST.stm.node.MethodInvocationStmNode;
@@ -19,9 +20,9 @@ import java.util.List;
 public class ExtractDebugger {
     public static final Logger logger = LoggerFactory.getLogger(ExtractDebugger.class);
 
-    private  int indexExpected = 0;
-    private  int indexActual = 0;
-    private  List<BreakPointInfo> historyDebug = new ArrayList<>();
+    private int indexExpected = 0;
+    private int indexActual = 0;
+    private List<BreakPointInfo> historyDebug = new ArrayList<>();
 
     public int getIndexExpected() {
         return indexExpected;
@@ -46,7 +47,7 @@ public class ExtractDebugger {
     public void setHistoryDebug(List<BreakPointInfo> historyDebug) {
         this.historyDebug = historyDebug;
     }
-    
+
     public BreakPointInfo watchValueChange(BreakPointHit breakPointHit, DebugData debugData, JDBDebugger jdbDebugger, FolderNode folderNode) {
         DebugPoint debugPoint = DebuggerHelper.findDebugPoint(breakPointHit, debugData.getDebugPoints());
         ClassNode classNode = folderNode.findClassByName(breakPointHit.getClassName());
@@ -140,12 +141,12 @@ public class ExtractDebugger {
         Object left = statementNode.getLeft();
         String value = "";
         String txt = getValueObject(left, breakPointInfo, debugData, jdbDebugger, folderNode);
-        if (txt!= null) {
-            value+= txt;
+        if (txt != null) {
+            value += txt;
         }
         Object right = statementNode.getRight();
         if (statementNode.getOperator().equals("+")) {
-            String xtx= getValueObject(right, breakPointInfo, debugData, jdbDebugger, folderNode);
+            String xtx = getValueObject(right, breakPointInfo, debugData, jdbDebugger, folderNode);
             if (xtx != null) {
                 value += xtx;
             }
@@ -174,6 +175,11 @@ public class ExtractDebugger {
         } else if (obj instanceof MethodInvocationStmNode) {
             String value = watchValueChangeInMethodInvo((MethodInvocationStmNode) obj, breakPointInfo, jdbDebugger, folderNode);
             return value;
+        } else if (obj instanceof BaseVariableNode) {
+            String content = jdbDebugger.printVarJDB(((BaseVariableNode) obj).getKeyVar());
+            VariableInfo variableInfo = new VariableInfo(((BaseVariableNode) obj).getKeyVar(), content);
+            breakPointInfo.addVariable(variableInfo);
+            return content;
         } else {
             logger.error("Chuwa xu lys:getValueInfixExpression " + obj);
             return null;

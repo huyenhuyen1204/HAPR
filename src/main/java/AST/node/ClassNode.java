@@ -214,7 +214,7 @@ public class ClassNode extends AbstractableElementNode {
         List<Node> methodNodes = Convert.convertASTListNodeToMethodNode(methodList, cu);
         this.addChildren(methodNodes, cu);
 
-        parserStatements(methodNodes, cu);
+        parserStatements(methodNodes);
 
         //TODO lay cac class con ben trong
         TypeDeclaration[] classList = node.getTypes();
@@ -247,10 +247,10 @@ public class ClassNode extends AbstractableElementNode {
 
     }
 
-    private void parserStatements(List<Node> methodNodes, CompilationUnit cu) {
+    private void parserStatements(List<Node> methodNodes) {
         for (Node node : methodNodes) {
             MethodNode methodNode = (MethodNode) node;
-            methodNode.parserStatements(1, methodNode.getStatements(), cu);
+            methodNode.parserStatements(1, methodNode.getStatements());
         }
     }
 

@@ -9,13 +9,16 @@ import util.RunningHelper;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JDBDebugger {
     public static final Logger logger = LoggerFactory.getLogger(JDBDebugger.class);
     Process process;
     PrintWriter printWriter;
     BufferedReader stdInput;
-    public static final String END_RUN = "Breakpoint hit: \"thread=main\", ";
+    public static final String END_RUN = "\"thread=main\", ";
+
     public final String Separate_Char = "/huyenhuyen1204/";
 
     public JDBDebugger(String pathToSource, String pathToOutClass, String classname) throws IOException {
@@ -42,6 +45,17 @@ public class JDBDebugger {
         try {
             this.printWriter.println("stop at " + classname + ":" + line);
             System.out.println("stop at " + classname + ":" + line);
+//            Thread.sleep(100);
+            this.printWriter.flush(); //tra ra stream
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void clearDebugJDB(String classname, int line) {
+        try {
+            this.printWriter.println("clear " + classname + ":" + line);
+            System.out.println("clear " + classname + ":" + line);
 //            Thread.sleep(100);
             this.printWriter.flush(); //tra ra stream
         } catch (Exception e) {
@@ -127,7 +141,7 @@ public class JDBDebugger {
             System.out.println("Log: " + s);
             result += s + "\n";
             if (s.contains(endString)) {
-                result = s.replace(endString, "");
+                result = s.split(endString)[1];
                 break;
             }
             long endTime = System.nanoTime();
@@ -155,6 +169,16 @@ public class JDBDebugger {
 
 
     public static void main(String[] args) throws IOException, InterruptedException {
+//        String s = "Log: Breakpoint hit: ông hợp lệ: $-4000.0\n" +
+//                "Log: \"thread=main\", Account.getTransactionHistory(), line=56 bci=8\n" +
+//                "Log: 56            res.append(\"Lịch sử giao dịch của tài khoản \");";
+////        s = s.replace(RegeX_END_RUN, "<====>" );
+//        System.out.println(s);
+//        Pattern p = Pattern.compile("Breakpoint hit:(.|\\s)*\"thread=main\", ");
+//        Matcher matcher = p.matcher(s);
+//        if (matcher.find()) {
+//            System.out.println(matcher.group());
+//        }
 ////        CASE 1: test in this project
 //        JDBDebugger jdbDebugger = new JDBDebugger("C:\\Users\\Dell\\Desktop\\DebuRepair\\src\\main\\java"
 //                ,"C:\\Users\\Dell\\Desktop\\DebuRepair\\target\\classes", "MyTest1");

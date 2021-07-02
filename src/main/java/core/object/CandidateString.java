@@ -10,16 +10,18 @@ public class CandidateString extends Candidate {
     private List<DiffMatchPatch.Diff> diffs;
     private String classname;
     private String methodName;
+    private String varError;
     private int line;
 
     public CandidateString(int line, String className, String methodName, FixType fixType, List<StringModify> stringModifies,
-                           List<DiffMatchPatch.Diff> diffs) {
+                           List<DiffMatchPatch.Diff> diffs, String varError) {
         this.fixType = fixType;
         this.stringModifies = stringModifies;
         this.line = line;
         this.classname = className;
         this.methodName = methodName;
         this.diffs = diffs;
+        this.varError = varError;
     }
 
     public FixType getFixType() {

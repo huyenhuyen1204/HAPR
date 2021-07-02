@@ -60,7 +60,8 @@ public class MyTestParser {
             }
             List<MethodNode> methodNodes = classNode.getMethodList();
             for (MethodNode methodNode : methodNodes) {
-                MethodTest methodTest = parserAssertStatements(methodNode, type, cu);
+                MethodTest methodTest = new MethodTest(methodNode.getName(), methodNode);
+                parserAssertStatements(methodTest, methodNode.getStatements(), type, cu);
                 methodTests.add(methodTest);
 //                System.out.println(methodNode.toString());
             }
@@ -72,13 +73,12 @@ public class MyTestParser {
     /**
      * parser for annotation
      *
-     * @param methodNode
      * @param type
      * @return
      */
-    private MethodTest parserAssertStatements(MethodNode methodNode, TestType type, CompilationUnit cu) {
-        MethodTest methodTest = new MethodTest(methodNode.getName(), methodNode);
-        List statements = methodNode.getStatements();
+    private void parserAssertStatements(MethodTest methodTest, List stms, TestType type, CompilationUnit cu) {
+//        MethodTest methodTest = new MethodTest(methodNode.getName(), methodNode);
+        List statements = stms;
         int line = -1;
 
         for (Object stm : statements) {
@@ -105,10 +105,20 @@ public class MyTestParser {
 
                         }
                     }
+                } else if (stm instanceof TryStatement) {
+                    List stmss = ((TryStatement) stm).getBody().statements();
+                    parserAssertStatements(methodTest, stmss, type, cu);
+                    List<CatchClause> catchClauses = ((TryStatement) stm).catchClauses();
+                    for (CatchClause catchCl : catchClauses) {
+                        List statementss = catchCl.getBody().statements();
+                        parserAssertStatements(methodTest, statementss, type, cu);
+                    }
+                } else {
+                    logger.info("else");
                 }
             }
         }
-        return methodTest;
+//        return methodTest;
     }
 
     /**
@@ -158,7 +168,7 @@ public class MyTestParser {
                     left, right, objects, line, null, infixEx.toString() );
             return infixExpressionStmNode;
         } else if (obj instanceof StringLiteral){
-            return (String) obj;
+            return ((StringLiteral) obj).getLiteralValue();
 //            return JavaLibraryHelper.convertStringToNumbers((String) obj);
         } else {
             return obj;

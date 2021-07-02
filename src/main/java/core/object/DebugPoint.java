@@ -5,6 +5,7 @@ import AST.stm.abst.StatementNode;
 
 public class DebugPoint {
     private String classname;
+    private String methodName;
     private int line;
     private String keyVar;
     private StatementNode statementNode;
@@ -12,11 +13,12 @@ public class DebugPoint {
     public DebugPoint() {
     }
 
-    public DebugPoint(String classname, int line, String keyVar, StatementNode statementNode) {
+    public DebugPoint(String classname, int line, String keyVar, StatementNode statementNode, String methodName) {
         this.classname = classname;
         this.line = line;
         this.keyVar = keyVar;
         this.statementNode = statementNode;
+        this.methodName = methodName;
     }
 
     public String getClassname() {
@@ -45,6 +47,14 @@ public class DebugPoint {
 
     public StatementNode getStatementNode() {
         return statementNode;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 
     public void setStatementNode(StatementNode statementNode) {

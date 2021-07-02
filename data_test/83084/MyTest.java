@@ -1,5 +1,7 @@
+import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -7,13 +9,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class MyTest {
+public class MyTest extends TestCase {
     private Bank bank;
     private Customer customer;
 
-    @Before
-    public void init() {
-        bank = new Bank();
+    public MyTest () {
+        this.bank = new Bank();
         String dbStr = "Nguyễn Thị Quỳnh 400246802\n" +
                 "0290822547 CHECKING 5000.0\n" +
                 "Lê Hoàng Quân 823804031\n" +
@@ -28,11 +29,11 @@ public class MyTest {
         InputStream db = new ByteArrayInputStream(dbStr.getBytes(StandardCharsets.UTF_8));
         bank.readCustomerList(db);
 
-        customer = new Customer();
-        customer.setIdNumber(443914214L);
-        customer.setFullName("Phạm Duy Quốc");
-        customer.addAccount(new CheckingAccount(7562459315L, 10000.5));
-        customer.addAccount(new SavingsAccount(7046865999L, 30000.0));
+        this.customer = new Customer();
+        this.customer.setIdNumber(443914214L);
+        this.customer.setFullName("Phạm Duy Quốc");
+        this.customer.addAccount(new CheckingAccount(7562459315L, 10000.5));
+        this.customer.addAccount(new SavingsAccount(7046865999L, 30000.0));
     }
 
     @Test
@@ -190,11 +191,12 @@ public class MyTest {
 
     @Test
     public void test11_getCustomersInfoByNameOrder() {
+        System.out.println("Số CMND: 832443592. Họ tên: Hoàng Văn Phượng.");
         Assert.assertEquals("Số CMND: 832443592. Họ tên: Hoàng Văn Phượng.\n" +
                 "Số CMND: 823804031. Họ tên: Lê Hoàng Quân.\n" +
                 "Số CMND: 237225996. Họ tên: Nguyễn Ngọc Sơn.\n" +
                 "Số CMND: 400246802. Họ tên: Nguyễn Thị Quỳnh.\n" +
                 "Số CMND: 443914214. Họ tên: Phạm Duy Quốc.",
-                bank.getCustomersInfoByNameOrder());
+                bank.getCustomersInfoByNameOrder().trim());
     }
 }

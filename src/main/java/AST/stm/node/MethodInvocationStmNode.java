@@ -31,6 +31,8 @@ public class MethodInvocationStmNode extends StatementNode {
         this.statementString = statementString;
     }
 
+
+
     public MethodInvocationStmNode(String keyVar, List<MethodCalled> methods) {
         methodsCalled = new ArrayList<>();
         this.keyVar = keyVar;
@@ -43,6 +45,8 @@ public class MethodInvocationStmNode extends StatementNode {
         MethodCalled methodCalled = new MethodCalled(methodName, argTypes);
         this.methodsCalled.add(methodCalled);
     }
+
+
 
     public List<MethodCalled> getMethodsCalled() {
         return methodsCalled;

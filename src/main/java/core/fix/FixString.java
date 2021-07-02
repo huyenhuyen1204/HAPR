@@ -2,6 +2,7 @@ package core.fix;
 
 import AST.node.MethodNode;
 import AST.stm.abst.StatementNode;
+import AST.stm.node.BaseVariableNode;
 import AST.stm.node.StringStmNode;
 import core.MainFixFolder;
 import core.jdb.ExtractDebugger;
@@ -31,7 +32,7 @@ public class FixString {
             Candidate candidate = null;
             if (breakPointIf.getVariableInfos().size() > 0) {
                 for (Object obj : breakPointIf.getVariableInfos()) {
-                    candidate = fixReturns(obj, debugData, breakPointIf.getLine(), classname, methodname);
+                    candidate = fixReturns(obj, debugData, breakPointIf.getLine(), breakPointIf.getDebugPoint().getClassname(), breakPointIf.getDebugPoint().getMethodName());
                     if (candidate != null) {
                         candidates.add(candidate);
                     }
@@ -40,7 +41,6 @@ public class FixString {
                 logger.error("Chuwa xu ly: breakPointInfo.getVariableInfos().size() <= 0");
             }
             if (candidate == null) {
-                System.out.println("HHHH");
                 SuspicionString suspicionString = new SuspicionString(comparisonResult.getExpected(),
                         comparisonResult.getActual(), breakPointIf.getDebugPoint(), comparisonResult.getDiffs());
                 addSuspicious(suspicionStrings, suspicionString);
@@ -121,6 +121,8 @@ public class FixString {
             }
             candidate = fixStringStm(expected, obj, line, classname, methodname, debugData);
 
+        } else if (obj instanceof BaseVariableNode) {
+
         }
         return candidate;
     }
@@ -139,13 +141,13 @@ public class FixString {
                     }
                     return new CandidateString(isline, ((MethodNode) variableInfo.getPointToMethod()).getParent().getName(),
                             ((MethodNode) variableInfo.getPointToMethod()).getName(),
-                            FixType.EDIT_RETURN, comparisonResult.getStringModifies(), comparisonResult.getDiffs());
+                            FixType.EDIT_RETURN, comparisonResult.getStringModifies(), comparisonResult.getDiffs(), variableInfo.getVarname());
                 } else {
                     //Xu ly returns khac equals => fix bug bang re nhanh return.
                     logger.error("Chua xu ly:fixStringStm ");
                     return new CandidateString(isline, classname,
                             methodName,
-                            FixType.EDIT_RETURN, comparisonResult.getStringModifies(), comparisonResult.getDiffs());
+                            FixType.EDIT_RETURN, comparisonResult.getStringModifies(), comparisonResult.getDiffs(), variableInfo.getVarname());
                 }
             } else {
                 //TODO: find diff type

@@ -23,10 +23,10 @@ import java.util.List;
 
 public class MainFixFolder {
     public static final Logger logger = LoggerFactory.getLogger(MainFixFolder.class);
-    //    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
-//    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83102/";
-    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
-    static String pathToOutput = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
+    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83084/";
+    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83084/";
+    //    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
+//    static String pathToOutput = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
     static final String MyTest_Name = "MyTest";
     static final String TestRunner_Name = "TestRunner";
     static final String Path_AST_Output = pathToSouce + File.separator + "AST.txt"; // path_to_source/AST.txt
@@ -48,17 +48,27 @@ public class MainFixFolder {
 
         //Parser folder
         FolderNode folderNode = ProjectParser.parse(pathToSouce);
-        List<SuspicionString> suspicionStrings = new ArrayList<>();
-        List<Candidate> candidates = new ArrayList<>();
+
         if (!outputFile.exists()) {
             logger.error(ObjectNotFound.MSG + Configure.OUTPUT_TestRunner);
         } else {
             // Get List testName Error & get list debug point
             List<DebugData> debugDatas = getListDebugData(classNodes, folderNode, output);
+            for (DebugData debugData: debugDatas) {
+                fixBug(debugData, folderNode);
+            }
+        }
+
+    }
+
+    private static void fixBug(DebugData debugData, FolderNode folderNode) throws IOException {
+        if (debugData.getDebugPoints().size() > 0) {
+            List<SuspicionString> suspicionStrings = new ArrayList<>();
+            List<Candidate> candidates = new ArrayList<>();
             JDBDebugger jdbDebugger = new JDBDebugger(pathToSouce
                     , pathToOutput, MyTest_Name);
+//        if ()
             //add debug to JDB
-            DebugData debugData = debugDatas.get(0);
             for (DebugPoint debugPoint : debugData.getDebugPoints()) {
                 jdbDebugger.addDebugJDB(debugPoint.getClassname(), debugPoint.getLine());
             }
@@ -85,6 +95,7 @@ public class MainFixFolder {
                 }
             }
             while (debugData.getDebugPoints().get(0).getLine() != breakPointHitNext.getLine());
+            jdbDebugger.destroyProcessJDB();
             for (Candidate candidate : candidates) {
                 System.out.println(candidate.toString());
             }
@@ -92,7 +103,6 @@ public class MainFixFolder {
                 System.out.println(string.toString());
             }
         }
-
     }
 
     public static void findCandidates(List<Candidate> candidates, List<SuspicionString> suspicionStrings, ExtractDebugger extractDebugger, BreakPointHit breakPointHitHere, BreakPointInfo breakPointInfo, DebugData debugData) {
@@ -102,8 +112,6 @@ public class MainFixFolder {
 
         }
     }
-
-
 
 
 //    private static void addCandidate (List<Candidate> candidates, Candidate candidate) {

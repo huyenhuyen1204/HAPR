@@ -3,17 +3,20 @@ package core;
 import AST.node.*;
 import AST.stm.abst.StatementNode;
 import AST.stm.node.*;
+import core.jdb.JDBDebugger;
 import core.object.DebugPoint;
 import AST.obj.MethodCalled;
 import AST.obj.MethodTest;
 import AST.stm.abst.AssertStatement;
 import core.object.DebugData;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.JavaLibraryHelper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,25 +55,53 @@ public class DebugPointSetter {
                 //Case 1.1 actual  = MethodInvocation
                 //TODO: FIX debugData (convertString...)
                 String expected = expectedToStm((((AssertEqualStmNode) assertStatement).getExpected()));
-                DebugData debugData = new DebugData(expected,
-                        methodTest.getMethodName());
-                debugData.setTmpExpected(expected);
-                if (((AssertEqualStmNode) assertStatement).getActual() instanceof MethodInvocation) {
-                    MethodInvocation methodInvocation =
-                            (MethodInvocation) ((AssertEqualStmNode) assertStatement).getActual();
-                    MethodInvocationStmNode methodInvocationStmNode = methodTest.getMethodNode()
-                            .parserMethodInvoStm(methodInvocation, assertStatement.getLine());
-                    //parser methodInvo
-                    findDebugWithMethodInvoStm(methodInvocationStmNode, folderNode);
-                    debugData.setDebugPoints(debugPoints);
-                }
-//                if (de)
-                addDebugData(debugData, debugDataList);
+//                try {
+//                    JDBDebugger jdbDebugger = new JDBDebugger("C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\80776",
+//                            "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\80776", "MyTest");
+//                    jdbDebugger.addDebugJDB("MyTest", assertStatement.getLine());
+//                    jdbDebugger.runJDB();
+//                    String text = jdbDebugger.printVarJDB(((AssertEqualStmNode) assertStatement).getActual().toString());
+//                    String text = jdbDebugger.printVarJDB("board");
+//                    System.out.println(text);
+                    DebugData debugData = new DebugData(expected,
+                            methodTest.getMethodName());
+                    debugData.setTmpExpected(expected);
+                    parserStm(((AssertEqualStmNode) assertStatement).getActual(), assertStatement.getLine(), methodTest, debugData, folderNode);
+                    if (debugData.getDebugPoints() != null) {
+                        addDebugData(debugData, debugDataList);
+                    }
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+
             } else {
                 logger.error("Chưa xử lý 1");
             }
         }
         return debugDataList;
+    }
+
+    public static void parserStm (Object actual, int line,  MethodTest methodTest, DebugData debugData, FolderNode folderNode) {
+        if (actual instanceof MethodInvocation) {
+            MethodInvocation methodInvocation =
+                    (MethodInvocation) actual;
+            MethodInvocationStmNode methodInvocationStmNode = methodTest.getMethodNode()
+                    .parserMethodInvoStm(methodInvocation, line);
+            //parser methodInvo
+            findDebugWithMethodInvoStm(methodInvocationStmNode, folderNode);
+            debugData.setDebugPoints(debugPoints);
+        } else if (actual instanceof InfixExpression) {
+            InfixExpression infixExpression = (InfixExpression) actual;
+            Object left = infixExpression.getLeftOperand();
+            parserStm(left, line, methodTest, debugData, folderNode);
+            Object right = infixExpression.getRightOperand();
+            parserStm(right, line, methodTest, debugData, folderNode);
+            if (infixExpression.extendedOperands().size() > 0) {
+                for (Object obj: infixExpression.extendedOperands()) {
+                    parserStm(obj, line, methodTest, debugData, folderNode);
+                }
+            }
+        }
     }
 
     public static void addDebugData(DebugData debugData, List<DebugData> debugDataList) {

@@ -23,10 +23,9 @@ import java.util.List;
 
 public class MainFixFolder {
     public static final Logger logger = LoggerFactory.getLogger(MainFixFolder.class);
-    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83084/";
-    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83084/";
-    //    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
-//    static String pathToOutput = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
+
+    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\81171";
+    static String pathToOutput = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\81171";
     static final String MyTest_Name = "MyTest";
     static final String TestRunner_Name = "TestRunner";
     static final String Path_AST_Output = pathToSouce + File.separator + "AST.txt"; // path_to_source/AST.txt
@@ -54,11 +53,12 @@ public class MainFixFolder {
         } else {
             // Get List testName Error & get list debug point
             List<DebugData> debugDatas = getListDebugData(classNodes, folderNode, output);
-            for (DebugData debugData: debugDatas) {
-                fixBug(debugData, folderNode);
+            for (DebugData debugData : debugDatas) {
+                if (debugData.getDebugPoints().size() != 0) {
+                    fixBug(debugData, folderNode);
+                }
             }
         }
-
     }
 
     private static void fixBug(DebugData debugData, FolderNode folderNode) throws IOException {
@@ -79,23 +79,57 @@ public class MainFixFolder {
             BreakPointInfo breakPointInfo = extractDebugger.watchValueChange(breakPointHit, debugData, jdbDebugger, folderNode);
             BreakPointHit breakPointHitNext;
 
-
+            //run all debug
             do {
                 String log = jdbDebugger.contJDB();
                 breakPointHitNext = DebuggerHelper.parserLogRunning(log);
-                breakPointInfo = extractDebugger.watchValueChange(breakPointHitNext, debugData, jdbDebugger, folderNode);
-
-                //compare & fixing
-                if (breakPointInfo.getVarname() == null) {
-                    continue;
-                } else if (breakPointInfo.getVarname().equals
-                        (debugData.getDebugPoints().get(0).getKeyVar())) {
-                    findCandidates(candidates, suspicionStrings, extractDebugger, breakPointHitNext, breakPointInfo,
-                            debugData);
+                if (breakPointHitNext != null) {
+                    breakPointInfo = extractDebugger.watchValueChange(breakPointHitNext, debugData, jdbDebugger, folderNode);
+                } else {
+                    logger.error("WHAT?");
                 }
             }
             while (debugData.getDebugPoints().get(0).getLine() != breakPointHitNext.getLine());
+
             jdbDebugger.destroyProcessJDB();
+
+            boolean isFix = false;
+            int indexTemp = -1;
+            ComparisonResult comparisonResultFix = null;
+            for (int i = extractDebugger.getHistoryDebug().size() - 1; i >= 0; i--) {
+                BreakPointInfo breakPointIf = extractDebugger.getHistoryDebug().get(i);
+                //compare & fixing
+                if (breakPointIf.getVarname() == null) {
+//                    extractDebugger.getaPartOfHistory().remove(i);
+                    continue;
+                } else if (breakPointIf.getVarname().equals
+                        (debugData.getDebugPoints().get(0).getKeyVar())) {
+                    ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(false, debugData.getExpected(), breakPointIf.getValue(), debugData);
+                    if (!comparisonResult.isEquals()) {
+                        indexTemp = i;
+                        comparisonResultFix = comparisonResult;
+                        isFix = true;
+                    } else if (comparisonResult.isEquals()) {
+                        break;
+                    }
+//                    findCandidates(candidates, suspicionStrings, extractDebugger, breakPointHitNext, breakPointInfo,
+//                            debugData);
+                }
+            }
+
+            if (isFix) {
+                extractDebugger.setaPartOfHistory(getBreakpointInfo(extractDebugger.getHistoryDebug(), indexTemp));
+                FixString.fixString(extractDebugger, debugData, candidates, suspicionStrings, comparisonResultFix,
+                        extractDebugger.getHistoryDebug().get(indexTemp));
+            }
+//            //compare & fixing
+//            if (breakPointInfo.getVarname() == null) {
+//                continue;
+//            } else if (breakPointInfo.getVarname().equals
+//                    (debugData.getDebugPoints().get(0).getKeyVar())) {
+//                findCandidates(candidates, suspicionStrings, extractDebugger, breakPointHitNext, breakPointInfo,
+//                        debugData);
+//            }
             for (Candidate candidate : candidates) {
                 System.out.println(candidate.toString());
             }
@@ -105,13 +139,17 @@ public class MainFixFolder {
         }
     }
 
-    public static void findCandidates(List<Candidate> candidates, List<SuspicionString> suspicionStrings, ExtractDebugger extractDebugger, BreakPointHit breakPointHitHere, BreakPointInfo breakPointInfo, DebugData debugData) {
-        ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(false, debugData.getExpected(), breakPointInfo.getValue(), debugData);
-        if (!comparisonResult.isEquals()) {
-            FixString.fixString(extractDebugger, debugData, candidates, suspicionStrings, breakPointHitHere, comparisonResult);
-
+    private static List<BreakPointInfo> getBreakpointInfo (List<BreakPointInfo> breakPointInfos, int index) {
+        List<BreakPointInfo> breakPointInfoList = new ArrayList<>();
+        for (int i = 0; i <= index; i ++) {
+            breakPointInfoList.add(breakPointInfos.get(i));
         }
+        return breakPointInfoList;
     }
+
+//    public static void findCandidates(List<Candidate> candidates, List<SuspicionString> suspicionStrings, ExtractDebugger extractDebugger, BreakPointHit breakPointHitHere, BreakPointInfo breakPointInfo, DebugData debugData) {
+//
+//    }
 
 
 //    private static void addCandidate (List<Candidate> candidates, Candidate candidate) {

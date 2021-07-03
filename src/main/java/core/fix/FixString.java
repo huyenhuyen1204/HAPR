@@ -4,7 +4,6 @@ import AST.node.MethodNode;
 import AST.stm.abst.StatementNode;
 import AST.stm.node.BaseVariableNode;
 import AST.stm.node.StringStmNode;
-import core.MainFixFolder;
 import core.jdb.ExtractDebugger;
 import core.object.*;
 import org.slf4j.Logger;
@@ -20,12 +19,11 @@ public class FixString {
     public static final Logger logger = LoggerFactory.getLogger(FixString.class);
     private static int indexDebug = 0;
 
-    public static void fixString(ExtractDebugger extractDebugger, DebugData debugData, List<Candidate> candidates, List<SuspicionString> suspicionStrings,  BreakPointHit breakPointHitNext, ComparisonResult comparisonResult ) {
-        List<BreakPointInfo> breakPointInfos = extractDebugger.getHistoryDebug();
+    public static void fixString(ExtractDebugger extractDebugger, DebugData debugData, List<Candidate> candidates, List<SuspicionString> suspicionStrings, ComparisonResult comparisonResult, BreakPointInfo breakHere ) {
+        List<BreakPointInfo> breakPointInfos = extractDebugger.getaPartOfHistory();
         Set<BreakPointInfo> done = new HashSet<>();
-        String classname = breakPointHitNext.getClassName();
-        String methodname = breakPointHitNext.getMethodName();
-        BreakPointInfo breakHere = breakPointInfos.get(breakPointInfos.size() - 1);
+
+//        BreakPointInfo breakHere = breakPointInfos.get(breakPointInfos.size() - 1);
         done.add(breakHere);
         List<BreakPointInfo> breakPointInfoList = filterBreakpointInfor(breakPointInfos, breakHere);
         for (BreakPointInfo breakPointIf : breakPointInfoList) {

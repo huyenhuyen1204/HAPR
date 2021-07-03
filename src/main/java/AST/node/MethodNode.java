@@ -414,7 +414,6 @@ public class MethodNode extends AbstractableElementNode {
             }
         }
         //TODO: DO IT
-        System.out.println("do it");
     }
 
     private void parserReturnInfo(ReturnStatement stm, int line) {
@@ -668,33 +667,37 @@ public class MethodNode extends AbstractableElementNode {
      * @param line
      */
     private InitObjectIndex setStatementToInits(MethodInvocationStmNode invocationStm, ClassNode classNode, int line, String stm) {
-        int index = findIndexTypeVar(invocationStm.getKeyVar(), line);
-        String scope = "";
-        if (index >= 0) {
-            invocationStm.setTypeVar(initNodes.get(index).getType());
-//            statementNode = invocationStm;
-            initNodes.get(index).addStatement(invocationStm);
-            scope = "method";
-        } else {
-            index = classNode.findIndexTypeVar(invocationStm.getKeyVar());
+        if (invocationStm != null) {
+            int index = findIndexTypeVar(invocationStm.getKeyVar(), line);
+            String scope = "";
             if (index >= 0) {
-                invocationStm.setTypeVar(classNode.getInitNodes().get(index).getType());
-//                statementNode =new StatementNode(line, invocationStm, invocationStm.getVarName(), stm);
-                classNode.getInitNodes().get(index).addStatement(invocationStm);
-                scope = "class";
+                invocationStm.setTypeVar(initNodes.get(index).getType());
+//            statementNode = invocationStm;
+                initNodes.get(index).addStatement(invocationStm);
+                scope = "method";
             } else {
-                String methodname = invocationStm.getMethodsCalled() == null ? "null" : invocationStm.getMethodsCalled().toString();
+                index = classNode.findIndexTypeVar(invocationStm.getKeyVar());
+                if (index >= 0) {
+                    invocationStm.setTypeVar(classNode.getInitNodes().get(index).getType());
+//                statementNode =new StatementNode(line, invocationStm, invocationStm.getVarName(), stm);
+                    classNode.getInitNodes().get(index).addStatement(invocationStm);
+                    scope = "class";
+                } else {
+                    String methodname = invocationStm.getMethodsCalled() == null ? "null" : invocationStm.getMethodsCalled().toString();
 //                if (invocationStm.getKeyVar().equals("Assert")) {
 //                    if (invocationStm.getMethodsCalled().get(0).getMethodName().equals("assertEquals")) {
 //
 //                    }
 //                }
-                logger.info("Not found in class: {line:" + line + ", classname:" + invocationStm.getKeyVar()
-                        + ", methodName:" + methodname + "}");
+                    logger.info("Not found in class: {line:" + line + ", classname:" + invocationStm.getKeyVar()
+                            + ", methodName:" + methodname + "}");
 
+                }
             }
+            return new InitObjectIndex(index, scope);
+        } else {
+            return  null;
         }
-        return new InitObjectIndex(index, scope);
     }
 
     /**

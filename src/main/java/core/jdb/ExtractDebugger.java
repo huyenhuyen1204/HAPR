@@ -23,6 +23,8 @@ public class ExtractDebugger {
     private int indexExpected = 0;
     private int indexActual = 0;
     private List<BreakPointInfo> historyDebug = new ArrayList<>();
+    private List<BreakPointInfo> aPartOfHistory = new ArrayList<>();
+
 
     public int getIndexExpected() {
         return indexExpected;
@@ -184,5 +186,13 @@ public class ExtractDebugger {
             logger.error("Chuwa xu lys:getValueInfixExpression " + obj);
             return null;
         }
+    }
+
+    public List<BreakPointInfo> getaPartOfHistory() {
+        return aPartOfHistory;
+    }
+
+    public void setaPartOfHistory(List<BreakPointInfo> aPartOfHistory) {
+        this.aPartOfHistory.addAll(aPartOfHistory);
     }
 }

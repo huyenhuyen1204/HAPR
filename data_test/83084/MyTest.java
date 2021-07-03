@@ -197,6 +197,6 @@ public class MyTest extends TestCase {
                 "Số CMND: 237225996. Họ tên: Nguyễn Ngọc Sơn.\n" +
                 "Số CMND: 400246802. Họ tên: Nguyễn Thị Quỳnh.\n" +
                 "Số CMND: 443914214. Họ tên: Phạm Duy Quốc.",
-                bank.getCustomersInfoByNameOrder().trim());
+                bank.getCustomersInfoByNameOrder());
     }
 }

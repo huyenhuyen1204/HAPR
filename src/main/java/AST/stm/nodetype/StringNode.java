@@ -1,10 +1,10 @@
-package AST.stm.node;
+package AST.stm.nodetype;
 
 import AST.stm.abst.StatementNode;
 
-public class StringStmNode extends StatementNode {
+public class StringNode extends StatementNode {
     private String value;
-    public StringStmNode(int line, String keyVar, String value, String stmString) {
+    public StringNode(int line, String keyVar, String value, String stmString) {
         super();
         this.line = line;
         this.keyVar = keyVar;

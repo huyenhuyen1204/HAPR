@@ -1,22 +1,22 @@
 package core;
 
 import AST.node.*;
+import AST.stm.nodetype.NodeTypeHelper;
+import AST.obj.StackTrace;
 import AST.stm.abst.StatementNode;
 import AST.stm.node.*;
-import core.jdb.JDBDebugger;
+import AST.stm.nodetype.NumbericNode;
+import AST.stm.nodetype.StringNode;
 import core.object.DebugPoint;
 import AST.obj.MethodCalled;
 import AST.obj.MethodTest;
 import AST.stm.abst.AssertStatement;
 import core.object.DebugData;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.JavaLibraryHelper;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,43 +45,36 @@ public class DebugPointSetter {
      * @param methodTest
      * @return
      */
-    public static List<DebugData> genDebugPoints(FolderNode folderNode, MethodTest methodTest) {
+    public static List<DebugData> genDebugPoints(FolderNode folderNode, MethodTest methodTest, StackTrace stackTrace) {
         List<DebugData> debugDataList = new ArrayList<>();
         List<AssertStatement> assertStatements = methodTest.getAssertList();
         for (AssertStatement assertStatement : assertStatements) {
             debugPoints = new ArrayList<>();
-            //Case 1: AssertEqualStm
-            if (assertStatement instanceof AssertEqualStmNode) {
-                //Case 1.1 actual  = MethodInvocation
-                //TODO: FIX debugData (convertString...)
-                String expected = expectedToStm((((AssertEqualStmNode) assertStatement).getExpected()));
-//                try {
-//                    JDBDebugger jdbDebugger = new JDBDebugger("C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\80776",
-//                            "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\80776", "MyTest");
-//                    jdbDebugger.addDebugJDB("MyTest", assertStatement.getLine());
-//                    jdbDebugger.runJDB();
-//                    String text = jdbDebugger.printVarJDB(((AssertEqualStmNode) assertStatement).getActual().toString());
-//                    String text = jdbDebugger.printVarJDB("board");
-//                    System.out.println(text);
+            if (assertStatement.getLine() == stackTrace.getLineNumber()) {
+                //Case 1: AssertEqualStm
+                if (assertStatement instanceof AssertEqualStmNode) {
+                    //Case 1.1 actual  = MethodInvocation
+                    //TODO: FIX debugData (convertString...)
+                    Object expected = NodeTypeHelper.parseExpected((((AssertEqualStmNode) assertStatement).getExpected()), stackTrace.getLineNumber());
+
                     DebugData debugData = new DebugData(expected,
                             methodTest.getMethodName());
                     debugData.setTmpExpected(expected);
-                    parserStm(((AssertEqualStmNode) assertStatement).getActual(), assertStatement.getLine(), methodTest, debugData, folderNode);
+                    parseActual(((AssertEqualStmNode) assertStatement).getActual(), assertStatement.getLine(), methodTest, debugData, folderNode);
                     if (debugData.getDebugPoints() != null) {
                         addDebugData(debugData, debugDataList);
                     }
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
 
-            } else {
-                logger.error("Chưa xử lý 1");
+
+                } else {
+                    logger.error("Chưa xử lý 1");
+                }
             }
         }
         return debugDataList;
     }
 
-    public static void parserStm (Object actual, int line,  MethodTest methodTest, DebugData debugData, FolderNode folderNode) {
+    public static void parseActual(Object actual, int line, MethodTest methodTest, DebugData debugData, FolderNode folderNode) {
         if (actual instanceof MethodInvocation) {
             MethodInvocation methodInvocation =
                     (MethodInvocation) actual;
@@ -93,12 +86,12 @@ public class DebugPointSetter {
         } else if (actual instanceof InfixExpression) {
             InfixExpression infixExpression = (InfixExpression) actual;
             Object left = infixExpression.getLeftOperand();
-            parserStm(left, line, methodTest, debugData, folderNode);
+            parseActual(left, line, methodTest, debugData, folderNode);
             Object right = infixExpression.getRightOperand();
-            parserStm(right, line, methodTest, debugData, folderNode);
+            parseActual(right, line, methodTest, debugData, folderNode);
             if (infixExpression.extendedOperands().size() > 0) {
                 for (Object obj: infixExpression.extendedOperands()) {
-                    parserStm(obj, line, methodTest, debugData, folderNode);
+                    parseActual(obj, line, methodTest, debugData, folderNode);
                 }
             }
         }
@@ -132,51 +125,18 @@ public class DebugPointSetter {
         debugDataList.add(debugData);
     }
 
-    private static String expectedToStm(Object expected) {
-        if (expected instanceof InfixExpressionStmNode) {
-            String value = getValueInfixExpression((InfixExpressionStmNode) expected);
-            return value;
-        } else {
-            return JavaLibraryHelper.removeFirstAndLastChars(expected.toString());
-        }
-    }
+//    private static Object expectedToStm(Object expected) {
+//        if (expected instanceof InfixExpressionStmNode) {
+//            String value = getValueInfixExpression((InfixExpressionStmNode) expected);
+//            return value;
+//        } else {
+//            return expected;
+////            return JavaLibraryHelper.removeFirstAndLastChars(expected.toString());
+//        }
+//    }
 
 
-    private static String getValueInfixExpression(InfixExpressionStmNode statementNode) {
-        Object left = statementNode.getLeft();
-        String value = "";
-        value = getValueObject(left);
-        Object right = statementNode.getRight();
-        if (statementNode.getOperator().equals("+")) {
-            value += getValueObject(right);
-        } else {
-            logger.error("Chua xu ly:getValueInfixExpression operator" + statementNode.getOperator());
-        }
-        for (Object o : statementNode.getExtendedOperands()) {
-            if (statementNode.getOperator().equals("+")) {
-                value += getValueObject(o);
-            } else {
-                logger.error("Chua xu ly:getValueInfixExpression operator" + statementNode.getOperator());
-            }
-        }
-        return value;
 
-    }
-
-    private static String getValueObject(Object obj) {
-        if (obj instanceof String) {
-//            System.out.println((String) obj);
-//            System.out.println(JavaLibraryHelper.convertNumbersToString((String) obj));
-            obj = JavaLibraryHelper.removeFirstAndLastChars((String) obj);
-            return (String) obj;
-        } else if (obj instanceof MethodInvocationStmNode) {
-            logger.error("Khong xu ly:getValueObject ");
-            return null;
-        } else {
-            logger.error("Chuwa xu lys:getValueInfixExpression " + obj);
-            return null;
-        }
-    }
 
     private static void findDebugWithMethodInvoStm(MethodInvocationStmNode methodInvocationStmNode, FolderNode folderNode) {
         List<MethodCalled> methodCalleds = methodInvocationStmNode.getMethodsCalled();
@@ -225,9 +185,9 @@ public class DebugPointSetter {
     private static void addDebugPointInReturnStatements(MethodNode methodNode, ClassNode classNode, FolderNode folderNode) {
         List<StatementNode> returnStatements = methodNode.getReturnStatements();
         for (StatementNode statementNode : returnStatements) {
-            if (statementNode instanceof StringStmNode) {
+            if (statementNode instanceof StringNode) {
                 logger.info("nope set debug");
-            } else if (statementNode instanceof NumbericStmNode) {
+            } else if (statementNode instanceof NumbericNode) {
                 logger.info("nope set debug");
             } else {
                 DebugPoint debugPoint = new DebugPoint(classNode.getName(), statementNode.getLine(), statementNode.getKeyVar(), statementNode, methodNode.getName());

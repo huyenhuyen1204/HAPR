@@ -1,14 +1,13 @@
 package AST.node;
 
-import AST.obj.MethodCalled;
 import AST.stm.abst.AssertStatement;
 import AST.stm.node.*;
 import AST.obj.InitObjectIndex;
 import AST.stm.abst.StatementNode;
 import AST.parser.ASTHelper;
+import AST.stm.nodetype.StringNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javassist.expr.MethodCall;
 import org.eclipse.jdt.core.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -439,7 +438,7 @@ public class MethodNode extends AbstractableElementNode {
 
         } else if (stm.getExpression() instanceof StringLiteral) {
             String value = JavaLibraryHelper.removeFirstAndLastChars(stm.getExpression().toString());
-            statementNode = new StringStmNode(line, null, value, stm.getExpression().toString());
+            statementNode = new StringNode(line, null, value, stm.getExpression().toString());
         } else if (stm.getExpression() instanceof NumberLiteral) {
             logger.error("Chuwa xu ly");
         } else if (stm.getExpression() instanceof InfixExpression) {

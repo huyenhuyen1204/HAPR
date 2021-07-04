@@ -1,5 +1,6 @@
 package util;
 
+import AST.obj.StackTrace;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import faultlocalization.objects.SuspiciousPosition;
@@ -483,6 +484,12 @@ public class FileHelper {
         return data;
     }
 
+//    public static List<StackTrace> readStackTrace (List<String> strings) {
+//        for (String string : strings) {
+//
+//        }
+//    }
+
     public static String readCodeFromLineToLine(File source, int beginLine, int endLine) {
         FileWriter fw = null;
         BufferedWriter out = null;
@@ -646,6 +653,18 @@ public class FileHelper {
             e.printStackTrace();
         }
         return s;
+    }
+
+    public static List<StackTrace> readStackTree(List<String> tests) {
+        List<StackTrace> stackTraces = new ArrayList<>();
+        if (tests.size() > 0) {
+            for (String test : tests) {
+                String[] strings = test.split(";");
+                StackTrace stackTrace = new StackTrace(strings[0], strings[1], strings[2], Integer.parseInt(strings[3]));
+                stackTraces.add(stackTrace);
+            }
+        }
+        return stackTraces;
     }
 //    public int getCurrentCursorLine(String editText, int pos)
 //    {

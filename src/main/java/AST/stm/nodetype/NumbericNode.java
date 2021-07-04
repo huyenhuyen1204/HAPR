@@ -1,8 +1,22 @@
-package AST.stm.node;
+package AST.stm.nodetype;
 
 import AST.stm.abst.StatementNode;
 
-public class NumbericStmNode extends StatementNode {
+public class NumbericNode extends StatementNode {
+    private Object numberic;
+
+    public NumbericNode(Object numberic) {
+        this.numberic = numberic;
+    }
+
+    public Object getNumberic() {
+        return numberic;
+    }
+
+    public void setNumberic(Object numberic) {
+        this.numberic = numberic;
+    }
+
     @Override
     public int getLine() {
         return this.line;

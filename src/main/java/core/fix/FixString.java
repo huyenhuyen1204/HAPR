@@ -1,9 +1,9 @@
 package core.fix;
 
 import AST.node.MethodNode;
+import AST.stm.nodetype.StringNode;
 import AST.stm.abst.StatementNode;
 import AST.stm.node.BaseVariableNode;
-import AST.stm.node.StringStmNode;
 import core.jdb.ExtractDebugger;
 import core.object.*;
 import org.slf4j.Logger;
@@ -22,29 +22,28 @@ public class FixString {
     public static void fixString(ExtractDebugger extractDebugger, DebugData debugData, List<Candidate> candidates, List<SuspicionString> suspicionStrings, ComparisonResult comparisonResult, BreakPointInfo breakHere ) {
         List<BreakPointInfo> breakPointInfos = extractDebugger.getaPartOfHistory();
         Set<BreakPointInfo> done = new HashSet<>();
-
-//        BreakPointInfo breakHere = breakPointInfos.get(breakPointInfos.size() - 1);
-        done.add(breakHere);
-        List<BreakPointInfo> breakPointInfoList = filterBreakpointInfor(breakPointInfos, breakHere);
-        for (BreakPointInfo breakPointIf : breakPointInfoList) {
-            Candidate candidate = null;
-            if (breakPointIf.getVariableInfos().size() > 0) {
-                for (Object obj : breakPointIf.getVariableInfos()) {
-                    candidate = fixReturns(obj, debugData, breakPointIf.getLine(), breakPointIf.getDebugPoint().getClassname(), breakPointIf.getDebugPoint().getMethodName());
-                    if (candidate != null) {
-                        candidates.add(candidate);
+        if (debugData.getExpected() instanceof StringNode) {
+            done.add(breakHere);
+            List<BreakPointInfo> breakPointInfoList = filterBreakpointInfor(breakPointInfos, breakHere);
+            for (BreakPointInfo breakPointIf : breakPointInfoList) {
+                Candidate candidate = null;
+                if (breakPointIf.getVariableInfos().size() > 0) {
+                    for (Object obj : breakPointIf.getVariableInfos()) {
+                        candidate = fixReturns(obj, debugData, breakPointIf.getLine(), breakPointIf.getDebugPoint().getClassname(), breakPointIf.getDebugPoint().getMethodName());
+                        if (candidate != null) {
+                            candidates.add(candidate);
+                        }
                     }
+                } else {
+                    logger.error("Chuwa xu ly: breakPointInfo.getVariableInfos().size() <= 0");
                 }
-            } else {
-                logger.error("Chuwa xu ly: breakPointInfo.getVariableInfos().size() <= 0");
-            }
-            if (candidate == null) {
-                SuspicionString suspicionString = new SuspicionString(comparisonResult.getExpected(),
-                        comparisonResult.getActual(), breakPointIf.getDebugPoint(), comparisonResult.getDiffs());
-                addSuspicious(suspicionStrings, suspicionString);
+                if (candidate == null) {
+                    SuspicionString suspicionString = new SuspicionString(comparisonResult.getExpected(),
+                            comparisonResult.getActual(), breakPointIf.getDebugPoint(), comparisonResult.getDiffs());
+                    addSuspicious(suspicionStrings, suspicionString);
+                }
             }
         }
-
     }
 
     private static void addSuspicious(List<SuspicionString> suspicionStrings, SuspicionString suspicionString) {
@@ -102,7 +101,7 @@ public class FixString {
 
     private static Candidate fixReturns(Object obj, DebugData debugData, int line, String classname, String methodname) {
         Candidate candidate = null;
-        String expected = JavaLibraryHelper.subString(debugData.getTmpExpected(), debugData.getIndexExpected());
+        String expected = JavaLibraryHelper.subString(((StringNode)debugData.getTmpExpected()).getValue(), debugData.getIndexExpected());
         debugData.setTmpExpected(expected);
 //        String expected = debugData.getTmpExpected();
         if (obj instanceof String) {
@@ -159,8 +158,8 @@ public class FixString {
             MethodNode methodNode = (MethodNode) obj;
             List<StatementNode> returnStatements = methodNode.getReturnStatements();
             for (StatementNode statementNode : returnStatements) {
-                if (string instanceof String && statementNode instanceof StringStmNode) {
-                    if (string.equals(((StringStmNode) statementNode).getValue())) {
+                if (string instanceof String && statementNode instanceof StringNode) {
+                    if (string.equals(((StringNode) statementNode).getValue())) {
                         return statementNode.getLine();
                     }
                 }

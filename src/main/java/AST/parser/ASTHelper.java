@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ASTHelper {
+
+
+
     public static String getFullyQualifiedName(Type type, CompilationUnit cu) {
         if (type.isParameterizedType()) {
             ParameterizedType parameterizedType = (ParameterizedType) type;

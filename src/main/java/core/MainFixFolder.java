@@ -2,6 +2,8 @@ package core;
 
 import AST.node.ClassNode;
 import AST.node.FolderNode;
+import AST.stm.nodetype.StringNode;
+import AST.obj.StackTrace;
 import core.fix.FixString;
 import core.object.*;
 import AST.obj.MethodTest;
@@ -104,13 +106,17 @@ public class MainFixFolder {
                     continue;
                 } else if (breakPointIf.getVarname().equals
                         (debugData.getDebugPoints().get(0).getKeyVar())) {
-                    ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(false, debugData.getExpected(), breakPointIf.getValue(), debugData);
-                    if (!comparisonResult.isEquals()) {
-                        indexTemp = i;
-                        comparisonResultFix = comparisonResult;
-                        isFix = true;
-                    } else if (comparisonResult.isEquals()) {
-                        break;
+                    if (debugData.getExpected() instanceof StringNode) {
+                        ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(false, ((StringNode)debugData.getExpected()).getValue(), breakPointIf.getValue(), debugData);
+                        if (!comparisonResult.isEquals()) {
+                            indexTemp = i;
+                            comparisonResultFix = comparisonResult;
+                            isFix = true;
+                        } else if (comparisonResult.isEquals()) {
+                            break;
+                        }
+                    } else {
+                        logger.error("Chuwa xu ly");
                     }
 //                    findCandidates(candidates, suspicionStrings, extractDebugger, breakPointHitNext, breakPointInfo,
 //                            debugData);
@@ -122,14 +128,6 @@ public class MainFixFolder {
                 FixString.fixString(extractDebugger, debugData, candidates, suspicionStrings, comparisonResultFix,
                         extractDebugger.getHistoryDebug().get(indexTemp));
             }
-//            //compare & fixing
-//            if (breakPointInfo.getVarname() == null) {
-//                continue;
-//            } else if (breakPointInfo.getVarname().equals
-//                    (debugData.getDebugPoints().get(0).getKeyVar())) {
-//                findCandidates(candidates, suspicionStrings, extractDebugger, breakPointHitNext, breakPointInfo,
-//                        debugData);
-//            }
             for (Candidate candidate : candidates) {
                 System.out.println(candidate.toString());
             }
@@ -183,13 +181,14 @@ public class MainFixFolder {
     public static List<DebugData> getListDebugData(List<ClassNode> classNodes, FolderNode folderNode, String pathToRunOutput) {
         List<DebugData> debugDataList = new ArrayList<>();
         List<String> tests = FileHelper.readDataAsList(pathToRunOutput);
-        logger.info(tests.toString());
+        List<StackTrace> stackTraces = FileHelper.readStackTree(tests);
+//        logger.info(tests.toString());
         for (ClassNode classNode : classNodes) {
             List<MethodTest> methodTests = classNode.getMethodTests();
             for (MethodTest methodTest : methodTests) {
-                for (String testname : tests) {
-                    if (testname.equals(methodTest.getMethodName())) {
-                        List<DebugData> debugDatas = DebugPointSetter.genDebugPoints(folderNode, methodTest);
+                for (StackTrace stackTrace : stackTraces) {
+                    if (stackTrace.getMethodName().equals(methodTest.getMethodName())) {
+                        List<DebugData> debugDatas = DebugPointSetter.genDebugPoints(folderNode, methodTest, stackTrace);
                         if (debugDataList.size() == 0) {
                             debugDataList.addAll(debugDatas);
                         } else {

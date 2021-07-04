@@ -4,7 +4,7 @@ import AST.node.*;
 import AST.obj.MethodCalled;
 import AST.stm.abst.StatementNode;
 import AST.stm.node.BaseVariableNode;
-import AST.stm.node.StringStmNode;
+import AST.stm.nodetype.StringNode;
 import AST.stm.node.InfixExpressionStmNode;
 import AST.stm.node.MethodInvocationStmNode;
 import core.object.*;
@@ -130,8 +130,8 @@ public class ExtractDebugger {
             content = getValueInfixExpression((InfixExpressionStmNode) statementNode, breakPointInfo, debugData, jdbDebugger, folderNode);
         } else if (statementNode instanceof MethodInvocationStmNode) {
             logger.error("chuwa xu ly:getValueNodeNullVar instanceof MethodInvocationStm");
-        } else if (statementNode instanceof StringStmNode) {
-            content = ((StringStmNode) statementNode).getValue();
+        } else if (statementNode instanceof StringNode) {
+            content = ((StringNode) statementNode).getValue();
         } else {
             logger.error("Chua xu ly: getValueNodeNullVar " + statementNode);
         }

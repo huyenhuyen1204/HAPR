@@ -1,10 +1,10 @@
-package AST.stm.nodetype;
+package AST.parser;
 
 import AST.stm.node.InfixExpressionStmNode;
 import AST.stm.node.MethodInvocationStmNode;
-import org.eclipse.jdt.core.dom.BooleanLiteral;
-import org.eclipse.jdt.core.dom.NumberLiteral;
-import org.eclipse.jdt.core.dom.StringLiteral;
+
+import AST.stm.nodetype.StringNode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.JavaLibraryHelper;
@@ -12,14 +12,8 @@ import util.JavaLibraryHelper;
 public class NodeTypeHelper {
     public static final Logger logger = LoggerFactory.getLogger(NodeTypeHelper.class);
 
-    public static Object parseExpected(Object obj, int line) {
-        if (obj instanceof StringLiteral) {
-            return new StringNode(line, null, ((StringLiteral) obj).getLiteralValue(),obj.toString() );
-        } else if (obj instanceof NumberLiteral) {
-            return new NumbericNode(obj); //?
-        } else if (obj instanceof BooleanLiteral) {
-            return new BooleanNode(((BooleanLiteral) obj).booleanValue());
-        } else if (obj instanceof InfixExpressionStmNode) {
+    public static Object getValueExpected(Object obj, int line) {
+                 if (obj instanceof InfixExpressionStmNode) {
             String value = getValueInfixExpression((InfixExpressionStmNode) obj);
             return new StringNode(line, null, value, obj.toString());
         } else {

@@ -3,7 +3,7 @@ package core.jdb;
 import AST.node.*;
 import AST.obj.MethodCalled;
 import AST.stm.abst.StatementNode;
-import AST.stm.node.BaseVariableNode;
+import AST.stm.nodetype.BaseVariableNode;
 import AST.stm.nodetype.StringNode;
 import AST.stm.node.InfixExpressionStmNode;
 import AST.stm.node.MethodInvocationStmNode;

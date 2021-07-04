@@ -1,10 +1,13 @@
 package AST.node;
 
+import AST.parser.AssertParser;
 import AST.stm.abst.AssertStatement;
 import AST.stm.node.*;
 import AST.obj.InitObjectIndex;
 import AST.stm.abst.StatementNode;
 import AST.parser.ASTHelper;
+import AST.stm.nodetype.BaseVariableNode;
+import AST.stm.nodetype.NumbericNode;
 import AST.stm.nodetype.StringNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,6 +41,14 @@ public class MethodNode extends AbstractableElementNode {
     @JsonIgnore
     private List statements;
 
+    public List<AssertStatement> getAssertStatements() {
+        return assertStatements;
+    }
+
+    public void setAssertStatements(List<AssertStatement> assertStatements) {
+        this.assertStatements = assertStatements;
+    }
+
     public List getStatements() {
         return statements;
     }
@@ -49,6 +60,7 @@ public class MethodNode extends AbstractableElementNode {
     public MethodNode() {
         this.initNodes = new ArrayList<>();
         this.returnStatements = new ArrayList<>();
+        this.assertStatements = new ArrayList<>();
         parameters = this.getParameters();
     }
 
@@ -212,6 +224,7 @@ public class MethodNode extends AbstractableElementNode {
         }
 
         List parameters = node.parameters();
+//        parserAruments(parameters, this.getStartLine());
         List<Node> paraNodes = new ArrayList<>();
         for (Object o : parameters) {
             ParameterNode paraNode = new ParameterNode();
@@ -287,6 +300,8 @@ public class MethodNode extends AbstractableElementNode {
                         paraNodes.add(paraNode);
                     }
                 }
+                InitNode initNode = new InitNode(1, paraNode.getName(), paraNode.getType(), paraNode.getStartLine());
+                initNodes.add(initNode);
             }
         }
         this.addChildren(paraNodes, cu);
@@ -314,12 +329,16 @@ public class MethodNode extends AbstractableElementNode {
 
                 } else if (stm instanceof ExpressionStatement) {
                     parserExpressionStatementInfo((ExpressionStatement) stm, line);
-
+                    //parser Test
+                    AssertStatement assertStatement = AssertParser.parserAssert((ExpressionStatement) stm, cu);
+                    if (assertStatement != null) {
+                        assertStatements.add(assertStatement);
+                    }
                 } else if (stm instanceof ReturnStatement) {
                     parserReturnInfo((ReturnStatement) stm, line);
 
                 } else if (stm instanceof TryStatement) {
-                    parserTryInfo ((TryStatement) stm, level);
+                    parserTryInfo((TryStatement) stm, level);
 //                    logger.error("Chưa xử lý Trystatement");
 
                 } else if (stm instanceof EnhancedForStatement) {
@@ -342,11 +361,16 @@ public class MethodNode extends AbstractableElementNode {
         }
     }
 
-    private void parserTryInfo(TryStatement tryStm,int level) {
+    private void parserTryInfo(TryStatement tryStm, int level) {
         if (tryStm.getBody() != null) {
             if (tryStm.getBody() instanceof Block) {
                 List statements = ((Block) tryStm.getBody()).statements();
                 parserStatements(level + 1, statements);
+                List<CatchClause> catchClauses = tryStm.catchClauses();
+                for (CatchClause catchCl : catchClauses) {
+                    List statementss = catchCl.getBody().statements();
+                    parserStatements(level + 1, statementss);
+                }
             } else {
                 logger.error("Chưa xử lý:parserTryInfo ");
             }
@@ -386,8 +410,12 @@ public class MethodNode extends AbstractableElementNode {
         List initializers = stm.initializers();
         // step1 parser inits;
         for (Object objInit : initializers) {
-            if (objInit instanceof VariableDeclarationFragment) {
+            if (objInit instanceof VariableDeclarationStatement) {
                 parserVariableDeclarationInfo(level + 1, (VariableDeclarationStatement) objInit, line);
+            } else if (objInit instanceof VariableDeclarationExpression) {
+                parserVariableDeclarationInfo(level + 1, (VariableDeclarationExpression) objInit, line);
+            } else {
+                logger.error("Chua xy ly:parserForInfo");
             }
         }
         //TODO: step2: need to parser "optionalConditionExpression (i <n ) of forStatement
@@ -426,21 +454,21 @@ public class MethodNode extends AbstractableElementNode {
             }
             statementNode = methodInvocationStmNode;
 //            statementNode.setStatementNode(methodInvocationStmNode, methodInvocationStmNode.getVarName(), stm.getExpression().toString());
-
         } else if (stm.getExpression() instanceof Assignment) {
             returnStringOrNumber = false;
             logger.error("Chua xu ly: parserReturnInfo " + stm.getExpression());
         } else if (stm.getExpression() instanceof SimpleName) {
             returnStringOrNumber = false;
             String varname = ((SimpleName) stm.getExpression()).getIdentifier();
-            statementNode = new BaseVariableNode(line, varname, stm.getExpression().toString());
+            statementNode = new BaseVariableNode(line, varname, stm.getExpression());
             setStatementToInits(statementNode, ((SimpleName) stm.getExpression()).getIdentifier(), line, stm.getExpression().toString());
 
         } else if (stm.getExpression() instanceof StringLiteral) {
             String value = JavaLibraryHelper.removeFirstAndLastChars(stm.getExpression().toString());
             statementNode = new StringNode(line, null, value, stm.getExpression().toString());
         } else if (stm.getExpression() instanceof NumberLiteral) {
-            logger.error("Chuwa xu ly");
+            statementNode = new NumbericNode(stm.getExpression());
+//            logger.error("Chuwa xu ly");
         } else if (stm.getExpression() instanceof InfixExpression) {
             returnStringOrNumber = false;
             InfixExpression infixEx = (InfixExpression) stm.getExpression();
@@ -449,6 +477,11 @@ public class MethodNode extends AbstractableElementNode {
             Object right = convertToMethodInvoStm(infixEx.getRightOperand(), line);
             statementNode = new InfixExpressionStmNode(infixEx.getOperator().toString(),
                     left, right, objects, line, null, stm.getExpression().toString());
+        } else if (stm.getExpression() instanceof FieldAccess) {
+            returnStringOrNumber = false;
+            FieldAccess fieldAccess = (FieldAccess) stm.getExpression();
+            InitNode initNode = ((ClassNode)this.getParent()).findTypeVar(fieldAccess.getName().getIdentifier());
+            statementNode = new BaseVariableNode(line, initNode.getVarname(), stm.getExpression());
         } else {
 //            statementNode.setStatementNode(stm.getExpression(), null, stm.getExpression().toString());
             logger.error("Chua xu ly:parserReturnInfo " + stm.getExpression());
@@ -483,12 +516,16 @@ public class MethodNode extends AbstractableElementNode {
             return methodInvocationStmNode;
         } else if (obj instanceof StringLiteral) {
 //            String value = JavaLibraryHelper.convertStringToNumbers(obj.toString());
-            String value = JavaLibraryHelper.removeFirstAndLastChars(obj.toString());
-            return value;
+//            String value = JavaLibraryHelper.removeFirstAndLastChars(obj.toString());
+            return new StringNode(line, null, ((StringLiteral) obj).getLiteralValue(), obj.toString());
+        } else if (obj instanceof NumberLiteral) {
+//            String value = JavaLibraryHelper.convertStringToNumbers(obj.toString());
+//            String value = JavaLibraryHelper.removeFirstAndLastChars(obj.toString());
+            return new NumbericNode(obj);
         } else if (obj instanceof SimpleName) {
-            return new BaseVariableNode(line, ((SimpleName) obj).getIdentifier(), obj.toString());
-        } else {
-            logger.error("chua xu ly:convertToMethodInvoStm "+ obj.toString());
+            return new BaseVariableNode(line, ((SimpleName) obj).getIdentifier(), obj);
+        }  else{
+            logger.error("chua xu ly:convertToMethodInvoStm " + obj.toString());
             return obj;
         }
     }
@@ -503,7 +540,7 @@ public class MethodNode extends AbstractableElementNode {
         }
     }
 
-    private void parserVariableDeclarationInfo(int level, VariableDeclarationStatement variableDeclarationStatement,  int line) {
+    private void parserVariableDeclarationInfo(int level, VariableDeclarationStatement variableDeclarationStatement, int line) {
         List<VariableDeclarationFragment> astNodes = variableDeclarationStatement.fragments();
         for (VariableDeclarationFragment astNode : astNodes) {
             InitNode initNode = new InitNode(level, astNode.getName().getIdentifier(),
@@ -511,6 +548,15 @@ public class MethodNode extends AbstractableElementNode {
             initNodes.add(initNode);
         }
     }
+    private void parserVariableDeclarationInfo(int level, VariableDeclarationExpression variableDeclarationStatement, int line) {
+        List<VariableDeclarationFragment> astNodes = variableDeclarationStatement.fragments();
+        for (VariableDeclarationFragment astNode : astNodes) {
+            InitNode initNode = new InitNode(level, astNode.getName().getIdentifier(),
+                    ASTHelper.getFullyQualifiedName(variableDeclarationStatement.getType(), cu), line);
+            initNodes.add(initNode);
+        }
+    }
+
 
     private void parserAssignmentStm(ExpressionStatement stm, int line) {
         Assignment asm = (Assignment) stm.getExpression();
@@ -576,13 +622,13 @@ public class MethodNode extends AbstractableElementNode {
             int index = classNode.findIndexTypeVar(fieldAccess.getName().getIdentifier());
             if (index >= 0) {
                 classNode.initNodes.get(index).addStatement(
-                        new BaseVariableNode(line, fieldAccess.getName().getIdentifier(), stm.toString())
+                        new BaseVariableNode(line, fieldAccess.getName().getIdentifier(), stm)
                 );
             } else {
                 logger.error("Not found: in class" + fieldAccess.getName());
             }
         } else if (obj instanceof SimpleName) {
-            BaseVariableNode baseVariableNode = new BaseVariableNode(line, ((SimpleName) obj).getIdentifier(), stm.toString());
+            BaseVariableNode baseVariableNode = new BaseVariableNode(line, ((SimpleName) obj).getIdentifier(), stm);
             initObjectIndex = setStatementToInits(baseVariableNode, ((SimpleName) obj).getIdentifier(), line, stm.getExpression().toString());
         } else if (obj instanceof MethodInvocation) {
             MethodInvocationStmNode methodInvocationStmNode = parserMethodInvoStm((MethodInvocation) obj, line);
@@ -643,7 +689,7 @@ public class MethodNode extends AbstractableElementNode {
         } else if (methodInvocation.getExpression() instanceof ClassInstanceCreation) {
             //method Invocation
             List<Object> args = parserAruments(methodInvocation.arguments(), line);
-            methodInvocationStmNode = new MethodInvocationStmNode(null, methodInvocation.getName().getIdentifier(), args, line, methodInvocation.toString() );
+            methodInvocationStmNode = new MethodInvocationStmNode(null, methodInvocation.getName().getIdentifier(), args, line, methodInvocation.toString());
             // method in ClassInstanceCreation
             ClassInstanceCreation classInstance = (ClassInstanceCreation) methodInvocation.getExpression();
             List<Object> argsMethod = parserAruments(classInstance.arguments(), line);
@@ -695,7 +741,7 @@ public class MethodNode extends AbstractableElementNode {
             }
             return new InitObjectIndex(index, scope);
         } else {
-            return  null;
+            return null;
         }
     }
 
@@ -828,6 +874,10 @@ public class MethodNode extends AbstractableElementNode {
             }
         }
         return null;
+    }
+
+    public void addAssert(AssertStatement statement) {
+        this.assertStatements.add(statement);
     }
 
     public void printInfor() {

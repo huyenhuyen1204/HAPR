@@ -35,17 +35,18 @@ public class JavaFileParser {
 
 
     public static void main(String[] args) throws IOException {
-        File file = new File("C:\\Users\\Dell\\Desktop\\APR_Test\\data_test\\83778\\MyTest.java");
+        File file = new File("C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\81171\\MyTest.java" +
+                "");
         String content = FileService.readFileToString(file.getAbsolutePath());
         List<ClassNode> classNodes = JavaFileParser.parse(content);
-        for (ClassNode classNode : classNodes) {
-            for (MethodNode methodNode: classNode.getMethodList()) {
-                methodNode.printInfor();
-            }
-            for (FieldNode fieldNode : classNode.getFieldList()) {
-                fieldNode.printInfor();
-            }
-        }
+//        for (ClassNode classNode : classNodes) {
+//            for (MethodNode methodNode: classNode.getMethodList()) {
+//                methodNode.printInfor();
+//            }
+//            for (FieldNode fieldNode : classNode.getFieldList()) {
+//                fieldNode.printInfor();
+//            }
+//        }
         System.out.println(classNodes.toString());
     }
 

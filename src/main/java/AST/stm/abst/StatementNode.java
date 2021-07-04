@@ -4,6 +4,7 @@ public abstract class StatementNode {
     protected int line;
     protected String keyVar = null;
     protected String statementString;
+    protected Object statement;
 
     public abstract int getLine();
 

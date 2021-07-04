@@ -2,12 +2,12 @@ package core;
 
 import AST.node.ClassNode;
 import AST.node.FolderNode;
+import AST.node.MethodNode;
 import AST.stm.nodetype.StringNode;
 import AST.obj.StackTrace;
 import core.fix.FixString;
 import core.object.*;
 import AST.obj.MethodTest;
-import AST.parser.MyTestParser;
 import AST.parser.ProjectParser;
 import common.Configure;
 import common.TestType;
@@ -42,20 +42,22 @@ public class MainFixFolder {
         String output = pathToSouce + File.separator + Configure.OUTPUT_TestRunner;
         File outputFile = new File(output);
 
-        //PARSER MyTest
-        List<ClassNode> classNodes = (new MyTestParser()).myTestParser
-                (pathToSouce + File.separator + MyTest_Name + ".java",
-                        TestType.ANNOTATION_TEST);
+//        //PARSER MyTest
+//        List<ClassNode> classNodes = (new MyTestParser()).myTestParser
+//                (pathToSouce + File.separator + MyTest_Name + ".java",
+//                        TestType.ANNOTATION_TEST);
 
         //Parser folder
         FolderNode folderNode = ProjectParser.parse(pathToSouce);
+        ClassNode classNode = folderNode.findClassByName(MyTest_Name);
 
         if (!outputFile.exists()) {
             logger.error(ObjectNotFound.MSG + Configure.OUTPUT_TestRunner);
         } else {
             // Get List testName Error & get list debug point
-            List<DebugData> debugDatas = getListDebugData(classNodes, folderNode, output);
+            List<DebugData> debugDatas = getListDebugData(classNode, folderNode, output);
             for (DebugData debugData : debugDatas) {
+                System.out.println(debugData.getDebugPoints());
                 if (debugData.getDebugPoints().size() != 0) {
                     fixBug(debugData, folderNode);
                 }
@@ -107,7 +109,7 @@ public class MainFixFolder {
                 } else if (breakPointIf.getVarname().equals
                         (debugData.getDebugPoints().get(0).getKeyVar())) {
                     if (debugData.getExpected() instanceof StringNode) {
-                        ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(false, ((StringNode)debugData.getExpected()).getValue(), breakPointIf.getValue(), debugData);
+                        ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(false, ((StringNode) debugData.getExpected()).getValue(), breakPointIf.getValue(), debugData);
                         if (!comparisonResult.isEquals()) {
                             indexTemp = i;
                             comparisonResultFix = comparisonResult;
@@ -137,9 +139,9 @@ public class MainFixFolder {
         }
     }
 
-    private static List<BreakPointInfo> getBreakpointInfo (List<BreakPointInfo> breakPointInfos, int index) {
+    private static List<BreakPointInfo> getBreakpointInfo(List<BreakPointInfo> breakPointInfos, int index) {
         List<BreakPointInfo> breakPointInfoList = new ArrayList<>();
-        for (int i = 0; i <= index; i ++) {
+        for (int i = 0; i <= index; i++) {
             breakPointInfoList.add(breakPointInfos.get(i));
         }
         return breakPointInfoList;
@@ -173,28 +175,25 @@ public class MainFixFolder {
 
 
     /**
-     * @param classNodes      of MyTest
      * @param folderNode      of Project
      * @param pathToRunOutput of TestRunner (get test fails)
      * @return
      */
-    public static List<DebugData> getListDebugData(List<ClassNode> classNodes, FolderNode folderNode, String pathToRunOutput) {
+    public static List<DebugData> getListDebugData(ClassNode classNode, FolderNode folderNode, String pathToRunOutput) {
         List<DebugData> debugDataList = new ArrayList<>();
         List<String> tests = FileHelper.readDataAsList(pathToRunOutput);
         List<StackTrace> stackTraces = FileHelper.readStackTree(tests);
-//        logger.info(tests.toString());
-        for (ClassNode classNode : classNodes) {
-            List<MethodTest> methodTests = classNode.getMethodTests();
-            for (MethodTest methodTest : methodTests) {
-                for (StackTrace stackTrace : stackTraces) {
-                    if (stackTrace.getMethodName().equals(methodTest.getMethodName())) {
-                        List<DebugData> debugDatas = DebugPointSetter.genDebugPoints(folderNode, methodTest, stackTrace);
-                        if (debugDataList.size() == 0) {
-                            debugDataList.addAll(debugDatas);
-                        } else {
-                            for (DebugData debugData : debugDatas) {
-                                DebugPointSetter.addDebugData(debugData, debugDataList);
-                            }
+
+        List<MethodNode> methodNodes = classNode.getMethodList();
+        for (MethodNode method : methodNodes) {
+            for (StackTrace stackTrace : stackTraces) {
+                if (stackTrace.getMethodName().equals(method.getName())) {
+                    List<DebugData> debugDatas = DebugPointSetter.genDebugPoints(folderNode, method, stackTrace, classNode.getName());
+                    if (debugDataList.size() == 0) {
+                        debugDataList.addAll(debugDatas);
+                    } else {
+                        for (DebugData debugData : debugDatas) {
+                            DebugPointSetter.addDebugData(debugData, debugDataList);
                         }
                     }
                 }

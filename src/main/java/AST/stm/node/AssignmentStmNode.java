@@ -7,13 +7,14 @@ public class AssignmentStmNode extends StatementNode {
     private StatementNode rightNode;
     private String assignmentOperator;
 
-    public AssignmentStmNode(StatementNode leftSide, StatementNode rightNode, int line, String keyVar, String stmString) {
+    public AssignmentStmNode(StatementNode leftSide, StatementNode rightNode, int line, String keyVar, Object stmString) {
         super();
         this.leftSide = leftSide;
         this.rightNode = rightNode;
         this.line = line;
         this.keyVar = keyVar;
-        this.statementString = stmString;
+        this.statement = stmString;
+        this.statementString = stmString.toString();
     }
 
     public StatementNode getLeftSide() {

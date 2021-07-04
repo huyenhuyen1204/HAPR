@@ -30,7 +30,6 @@ public class ClassNode extends AbstractableElementNode {
     protected int line;
     @JsonIgnore
     protected List<InitNode> initNodes; //to save var & type when init
-    private List<MethodTest> methodTests;
 
     public String getParentClass() {
         return parentClass;
@@ -80,15 +79,6 @@ public class ClassNode extends AbstractableElementNode {
         this.line = line;
     }
 
-
-    public List<MethodTest> getMethodTests() {
-        return methodTests;
-    }
-
-    public void setMethodTests(List<MethodTest> methodTests) {
-        this.methodTests = methodTests;
-    }
-
     public List<InitNode> getInitNodes() {
         return initNodes;
     }
@@ -100,7 +90,6 @@ public class ClassNode extends AbstractableElementNode {
     public ClassNode() {
         super();
         interfaceList = new ArrayList<>();
-        this.methodTests = new ArrayList<>();
         this.initNodes = new ArrayList<>();
     }
 

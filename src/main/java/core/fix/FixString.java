@@ -3,7 +3,7 @@ package core.fix;
 import AST.node.MethodNode;
 import AST.stm.nodetype.StringNode;
 import AST.stm.abst.StatementNode;
-import AST.stm.node.BaseVariableNode;
+import AST.stm.nodetype.BaseVariableNode;
 import core.jdb.ExtractDebugger;
 import core.object.*;
 import org.slf4j.Logger;

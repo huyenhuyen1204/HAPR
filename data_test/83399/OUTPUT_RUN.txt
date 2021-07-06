@@ -1,0 +1,6 @@
+test11_getCustomersInfoByNameOrder
+test10_getCustomersInfoByIdOrder
+test9_getTransactionHistory_2
+test6_doDepositing
+test7_doWithdrawing
+test8_getTransactionHistory_1

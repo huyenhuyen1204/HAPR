@@ -1,24 +1,18 @@
-package AST.stm.node;
+package AST.stm.nodetype;
 
 import AST.stm.abst.StatementNode;
 
-public class StringStmNode extends StatementNode {
-    private String value;
-    public StringStmNode(int line, String keyVar, String value, String stmString) {
+public class BaseVariableNode extends StatementNode {
+
+
+    public BaseVariableNode(int line, String keyVar, Object stmNode) {
         super();
         this.line = line;
         this.keyVar = keyVar;
-        this.statementString = stmString;
-        this.value = value;
+        this.statement = stmNode;
+        this.statementString = stmNode.toString();
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 
     @Override
     public int getLine() {

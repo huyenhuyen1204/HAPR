@@ -7,8 +7,16 @@ public class BreakPointHit {
 
     public BreakPointHit(String className, String methodName, int line) {
         this.className = className;
-        this.methodName = methodName;
+        addMethodName(methodName);
         this.line = line;
+    }
+
+    private void addMethodName(String methodName) {
+        if (methodName.equals("<init>")) {
+            this.methodName = className;
+        } else {
+            this.methodName = methodName;
+        }
     }
 
     public String getClassName() {

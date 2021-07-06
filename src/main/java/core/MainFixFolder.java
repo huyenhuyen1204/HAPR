@@ -2,10 +2,12 @@ package core;
 
 import AST.node.ClassNode;
 import AST.node.FolderNode;
+import AST.node.MethodNode;
+import AST.stm.nodetype.StringNode;
+import AST.obj.StackTrace;
 import core.fix.FixString;
 import core.object.*;
 import AST.obj.MethodTest;
-import AST.parser.MyTestParser;
 import AST.parser.ProjectParser;
 import common.Configure;
 import common.TestType;
@@ -23,10 +25,9 @@ import java.util.List;
 
 public class MainFixFolder {
     public static final Logger logger = LoggerFactory.getLogger(MainFixFolder.class);
-    static final String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/83084/";
-    static final String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/83084/";
-    //    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
-//    static String pathToOutput = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\83453";
+
+    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\81171";
+    static String pathToOutput = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\81171";
     static final String MyTest_Name = "MyTest";
     static final String TestRunner_Name = "TestRunner";
     static final String Path_AST_Output = pathToSouce + File.separator + "AST.txt"; // path_to_source/AST.txt
@@ -41,24 +42,27 @@ public class MainFixFolder {
         String output = pathToSouce + File.separator + Configure.OUTPUT_TestRunner;
         File outputFile = new File(output);
 
-        //PARSER MyTest
-        List<ClassNode> classNodes = (new MyTestParser()).myTestParser
-                (pathToSouce + File.separator + MyTest_Name + ".java",
-                        TestType.ANNOTATION_TEST);
+//        //PARSER MyTest
+//        List<ClassNode> classNodes = (new MyTestParser()).myTestParser
+//                (pathToSouce + File.separator + MyTest_Name + ".java",
+//                        TestType.ANNOTATION_TEST);
 
         //Parser folder
         FolderNode folderNode = ProjectParser.parse(pathToSouce);
+        ClassNode classNode = folderNode.findClassByName(MyTest_Name);
 
         if (!outputFile.exists()) {
             logger.error(ObjectNotFound.MSG + Configure.OUTPUT_TestRunner);
         } else {
             // Get List testName Error & get list debug point
-            List<DebugData> debugDatas = getListDebugData(classNodes, folderNode, output);
-            for (DebugData debugData: debugDatas) {
-                fixBug(debugData, folderNode);
+            List<DebugData> debugDatas = getListDebugData(classNode, folderNode, output);
+            for (DebugData debugData : debugDatas) {
+                System.out.println(debugData.getDebugPoints());
+                if (debugData.getDebugPoints().size() != 0) {
+                    fixBug(debugData, folderNode);
+                }
             }
         }
-
     }
 
     private static void fixBug(DebugData debugData, FolderNode folderNode) throws IOException {
@@ -79,23 +83,53 @@ public class MainFixFolder {
             BreakPointInfo breakPointInfo = extractDebugger.watchValueChange(breakPointHit, debugData, jdbDebugger, folderNode);
             BreakPointHit breakPointHitNext;
 
-
+            //run all debug
             do {
                 String log = jdbDebugger.contJDB();
                 breakPointHitNext = DebuggerHelper.parserLogRunning(log);
-                breakPointInfo = extractDebugger.watchValueChange(breakPointHitNext, debugData, jdbDebugger, folderNode);
-
-                //compare & fixing
-                if (breakPointInfo.getVarname() == null) {
-                    continue;
-                } else if (breakPointInfo.getVarname().equals
-                        (debugData.getDebugPoints().get(0).getKeyVar())) {
-                    findCandidates(candidates, suspicionStrings, extractDebugger, breakPointHitNext, breakPointInfo,
-                            debugData);
+                if (breakPointHitNext != null) {
+                    breakPointInfo = extractDebugger.watchValueChange(breakPointHitNext, debugData, jdbDebugger, folderNode);
+                } else {
+                    logger.error("WHAT?");
                 }
             }
             while (debugData.getDebugPoints().get(0).getLine() != breakPointHitNext.getLine());
+
             jdbDebugger.destroyProcessJDB();
+
+            boolean isFix = false;
+            int indexTemp = -1;
+            ComparisonResult comparisonResultFix = null;
+            for (int i = extractDebugger.getHistoryDebug().size() - 1; i >= 0; i--) {
+                BreakPointInfo breakPointIf = extractDebugger.getHistoryDebug().get(i);
+                //compare & fixing
+                if (breakPointIf.getVarname() == null) {
+//                    extractDebugger.getaPartOfHistory().remove(i);
+                    continue;
+                } else if (breakPointIf.getVarname().equals
+                        (debugData.getDebugPoints().get(0).getKeyVar())) {
+                    if (debugData.getExpected() instanceof StringNode) {
+                        ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(false, ((StringNode) debugData.getExpected()).getValue(), breakPointIf.getValue(), debugData);
+                        if (!comparisonResult.isEquals()) {
+                            indexTemp = i;
+                            comparisonResultFix = comparisonResult;
+                            isFix = true;
+                        } else if (comparisonResult.isEquals()) {
+                            break;
+                        }
+                    } else {
+                        logger.error("Chuwa xu ly");
+                    }
+//                    findCandidates(candidates, suspicionStrings, extractDebugger, breakPointHitNext, breakPointInfo,
+//                            debugData);
+                }
+            }
+
+            if (isFix) {
+                extractDebugger.setaPartOfHistory(getBreakpointInfo(extractDebugger.getHistoryDebug(), indexTemp));
+                FixString.fixString(extractDebugger, debugData, candidates, suspicionStrings, comparisonResultFix,
+                        extractDebugger.getHistoryDebug().get(indexTemp));
+            }
             for (Candidate candidate : candidates) {
                 System.out.println(candidate.toString());
             }
@@ -105,13 +139,17 @@ public class MainFixFolder {
         }
     }
 
-    public static void findCandidates(List<Candidate> candidates, List<SuspicionString> suspicionStrings, ExtractDebugger extractDebugger, BreakPointHit breakPointHitHere, BreakPointInfo breakPointInfo, DebugData debugData) {
-        ComparisonResult comparisonResult = JavaLibraryHelper.getStringComparisonResult(false, debugData.getExpected(), breakPointInfo.getValue(), debugData);
-        if (!comparisonResult.isEquals()) {
-            FixString.fixString(extractDebugger, debugData, candidates, suspicionStrings, breakPointHitHere, comparisonResult);
-
+    private static List<BreakPointInfo> getBreakpointInfo(List<BreakPointInfo> breakPointInfos, int index) {
+        List<BreakPointInfo> breakPointInfoList = new ArrayList<>();
+        for (int i = 0; i <= index; i++) {
+            breakPointInfoList.add(breakPointInfos.get(i));
         }
+        return breakPointInfoList;
     }
+
+//    public static void findCandidates(List<Candidate> candidates, List<SuspicionString> suspicionStrings, ExtractDebugger extractDebugger, BreakPointHit breakPointHitHere, BreakPointInfo breakPointInfo, DebugData debugData) {
+//
+//    }
 
 
 //    private static void addCandidate (List<Candidate> candidates, Candidate candidate) {
@@ -137,27 +175,25 @@ public class MainFixFolder {
 
 
     /**
-     * @param classNodes      of MyTest
      * @param folderNode      of Project
      * @param pathToRunOutput of TestRunner (get test fails)
      * @return
      */
-    public static List<DebugData> getListDebugData(List<ClassNode> classNodes, FolderNode folderNode, String pathToRunOutput) {
+    public static List<DebugData> getListDebugData(ClassNode classNode, FolderNode folderNode, String pathToRunOutput) {
         List<DebugData> debugDataList = new ArrayList<>();
         List<String> tests = FileHelper.readDataAsList(pathToRunOutput);
-        logger.info(tests.toString());
-        for (ClassNode classNode : classNodes) {
-            List<MethodTest> methodTests = classNode.getMethodTests();
-            for (MethodTest methodTest : methodTests) {
-                for (String testname : tests) {
-                    if (testname.equals(methodTest.getMethodName())) {
-                        List<DebugData> debugDatas = DebugPointSetter.genDebugPoints(folderNode, methodTest);
-                        if (debugDataList.size() == 0) {
-                            debugDataList.addAll(debugDatas);
-                        } else {
-                            for (DebugData debugData : debugDatas) {
-                                DebugPointSetter.addDebugData(debugData, debugDataList);
-                            }
+        List<StackTrace> stackTraces = FileHelper.readStackTree(tests);
+
+        List<MethodNode> methodNodes = classNode.getMethodList();
+        for (MethodNode method : methodNodes) {
+            for (StackTrace stackTrace : stackTraces) {
+                if (stackTrace.getMethodName().equals(method.getName())) {
+                    List<DebugData> debugDatas = DebugPointSetter.genDebugPoints(folderNode, method, stackTrace, classNode.getName());
+                    if (debugDataList.size() == 0) {
+                        debugDataList.addAll(debugDatas);
+                    } else {
+                        for (DebugData debugData : debugDatas) {
+                            DebugPointSetter.addDebugData(debugData, debugDataList);
                         }
                     }
                 }

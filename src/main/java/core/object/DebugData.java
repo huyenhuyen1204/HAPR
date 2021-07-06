@@ -7,17 +7,17 @@ import java.util.List;
 public class DebugData {
     private List<DebugPoint> debugPoints;
     private AssertStatement assertStatement;
-    private String expected;
-    private String tmpExpected;
+    private Object expected;
+    private Object tmpExpected;
     private String testname;
     private int indexExpected = 0;
     private int indexActual = 0;
 
-    public String getTmpExpected() {
+    public Object getTmpExpected() {
         return tmpExpected;
     }
 
-    public void setTmpExpected(String tmpExpected) {
+    public void setTmpExpected(Object tmpExpected) {
         this.tmpExpected = tmpExpected;
     }
 
@@ -37,15 +37,15 @@ public class DebugData {
         this.indexActual = indexActual;
     }
 
-    public String getExpected() {
+    public Object getExpected() {
         return expected;
     }
 
-    public void setExpected(String expected) {
+    public void setExpected(Object expected) {
         this.expected = expected;
     }
 
-    public DebugData( String expected, String testname) {
+    public DebugData( Object expected, String testname) {
         this.expected = expected;
         this.testname = testname;
     }

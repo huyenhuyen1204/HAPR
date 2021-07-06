@@ -1,8 +1,25 @@
-package AST.stm.node;
+package AST.stm.nodetype;
 
 import AST.stm.abst.StatementNode;
 
-public class NumbericStmNode extends StatementNode {
+public class StringNode extends StatementNode {
+    private String value;
+    public StringNode(int line, String keyVar, String value, String stmString) {
+        super();
+        this.line = line;
+        this.keyVar = keyVar;
+        this.statementString = stmString;
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
     @Override
     public int getLine() {
         return this.line;
@@ -32,5 +49,4 @@ public class NumbericStmNode extends StatementNode {
     public void setStatementString(String statementString) {
         this.statementString = statementString;
     }
-
 }

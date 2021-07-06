@@ -1,0 +1,2 @@
+MyTest;test_movePiece_method_in_game;MyTest.java;220
+MyTest;test_toString_method_in_move;MyTest.java;137

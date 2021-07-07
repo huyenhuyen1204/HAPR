@@ -28,7 +28,7 @@ public class FL {
 
         //=====Test for Project =====
         String path = Configuration.BUGGY_PROJECTS_PATH;//args[1]; // Configuration.BUGGY_PROJECTS_PATH;
-        String projectName = "Chart_1_buggy";//args[2]; project test name for project
+        String projectName = "Chart_11_buggy";//args[2]; project test name for project
         //=====End test for project
 
         String metricStr = Configuration.faultLocalizationMetric; //caculator dupplicate

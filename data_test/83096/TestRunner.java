@@ -15,8 +15,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.junit.ComparisonFailure;
 
-
-
 public class TestRunner {
     public static final String KEY = "===OASIS_LOG===";
     public static final String KEY_ENTER = "===OASIS_ENTER===";
@@ -34,35 +32,18 @@ public class TestRunner {
         System.out.println(result.getRunCount());
         List<String> fails = new ArrayList<>();
         String s = "";
+
         for (Failure failure : result.getFailures()) {
-            s+=failure.getDescription().getMethodName() + "\n";
-            System.out.println(failure.getDescription().getMethodName());
-        }
-        for (Failure failure : result.getFailures()) {
-            fails.add(failure.getDescription().getMethodName());
-            Throwable throwable = failure.getException();
-            if ( throwable instanceof ComparisonFailure)  {
-//                s += failure.getDescription().getMethodName()+ "(" + classname.getName() + "): expected:" + KEY_OPEN +
-//                        ((ComparisonFailure) throwable).getExpected() + KEY_CLOSE +" but was:" + KEY_OPEN +
-//                        ((ComparisonFailure) throwable).getActual() + KEY_CLOSE + KEY_ENTER;
-            } else if (throwable instanceof InvocationTargetException) {
-//                s += failure.getDescription().getMethodName()+ "(" + classname.getName() + "): " +
-//                        ((InvocationTargetException) throwable).getCause() + KEY_ENTER;
-            }
-            else if (throwable instanceof AssertionError) {
-                String err = ((AssertionError) throwable).getMessage();
-                if (err != null) {
-                    String newErr = err.replaceAll("expected:<", "expected:" + KEY_OPEN).replaceAll("> but was:<", KEY_CLOSE + " but was:" + KEY_OPEN);
-//                    s += failure.getDescription().getMethodName() + "(" + classname.getName() + "): " + replaceLast(newErr, ">", KEY_CLOSE) + KEY_ENTER;
-                    System.out.println(s);
-                } else {
-//                    s += failure.getDescription().getMethodName()+ "(" + classname.getName() + "): " + throwable.toString() + KEY_ENTER;
-                    System.out.println(s);
+            StackTraceElement[] stackTraceElements = failure.getException().getStackTrace();
+            for (StackTraceElement stack : stackTraceElements) {
+                if (stack.getClassName().equals(testClassName)) {
+                    if (failure.getDescription().getMethodName().equals(stack.getMethodName())) {
+                        String info = stack.getClassName() + ";" + stack.getMethodName() + ";" + stack.getFileName() + ";" + stack.getLineNumber();
+                        s+= info + "\n";
+                    }
                 }
-            } else {
-                System.out.println(s);
-//                s+=failure.getDescription().getMethodName()+ "(" + classname.getName() + "): " + throwable.toString() + KEY_ENTER;
             }
+
         }
 
         createFile(new File("./OUTPUT_RUN.txt"), s);

@@ -37,7 +37,7 @@ public class BaseSceneController implements Initializable {
     private static Logger logger = LoggerFactory.getLogger(GZoltarFaultLoclaization.class);
 
     public void initialize(URL location, ResourceBundle resources) {
-        openFolder(new File("C:\\Users\\Dell\\Desktop\\APR_test\\data_test\\83778"));
+        openFolder(new File("/home/huyenhuyen/Desktop/HAPR/data_test/80776"));
         pbProgressBar.setVisible(false);
         treeView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) { // double click

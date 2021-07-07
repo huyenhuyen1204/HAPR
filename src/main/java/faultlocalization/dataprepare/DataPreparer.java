@@ -3,6 +3,7 @@ package faultlocalization.dataprepare;
 
 import util.FileHelper;
 import util.JavaLibraryHelper;
+import util.OSHelper;
 import util.PathUtils;
 
 import java.io.File;
@@ -93,7 +94,7 @@ public class DataPreparer {
 	}
 
 	private void loadTestCases() {
-		testCases = new TestClassesFinder().findIn(JavaLibraryHelper.classPathFrom(testClassPath + ";" + classPath), false);
+		testCases = new TestClassesFinder().findIn(JavaLibraryHelper.classPathFrom(testClassPath + OSHelper.delimiter() + classPath), false);
 		Arrays.sort(testCases);
 	}
 

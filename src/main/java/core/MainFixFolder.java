@@ -26,8 +26,10 @@ import java.util.List;
 public class MainFixFolder {
     public static final Logger logger = LoggerFactory.getLogger(MainFixFolder.class);
 
-    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\81171";
-    static String pathToOutput = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\81171";
+//    static String pathToSouce = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\81171";
+//    static String pathToOutput = "C:\\Users\\Dell\\Desktop\\DebuRepair\\data_test\\81171";
+    static String pathToSouce = "/home/huyenhuyen/Desktop/HAPR/data_test/80776";
+    static String pathToOutput = "/home/huyenhuyen/Desktop/HAPR/data_test/80776";
     static final String MyTest_Name = "MyTest";
     static final String TestRunner_Name = "TestRunner";
     static final String Path_AST_Output = pathToSouce + File.separator + "AST.txt"; // path_to_source/AST.txt

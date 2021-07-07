@@ -7,7 +7,7 @@ public class Configuration {
 	 * and finish with '\' char
 	 * example: C:\Users\Dell\Desktop\APRresearch\Test\
 	 */
-	public static final String BUGGY_PROJECTS_PATH = "C:\\Users\\Dell\\Desktop\\APR_test\\Test\\";
+	public static final String BUGGY_PROJECTS_PATH = "/home/huyenhuyen/Desktop/CapGen/Defects4J/";
 	
 	public static final String TEMP_FILES_PATH = ".temp/";
 	public static final long SHELL_RUN_TIMEOUT = 10800L;
@@ -19,6 +19,6 @@ public class Configuration {
 	public static String outputPath = "OUTPUT/";
 
 	//FOR OASIS
-	public static final String OASIS_PROJECT_PATH ="C:\\Users\\Dell\\Desktop\\APR_test\\data_test\\";
+	public static final String OASIS_PROJECT_PATH ="/home/huyenhuyen/Desktop/HAPR/data_test/";
 
 }

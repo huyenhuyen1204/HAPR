@@ -21,14 +21,14 @@ public class FL {
         String outputPath = Configuration.suspPositionsFilePath;//args[0]; // Configuration.SUSPICIOUS_POSITIONS_FILE_APTH;
 
         //=====Test for student=======
-        String path = Configuration.OASIS_PROJECT_PATH;
-        String projectName = "83778";//args[2]; project test name for student
+//        String path = Configuration.OASIS_PROJECT_PATH;
+//        String projectName = "80776";//args[2]; project test name for student
 //        String projectName = "83918";//args[2]; project test name for student
         //=====End test for student
 
         //=====Test for Project =====
-//        String path = Configuration.BUGGY_PROJECTS_PATH;//args[1]; // Configuration.BUGGY_PROJECTS_PATH;
-//        String projectName = "Chart_8";//args[2]; project test name for project
+        String path = Configuration.BUGGY_PROJECTS_PATH;//args[1]; // Configuration.BUGGY_PROJECTS_PATH;
+        String projectName = "Chart_1_buggy";//args[2]; project test name for project
         //=====End test for project
 
         String metricStr = Configuration.faultLocalizationMetric; //caculator dupplicate

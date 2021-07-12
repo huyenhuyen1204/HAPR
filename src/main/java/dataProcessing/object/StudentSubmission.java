@@ -1,4 +1,4 @@
-package dataProcessing.object;
+package dataProcessing.oasis.object;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -68,6 +68,7 @@ public class FolderNode extends Node {
         return -1;
     }
 
+
     public ClassNode findClassByName(String className) {
         String[] justclass = JavaLibraryHelper.getClassName(className);
         if (justclass != null) {
@@ -80,7 +81,7 @@ public class FolderNode extends Node {
             }
         } else {
             for (ClassNode classNode : this.getClassNodes()) {
-                if (className.equals(classNode.getName())) {
+                if (className.equals(classNode.getQualifiedName())) {
                     return classNode;
                 }
             }

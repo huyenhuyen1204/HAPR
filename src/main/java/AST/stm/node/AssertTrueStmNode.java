@@ -73,5 +73,24 @@ public class AssertTrueStmNode extends AssertStatement {
         this.statementString = statementString;
     }
 
+    @Override
+    public Object getStatement() {
+        return this.statement;
+    }
+
+    @Override
+    public void setStatement(Object statement) {
+        this.statement = statement;
+    }
+
+    @Override
+    public int getStartPostion() {
+        return this.startPostion;
+    }
+
+    @Override
+    public void setStartPostion(int startPostion) {
+        this.startPostion = startPostion;
+    }
 
 }

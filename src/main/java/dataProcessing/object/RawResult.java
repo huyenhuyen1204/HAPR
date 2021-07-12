@@ -1,4 +1,4 @@
-package dataProcessing.oasis.object;
+package dataProcessing.object;
 
 /**
  * Write result data process to csv file

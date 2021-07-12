@@ -7,7 +7,8 @@ import util.JavaLibraryHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MethodInvocationStmNode extends StatementNode {
+public class  MethodInvocationStmNode extends StatementNode {
+    public static final String type = "MethodInvocation";
     private String typeVar;
 //    private String methodCalled = null; // eg: student.getname() - method called is getname
     //for list method call eg: customerList.get(0).toString()
@@ -106,5 +107,25 @@ public class MethodInvocationStmNode extends StatementNode {
     @Override
     public void setStatementString(String statementString) {
         this.statementString = statementString;
+    }
+
+    @Override
+    public Object getStatement() {
+        return this.statement;
+    }
+
+    @Override
+    public void setStatement(Object statement) {
+        this.statement = statement;
+    }
+
+    @Override
+    public int getStartPostion() {
+        return this.startPostion;
+    }
+
+    @Override
+    public void setStartPostion(int startPostion) {
+        this.startPostion = startPostion;
     }
 }

@@ -425,6 +425,45 @@ public class FileHelper {
         return suspiciousCodeList;
     }
 
+    public static List<SuspiciousPosition> readSuspiciousCodeFromFile(String suspiciousFile) {
+        List<SuspiciousPosition> suspiciousCodeList = new
+                ArrayList<>();
+        File suspCodePosFile = new File(suspiciousFile);
+        if (suspCodePosFile.exists()) {
+            try {
+                FileReader fileReader = new FileReader(suspiciousFile);
+                BufferedReader reader = new BufferedReader(fileReader);
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    String[] elements = line.split("@");
+                    SuspiciousPosition sp = new SuspiciousPosition();
+                    sp.classPath = elements[0];
+                    sp.lineNumber = Integer.parseInt(elements[1]);
+                    sp.ratio = Float.parseFloat(elements[2]);
+//                    if (susClassnameList != null) {
+////                        String classPath = sp.classPath.replace(".", "/") + ".java";
+//                        if (!susClassnameList.contains(sp.classPath)) {
+//                            susClassnameList.add(sp.classPath);
+//                        }
+//                    }
+                    suspiciousCodeList.add(sp);
+                }
+                reader.close();
+                fileReader.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.debug("Reloading Localization Result...");
+                return null;
+            }
+        } else {
+            logger.warn("File not found: " + suspCodePosFile);
+        }
+
+
+        if (suspiciousCodeList.isEmpty()) return null;
+        return suspiciousCodeList;
+    }
+
     public static void addToFile(File f1, String newLine) {
         FileWriter fw = null;
         BufferedWriter out = null;

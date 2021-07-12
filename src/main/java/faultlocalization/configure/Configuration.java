@@ -7,8 +7,10 @@ public class Configuration {
 	 * and finish with '\' char
 	 * example: C:\Users\Dell\Desktop\APRresearch\Test\
 	 */
-	public static final String BUGGY_PROJECTS_PATH = "/home/huyenhuyen/Desktop/CapGen/Defects4J/";
-	
+//	public static final String BUGGY_PROJECTS_PATH = "/home/huyenhuyen/Desktop/CapGen/Defects4J/";
+//	public static final String BUGGY_PROJECTS_PATH = "/home/huyenhuyen/Desktop/tools/capgenimpl/GZoltar/";
+	public static final String BUGGY_PROJECTS_PATH = "/home/huyenhuyen/Desktop/benmarks/";
+
 	public static final String TEMP_FILES_PATH = ".temp/";
 	public static final long SHELL_RUN_TIMEOUT = 10800L;
 	
@@ -16,6 +18,7 @@ public class Configuration {
 	public static String suspPositionsFilePath = "output/SuspiciousCodePositions/";
 	public static String failedTestCasesFilePath = "FailedTestCases/";
 	public static String faultLocalizationMetric = "Ochiai";
+//	public static String faultLocalizationMetric = "Zoltar";
 	public static String outputPath = "OUTPUT/";
 
 	//FOR OASIS

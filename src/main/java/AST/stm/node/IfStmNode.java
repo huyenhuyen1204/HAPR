@@ -1,22 +1,11 @@
-package AST.stm.nodetype;
+package AST.stm.node;
 
 import AST.stm.abst.StatementNode;
 
-public class BaseVariableNode extends StatementNode {
-
-
-    public BaseVariableNode(int line, String keyVar, Object stmNode) {
-        super();
-        this.line = line;
-        this.keyVar = keyVar;
-        this.statement = stmNode;
-        this.statementString = stmNode.toString();
-    }
-
-
+public class IfStmNode extends StatementNode {
     @Override
     public int getLine() {
-        return this.line;
+        return line;
     }
 
     @Override
@@ -36,7 +25,7 @@ public class BaseVariableNode extends StatementNode {
 
     @Override
     public String getStatementString() {
-        return this.statementString;
+        return statementString;
     }
 
     @Override

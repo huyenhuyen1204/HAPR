@@ -3,6 +3,7 @@ package AST.stm.nodetype;
 import AST.stm.abst.StatementNode;
 
 public class StringNode extends StatementNode {
+    public static final String type = "StringLiteral";
     private String value;
     public StringNode(int line, String keyVar, String value, String stmString) {
         super();
@@ -48,5 +49,25 @@ public class StringNode extends StatementNode {
     @Override
     public void setStatementString(String statementString) {
         this.statementString = statementString;
+    }
+
+    @Override
+    public Object getStatement() {
+        return this.statement;
+    }
+
+    @Override
+    public void setStatement(Object statement) {
+        this.statement = statement;
+    }
+
+    @Override
+    public int getStartPostion() {
+        return this.startPostion;
+    }
+
+    @Override
+    public void setStartPostion(int startPostion) {
+        this.startPostion = startPostion;
     }
 }

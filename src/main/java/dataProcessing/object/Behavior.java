@@ -1,4 +1,4 @@
-package dataProcessing.oasis.object;
+package dataProcessing.object;
 
 public class Behavior {
     private Type type;

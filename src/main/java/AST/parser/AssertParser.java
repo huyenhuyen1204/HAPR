@@ -94,7 +94,8 @@ public class AssertParser {
         } else if (obj instanceof NumberLiteral) {
             return new NumbericNode(obj); //?
         } else if (obj instanceof BooleanLiteral) {
-            return new BooleanNode(((BooleanLiteral) obj).booleanValue());
+            return new BooleanNode(((BooleanLiteral) obj).booleanValue(), ((BooleanLiteral) obj).getStartPosition(), ((BooleanLiteral) obj).getStartPosition() + ((BooleanLiteral) obj).getLength(),
+                    obj.toString(), line);
         } else if (obj instanceof InfixExpression) {
             InfixExpression infixEx = (InfixExpression) obj;
             List<Object> objects = parserListObject(infixEx.extendedOperands(), line);
@@ -118,7 +119,8 @@ public class AssertParser {
             } else if (obj instanceof NumberLiteral) {
                 var = new NumbericNode(obj); //?
             } else if (obj instanceof BooleanLiteral) {
-                var = new BooleanNode(((BooleanLiteral) obj).booleanValue());
+                var = new BooleanNode(((BooleanLiteral) obj).booleanValue(), ((BooleanLiteral) obj).getStartPosition(), ((BooleanLiteral) obj).getStartPosition() + ((BooleanLiteral) obj).getLength(),
+                        obj.toString(), line);
             } else {
                 var = obj;
             }

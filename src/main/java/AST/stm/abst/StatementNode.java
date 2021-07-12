@@ -5,6 +5,24 @@ public abstract class StatementNode {
     protected String keyVar = null;
     protected String statementString;
     protected Object statement;
+    protected int startPostion;
+    protected int endPostion;
+
+    public abstract Object getStatement();
+
+    public abstract void setStatement(Object statement);
+
+    public abstract int getStartPostion();
+
+    public abstract void setStartPostion(int startPostion);
+
+    public int getEndPostion() {
+        return endPostion;
+    }
+
+    public void setEndPostion(int endPostion) {
+        this.endPostion = endPostion;
+    }
 
     public abstract int getLine();
 

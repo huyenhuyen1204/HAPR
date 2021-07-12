@@ -3,6 +3,7 @@ package AST.stm.nodetype;
 import AST.stm.abst.StatementNode;
 
 public class NumbericNode extends StatementNode {
+    public static final String type = "NumberLiteral";
     private Object numberic;
 
     public NumbericNode(Object numberic) {
@@ -15,6 +16,26 @@ public class NumbericNode extends StatementNode {
 
     public void setNumberic(Object numberic) {
         this.numberic = numberic;
+    }
+
+    @Override
+    public Object getStatement() {
+        return this.statement;
+    }
+
+    @Override
+    public void setStatement(Object statement) {
+        this.statement = statement;
+    }
+
+    @Override
+    public int getStartPostion() {
+        return this.startPostion;
+    }
+
+    @Override
+    public void setStartPostion(int startPostion) {
+        this.startPostion = startPostion;
     }
 
     @Override

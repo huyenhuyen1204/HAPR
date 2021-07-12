@@ -3,6 +3,7 @@ package AST.node;
 import AST.obj.MethodTest;
 import AST.parser.ASTHelper;
 import AST.parser.Convert;
+import AST.stm.abst.StatementNode;
 import AST.stm.node.InitNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -241,6 +242,16 @@ public class ClassNode extends AbstractableElementNode {
             MethodNode methodNode = (MethodNode) node;
             methodNode.parserStatements(1, methodNode.getStatements());
         }
+    }
+
+    public StatementNode findStatemmentByLine(int line) {
+        List<MethodNode> methodNodes = this.getMethodList();
+        for (MethodNode methodNode : methodNodes) {
+            if (methodNode.getStartLine() <= line && methodNode.getEndLine() >= line) {
+                return methodNode.findStatementByLine(line);
+            }
+        }
+        return null;
     }
 
 //    public InitStatement findTypeVar(String varName, String methodName, List<ParameterNode> params) {
